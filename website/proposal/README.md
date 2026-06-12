@@ -45,19 +45,24 @@ proposal/
 │   └── PreviewFrame.tsx          # Live iframe preview with desktop/tablet/mobile toggle
 ├── lib/
 │   └── concepts.ts               # ALL documentation content + shared palette/architecture data
-└── public/concepts/              # The prototypes themselves, served verbatim
-    ├── concept-a-dossier.html
-    ├── concept-b-signal-path.html
-    └── concept-c-command.html
+└── public/prototypes/            # The prototypes themselves, served verbatim
+    ├── concept-a-dossier/index.html
+    ├── concept-b-signal-path/index.html
+    └── concept-c-command/index.html
 ```
 
 The prototypes are intentionally untouched single-file HTML — they render
 pixel-perfect inside iframes and can also be opened full screen directly
-(e.g. `/concepts/concept-a-dossier.html`).
+(e.g. `/prototypes/concept-a-dossier/`). Each lives in its own directory as
+`index.html` because Vercel's static-export serving resolves clean URLs only
+(literal `*.html` paths 404), while `next dev` needs the rewrite in
+`next.config.mjs` to serve the same directory URL. The directory must not be
+named after an app route (the old `public/concepts/*.html` clashed with
+`/concepts/[slug]` and was dropped from the deployment entirely).
 
 ## Adding a fourth concept
 
-1. Drop the prototype into `public/concepts/concept-d-yourname.html`.
+1. Drop the prototype into `public/prototypes/concept-d-yourname/index.html`.
 2. Add an entry to the `concepts` array in `lib/concepts.ts` (slug, docs, anatomy…)
    and a fourth column value to each `comparison` row (widen the tuple type).
 3. Add the link to the top bar in `app/layout.tsx`.

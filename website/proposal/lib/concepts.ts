@@ -62,7 +62,7 @@ export const concepts: Concept[] = [
     letter: 'A',
     name: 'The Dossier',
     tagline: 'Investigative gravitas in an editorial, security-print register.',
-    file: '/concepts/concept-a-dossier.html',
+    file: '/prototypes/concept-a-dossier/',
     metaphor: 'An intelligence dossier — engraved, credentialed, archival.',
     summary:
       'The most editorial of the three directions. A Spectral serif display face, a generated guilloché rosette (the engraving pattern used on banknotes and certificates), and a fixed lifecycle “spine” give the page the feel of a verified document rather than a SaaS landing page. Authority is communicated through restraint: hairline rules, generous whitespace, and slow, deliberate motion.',
@@ -107,7 +107,7 @@ export const concepts: Concept[] = [
     letter: 'B',
     name: 'Signal Path',
     tagline: 'A living network — modern SaaS warmth with the platform as the diagram.',
-    file: '/concepts/concept-b-signal-path.html',
+    file: '/prototypes/concept-b-signal-path/',
     metaphor: 'Signals routed from law enforcement, through Deconflict, to institutions.',
     summary:
       'The most contemporary, product-led direction. A floating pill nav, soft radial gradients, rounded cards, and two live canvas network simulations make the core promise — intelligence flowing from credentialed sources to your team — literally visible. Section 2 rebuilds the platform diagram as an interactive map: NEXUS capability chips and a SIGNAL comparison table wired into a central rotating hub.',
@@ -152,7 +152,7 @@ export const concepts: Concept[] = [
     letter: 'C',
     name: 'Command',
     tagline: 'A command-center register — condensed, uppercase, operational.',
-    file: '/concepts/concept-c-command.html',
+    file: '/prototypes/concept-c-command/',
     metaphor: 'The operations room: dot-matrix map, scan sweep, chain of custody.',
     summary:
       'The most assertive direction. A full-viewport navy hero carries a dot-matrix “landmass” canvas and a luminous scan line; the headline is a kinetic, two-line condensed-uppercase rise (“INVESTIGATIVE / INTELLIGENCE.”) at up to 128px. Products become call signs (DC / NX, DC / SG), the lifecycle becomes a chain-of-custody board whose ticks light in sequence, and resources arrive as a numbered wire feed.',
