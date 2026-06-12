@@ -31,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/concepts/concept-a-dossier/">A · The Dossier</Link>
               <Link href="/concepts/concept-b-signal-path/">B · Signal Path</Link>
               <Link href="/concepts/concept-c-command/">C · Command</Link>
+              <Link href="/foundations/">Color &amp; Type</Link>
             </div>
           </div>
         </nav>

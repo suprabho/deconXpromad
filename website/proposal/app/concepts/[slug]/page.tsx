@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import type { CSSProperties } from 'react';
 import PreviewFrame from '@/components/PreviewFrame';
-import { concepts, getConcept } from '@/lib/concepts';
+import { conceptPalettes, concepts, getConcept, sharedPalette, typeScales } from '@/lib/concepts';
 
 export function generateStaticParams() {
   return concepts.map((c) => ({ slug: c.slug }));
@@ -115,14 +116,54 @@ export default async function ConceptPage({ params }: { params: Promise<{ slug: 
 
       <section className="doc-sec">
         <h3>
-          <span className="idx">04</span> Color
+          <span className="idx">04</span> Type in use
         </h3>
-        <p>{concept.colorNotes}</p>
+        <div className="spec-block">
+          {typeScales[concept.slug].map((row) => (
+            <div className="spec-row" key={row.label}>
+              <div className="spec-meta">
+                <b>{row.label}</b>
+                <p>{row.spec}</p>
+              </div>
+              <div className="sample" style={row.style as CSSProperties}>
+                {row.sample}
+              </div>
+            </div>
+          ))}
+        </div>
+        <p style={{ marginTop: 16 }}>
+          Full specimens for all seven families, plus the contrast audit, live in the{' '}
+          <Link href="/foundations/" style={{ color: 'var(--cobalt)', fontWeight: 600 }}>
+            Color &amp; Typography documentation
+          </Link>
+          .
+        </p>
       </section>
 
       <section className="doc-sec">
         <h3>
-          <span className="idx">05</span> Motion &amp; accessibility
+          <span className="idx">05</span> Color
+        </h3>
+        <p style={{ marginBottom: 24 }}>{concept.colorNotes}</p>
+        <div className="tokens-grid">
+          {[...sharedPalette.map((s) => ({ token: s.token, value: s.hex, role: s.role })), ...conceptPalettes[concept.slug]].map(
+            (t) => (
+              <div className="token-card" key={t.token}>
+                <div className="field" style={{ background: t.value }} />
+                <div className="info">
+                  <b>{t.token}</b>
+                  <span className="hex">{t.value}</span>
+                  <span>{t.role}</span>
+                </div>
+              </div>
+            ),
+          )}
+        </div>
+      </section>
+
+      <section className="doc-sec">
+        <h3>
+          <span className="idx">06</span> Motion &amp; accessibility
         </h3>
         <div className="prose">
           <p>{concept.motion}</p>
@@ -136,7 +177,7 @@ export default async function ConceptPage({ params }: { params: Promise<{ slug: 
 
       <section className="doc-sec">
         <h3>
-          <span className="idx">06</span> When to choose this direction
+          <span className="idx">07</span> When to choose this direction
         </h3>
         <div className="verdict">
           <div className="pro">

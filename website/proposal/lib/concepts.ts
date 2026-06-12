@@ -210,3 +210,264 @@ export const comparison: { dimension: string; values: [string, string, string] }
   { dimension: 'Motion budget', values: ['Lightest — no canvas', 'Richest — two canvas loops', 'Mid — one canvas loop + scans'] },
   { dimension: 'Best for', values: ['Institutional gravitas', 'Fintech-native polish', 'Mission-critical differentiation'] },
 ];
+
+/* ===================== Color & typography documentation ===================== */
+
+export type ColorToken = {
+  token: string;
+  value: string; // CSS color value (hex or rgba)
+  role: string;
+};
+
+export type SpecimenRow = {
+  label: string;
+  spec: string; // human-readable spec line
+  sample: string;
+  /** Inline styles applied to the live sample (cast to React.CSSProperties at render). */
+  style: Record<string, string | number>;
+};
+
+export type FontFamily = {
+  name: string;
+  css: string;
+  classification: string;
+  role: string;
+  weights: string;
+  note: string;
+};
+
+/** Every family used across the three concepts, for the specimen grid. */
+export const families: FontFamily[] = [
+  {
+    name: 'Spectral',
+    css: "'Spectral', serif",
+    classification: 'Transitional serif',
+    role: 'Display — Concept A',
+    weights: '300 · 400 · 500 + italic',
+    note: 'Carries the editorial register at Light weight; italics deliver the cobalt emphasis (“Investigative Intelligence”).',
+  },
+  {
+    name: 'Sora',
+    css: "'Sora', sans-serif",
+    classification: 'Geometric sans',
+    role: 'Display — Concept B',
+    weights: '300 – 600',
+    note: 'Rounded geometry matches Signal Path’s soft SaaS register; hosts the only gradient text in the set.',
+  },
+  {
+    name: 'Barlow Semi Condensed',
+    css: "'Barlow Semi Condensed', sans-serif",
+    classification: 'Condensed grotesque',
+    role: 'Display — Concept C',
+    weights: '400 · 500 · 600',
+    note: 'Always set uppercase in Command; the condensed width holds together at extreme sizes (up to 128px).',
+  },
+  {
+    name: 'Inter',
+    css: "'Inter', sans-serif",
+    classification: 'Neutral sans',
+    role: 'Body — Concepts A & B',
+    weights: '400 · 500 · 600',
+    note: 'Workhorse body face for the two lighter concepts: paragraphs, buttons, navigation.',
+  },
+  {
+    name: 'IBM Plex Sans',
+    css: "'IBM Plex Sans', sans-serif",
+    classification: 'Grotesque sans',
+    role: 'Body — Concept C',
+    weights: '400 · 500 · 600',
+    note: 'Slightly more engineered voice than Inter; pairs with IBM Plex Mono for a one-superfamily system.',
+  },
+  {
+    name: 'IBM Plex Mono',
+    css: "'IBM Plex Mono', monospace",
+    classification: 'Monospace',
+    role: 'Labels — Concepts A & C',
+    weights: '400 · 500',
+    note: 'Eyebrows, section indices, spine labels, call-sign codes — always uppercase, tracked +0.12 to +0.18em.',
+  },
+  {
+    name: 'JetBrains Mono',
+    css: "'JetBrains Mono', monospace",
+    classification: 'Monospace',
+    role: 'Labels — Concept B',
+    weights: '400 · 500',
+    note: 'Signal Path’s system voice — kickers, chip labels, workflow steps. Slightly wider and friendlier than Plex Mono.',
+  },
+];
+
+/** Live type-scale specimens per concept, rendered in the real webfonts. */
+export const typeScales: Record<string, SpecimenRow[]> = {
+  'concept-a-dossier': [
+    {
+      label: 'H1 · Display',
+      spec: 'Spectral 300 · clamp(44px, 5.4vw, 76px) / 1.04 · -0.015em · italic em in cobalt',
+      sample: 'Investigative Intelligence',
+      style: { fontFamily: "'Spectral', serif", fontWeight: 300, fontSize: 'clamp(34px, 4vw, 56px)', lineHeight: 1.04, letterSpacing: '-0.015em' },
+    },
+    {
+      label: 'H2 · Section',
+      spec: 'Spectral 300 · clamp(32px, 3.6vw, 52px) / 1.1 · -0.01em',
+      sample: 'Compliance teams need more than monitoring',
+      style: { fontFamily: "'Spectral', serif", fontWeight: 300, fontSize: 'clamp(26px, 3vw, 40px)', lineHeight: 1.1, letterSpacing: '-0.01em' },
+    },
+    {
+      label: 'H3 · Product name',
+      spec: 'Spectral 400 · 34px · +0.02em',
+      sample: 'NEXUS',
+      style: { fontFamily: "'Spectral', serif", fontWeight: 400, fontSize: 34, letterSpacing: '0.02em' },
+    },
+    {
+      label: 'Body',
+      spec: 'Inter 400 · 16px / 1.6',
+      sample: 'Go beyond standard transaction monitoring with direct, secure access to intelligence sourced straight from credentialed law enforcement.',
+      style: { fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 16, lineHeight: 1.6, color: '#6B7A99' },
+    },
+    {
+      label: 'Mono · Label',
+      spec: 'IBM Plex Mono 500 · 11px · +0.14em · uppercase',
+      sample: '[ Sec 02 ] · For Financial Institutions',
+      style: { fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#1A56DB' },
+    },
+  ],
+  'concept-b-signal-path': [
+    {
+      label: 'H1 · Display',
+      spec: 'Sora 500 · clamp(40px, 5.6vw, 72px) / 1.07 · -0.03em · gradient span (cobalt → #4F7FE8 → navy)',
+      sample: 'Investigative intelligence',
+      style: { fontFamily: "'Sora', sans-serif", fontWeight: 500, fontSize: 'clamp(32px, 4vw, 54px)', lineHeight: 1.07, letterSpacing: '-0.03em' },
+    },
+    {
+      label: 'H2 · Section',
+      spec: 'Sora 500 · clamp(30px, 3.4vw, 46px) / 1.12 · -0.025em',
+      sample: 'Connected intelligence beyond risk scoring',
+      style: { fontFamily: "'Sora', sans-serif", fontWeight: 500, fontSize: 'clamp(24px, 2.8vw, 38px)', lineHeight: 1.12, letterSpacing: '-0.025em' },
+    },
+    {
+      label: 'H3 · Product name',
+      spec: 'Sora 600 · 30px · +0.16em',
+      sample: 'SIGNAL',
+      style: { fontFamily: "'Sora', sans-serif", fontWeight: 600, fontSize: 30, letterSpacing: '0.16em' },
+    },
+    {
+      label: 'Card title',
+      spec: 'Sora 600 · 19px · -0.01em',
+      sample: 'Law Enforcement Intelligence',
+      style: { fontFamily: "'Sora', sans-serif", fontWeight: 600, fontSize: 19, letterSpacing: '-0.01em' },
+    },
+    {
+      label: 'Body',
+      spec: 'Inter 400 · 16px / 1.6',
+      sample: 'By combining verified intelligence signals with secure operational coordination, your team can act with absolute certainty.',
+      style: { fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 16, lineHeight: 1.6, color: '#6B7A99' },
+    },
+    {
+      label: 'Mono · Label',
+      spec: 'JetBrains Mono 500 · 11px · +0.12em · uppercase',
+      sample: '[ Sec 02 — The Platform ]',
+      style: { fontFamily: "'JetBrains Mono', monospace", fontWeight: 500, fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#1A56DB' },
+    },
+  ],
+  'concept-c-command': [
+    {
+      label: 'H1 · Display',
+      spec: 'Barlow Semi Condensed 600 · clamp(56px, 8.4vw, 128px) / 0.94 · uppercase · second line dimmed #7E96D8',
+      sample: 'Investigative',
+      style: { fontFamily: "'Barlow Semi Condensed', sans-serif", fontWeight: 600, fontSize: 'clamp(44px, 6vw, 88px)', lineHeight: 0.94, textTransform: 'uppercase' },
+    },
+    {
+      label: 'H2 · Section',
+      spec: 'Barlow Semi Condensed 600 · clamp(36px, 4.4vw, 64px) / 1.0 · uppercase · dim span in subtle',
+      sample: 'Connected intelligence',
+      style: { fontFamily: "'Barlow Semi Condensed', sans-serif", fontWeight: 600, fontSize: 'clamp(30px, 3.4vw, 50px)', lineHeight: 1, textTransform: 'uppercase' },
+    },
+    {
+      label: 'H3 · Product name',
+      spec: 'Barlow Semi Condensed 600 · 64px · +0.04em · uppercase',
+      sample: 'Nexus',
+      style: { fontFamily: "'Barlow Semi Condensed', sans-serif", fontWeight: 600, fontSize: 'clamp(40px, 4.4vw, 64px)', letterSpacing: '0.04em', textTransform: 'uppercase', lineHeight: 1 },
+    },
+    {
+      label: 'Ledger title',
+      spec: 'Barlow Semi Condensed 600 · 32px / 1.05 · uppercase',
+      sample: 'Examiner-Ready Compliance',
+      style: { fontFamily: "'Barlow Semi Condensed', sans-serif", fontWeight: 600, fontSize: 32, lineHeight: 1.05, textTransform: 'uppercase' },
+    },
+    {
+      label: 'Body',
+      spec: 'IBM Plex Sans 400 · 16px / 1.6',
+      sample: 'We help financial institutions get visibility across the entire compliance lifecycle — from onboarding and monitoring to escalation and reporting.',
+      style: { fontFamily: "'IBM Plex Sans', sans-serif", fontWeight: 400, fontSize: 16, lineHeight: 1.6, color: '#6B7A99' },
+    },
+    {
+      label: 'Mono · Label',
+      spec: 'IBM Plex Mono 500 · 10–11px · +0.14 to +0.22em · uppercase',
+      sample: 'DC / NX — Operational Coordination · Stage 01',
+      style: { fontFamily: "'IBM Plex Mono', monospace", fontWeight: 500, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#1A56DB' },
+    },
+  ],
+};
+
+/** Concept-specific color tokens beyond the shared palette. */
+export const conceptPalettes: Record<string, ColorToken[]> = {
+  'concept-a-dossier': [
+    { token: '--alert', value: '#B91C1C', role: 'Semantic alert — reserved for risk states' },
+    { token: '--success', value: '#2F8F5C', role: 'Semantic success — reserved for verified states' },
+  ],
+  'concept-b-signal-path': [
+    { token: 'gradient mid-stop', value: '#4F7FE8', role: 'Middle stop of the hero headline gradient (cobalt → #4F7FE8 → navy)' },
+    { token: 'cobalt shadow', value: 'rgba(26,86,219,0.28)', role: 'Tinted drop shadow under primary buttons and the hub core' },
+    { token: 'periwinkle kicker', value: '#7E96D8', role: 'Kicker text inside the navy close panel' },
+  ],
+  'concept-c-command': [
+    { token: '--navy-2', value: '#13244E', role: 'S3 chain-of-custody band (one step up from navy)' },
+    { token: 'tick border', value: '#2E4480', role: 'Unlit custody-tick outline on navy' },
+    { token: 'periwinkle 500', value: '#7E96D8', role: 'Kickers, nav links, wire numbers on navy' },
+    { token: 'periwinkle 300', value: '#9FB0D6', role: 'Secondary text on navy' },
+    { token: 'periwinkle 100', value: '#B7C3E2', role: 'Body copy on navy surfaces' },
+  ],
+};
+
+export type ContrastRow = {
+  fg: string;
+  bg: string;
+  pair: string;
+  ratio: string;
+  grade: 'AAA' | 'AA' | 'AA Large' | 'Decorative';
+  usage: string;
+};
+
+/** Measured WCAG 2.1 contrast ratios for every text pairing used in the concepts. */
+export const contrastTable: ContrastRow[] = [
+  { fg: '#0D1B3E', bg: '#FFFFFF', pair: 'Navy on white', ratio: '16.89 : 1', grade: 'AAA', usage: 'Primary text, all concepts' },
+  { fg: '#FFFFFF', bg: '#0D1B3E', pair: 'White on navy', ratio: '16.89 : 1', grade: 'AAA', usage: 'Headlines on navy sections (S6, C hero)' },
+  { fg: '#0D1B3E', bg: '#F4F6FB', pair: 'Navy on frost', ratio: '15.62 : 1', grade: 'AAA', usage: 'Text inside tinted bands' },
+  { fg: '#B7C3E2', bg: '#13244E', pair: 'Periwinkle 100 on navy-2', ratio: '8.57 : 1', grade: 'AAA', usage: 'Body copy on C’s custody band' },
+  { fg: '#9FB0D6', bg: '#0D1B3E', pair: 'Periwinkle 300 on navy', ratio: '7.76 : 1', grade: 'AAA', usage: 'Secondary text on dark surfaces' },
+  { fg: '#B91C1C', bg: '#FFFFFF', pair: 'Alert on white', ratio: '6.47 : 1', grade: 'AA', usage: 'Risk states (Concept A, reserved)' },
+  { fg: '#1A56DB', bg: '#FFFFFF', pair: 'Cobalt on white', ratio: '6.18 : 1', grade: 'AA', usage: 'Links, accents, section indices' },
+  { fg: '#FFFFFF', bg: '#1A56DB', pair: 'White on cobalt', ratio: '6.18 : 1', grade: 'AA', usage: 'Primary button labels' },
+  { fg: '#7E96D8', bg: '#0D1B3E', pair: 'Periwinkle 500 on navy', ratio: '5.82 : 1', grade: 'AA', usage: 'Kickers and mono labels on dark' },
+  { fg: '#1A56DB', bg: '#F0F4FF', pair: 'Cobalt on cobalt-soft', ratio: '5.62 : 1', grade: 'AA', usage: 'Selection state, accent chips' },
+  { fg: '#6B7A99', bg: '#FFFFFF', pair: 'Muted on white', ratio: '4.31 : 1', grade: 'AA Large', usage: 'Secondary copy — see note below' },
+  { fg: '#2F8F5C', bg: '#FFFFFF', pair: 'Success on white', ratio: '4.04 : 1', grade: 'AA Large', usage: 'Verified badges at ≥18px or bold' },
+  { fg: '#B0B8CC', bg: '#FFFFFF', pair: 'Subtle on white', ratio: '1.99 : 1', grade: 'Decorative', usage: 'Hairline art, guilloché, never running text' },
+];
+
+/** System-wide usage rules distilled from the three prototypes. */
+export const usageRules = {
+  color: [
+    'Cobalt is rationed: one accent per composition — a CTA, an italic emphasis, a verified node. Never floods of blue.',
+    'Navy does the talking. Authority comes from near-monochrome navy-on-white, not from saturation.',
+    'Frost (#F4F6FB) separates sections; cobalt-soft (#F0F4FF) signals interactivity and selection.',
+    'Semantic colors (alert, success) are reserved for risk and verification states — never decoration.',
+    'Text on dark surfaces uses the periwinkle ramp (#B7C3E2 → #7E96D8), never white at reduced opacity.',
+  ],
+  type: [
+    'Each concept commits to exactly one display, one body, and one mono family — no exceptions.',
+    'Mono is the system voice: always uppercase, tracked +0.12 to +0.18em, 10–11px, for eyebrows, indices, and codes.',
+    'Italic emphasis is Concept A’s device only; gradient text is Concept B’s (hero only); uppercase display is Concept C’s.',
+    'Display weights stay light-to-medium (300–600). Boldness comes from scale and case, not weight.',
+    'Body text never exceeds ~65 characters per line; secondary copy sets in muted, primary in navy.',
+  ],
+};

@@ -1,4 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+/* Specimen families — every face used across the three concepts, for live type documentation */
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Barlow+Semi+Condensed:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
   --background: #ffffff;
@@ -186,4 +188,67 @@ h2 em { font-style: italic; color: var(--cobalt); }
   .matrix { display: block; overflow-x: auto; }
   .pager { grid-template-columns: 1fr; }
   .pager a.next { text-align: left; }
+}
+
+/* ---------- foundations: typeface specimen grid ---------- */
+.family-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.family-card { border: 1px solid var(--border); border-radius: 6px; padding: 26px 28px; background: #fff; display: flex; flex-direction: column; }
+.family-card .aa { font-size: 58px; line-height: 1.05; }
+.family-card .name { margin-top: 14px; font-weight: 600; font-size: 15px; }
+.family-card .meta { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cobalt); margin-top: 4px; }
+.family-card .weights { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--subtle); margin-top: 2px; }
+.family-card .alphabet { margin-top: 14px; color: var(--muted); font-size: 14px; line-height: 1.5; word-break: break-word; border-top: 1px solid var(--border-soft); padding-top: 12px; }
+.family-card .note { margin-top: 12px; font-size: 12.5px; color: var(--muted); line-height: 1.6; font-family: var(--body); }
+
+/* ---------- foundations: type-scale specimens ---------- */
+.spec-block { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: #fff; }
+.spec-block + .spec-block { margin-top: 26px; }
+.spec-block-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 13px 22px; background: var(--frost); border-bottom: 1px solid var(--border-soft); flex-wrap: wrap; }
+.spec-block-head b { font-family: var(--display); font-weight: 400; font-size: 17px; }
+.spec-block-head .stack { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.spec-row { display: grid; grid-template-columns: 290px 1fr; gap: 32px; padding: 24px 22px; border-bottom: 1px solid var(--border-soft); align-items: center; }
+.spec-row:last-child { border-bottom: none; }
+.spec-row .spec-meta b { display: block; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--navy); font-weight: 500; margin-bottom: 6px; }
+.spec-row .spec-meta p { font-family: var(--mono); font-size: 10px; letter-spacing: 0.04em; color: var(--muted); line-height: 1.7; }
+.spec-row .sample { min-width: 0; overflow-wrap: break-word; }
+
+/* ---------- foundations: color ---------- */
+.tokens-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.token-card { border: 1px solid var(--border-soft); border-radius: 6px; overflow: hidden; background: #fff; }
+.token-card .field { height: 64px; border-bottom: 1px solid var(--border-soft); }
+.token-card .info { padding: 12px 14px; }
+.token-card .info b { display: block; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; font-weight: 500; }
+.token-card .info .hex { font-family: var(--mono); font-size: 10px; color: var(--cobalt); letter-spacing: 0.06em; }
+.token-card .info span { display: block; font-size: 11.5px; color: var(--muted); line-height: 1.45; margin-top: 5px; }
+.ext-block { margin-top: 36px; }
+.ext-block h4 { font-family: var(--display); font-weight: 400; font-size: 19px; margin-bottom: 14px; }
+.ext-block h4 .mono { color: var(--cobalt); margin-right: 8px; }
+
+/* ---------- foundations: contrast table ---------- */
+.contrast-table { width: 100%; border-collapse: collapse; border: 1px solid var(--border); font-size: 13px; }
+.contrast-table th, .contrast-table td { padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--border-soft); vertical-align: middle; line-height: 1.5; }
+.contrast-table th { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); background: var(--frost); font-weight: 500; }
+.contrast-table .pair-cell { display: flex; align-items: center; gap: 10px; font-weight: 500; }
+.contrast-table .pair-chip { width: 40px; height: 24px; border-radius: 3px; border: 1px solid var(--border-soft); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex: none; }
+.contrast-table .ratio { font-family: var(--mono); font-size: 11px; white-space: nowrap; }
+.contrast-table .usage { color: var(--muted); }
+.grade { display: inline-block; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 9px; border-radius: 3px; white-space: nowrap; }
+.grade.aaa { background: #e6f4ec; color: #2f8f5c; }
+.grade.aa { background: var(--cobalt-soft); color: var(--cobalt); }
+.grade.aa-large { background: #fdf3e3; color: #b45309; }
+.grade.deco { background: #fbeaea; color: #b91c1c; }
+
+/* ---------- foundations: usage rules ---------- */
+.rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.rules-col { border: 1px solid var(--border); border-radius: 6px; padding: 26px 28px; }
+.rules-col .label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--cobalt); display: block; margin-bottom: 16px; }
+.rules-col ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.rules-col li { position: relative; padding-left: 22px; font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+.rules-col li::before { content: ''; position: absolute; left: 0; top: 9px; width: 8px; height: 1px; background: var(--cobalt); }
+
+@media (max-width: 920px) {
+  .family-grid, .rules-grid { grid-template-columns: 1fr; }
+  .tokens-grid { grid-template-columns: repeat(2, 1fr); }
+  .spec-row { grid-template-columns: 1fr; gap: 12px; }
+  .contrast-table { display: block; overflow-x: auto; }
 }

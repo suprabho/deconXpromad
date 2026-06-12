@@ -104,6 +104,9 @@ export default function Home() {
             <h2>
               One system underneath <em>all three</em>
             </h2>
+            <Link className="btn btn-ghost" href="/foundations/">
+              Full color &amp; typography docs →
+            </Link>
           </div>
           <div className="found-grid">
             <div>
