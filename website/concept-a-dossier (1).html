@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deconflict — Concept A · The Dossier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@300;400;500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --background:#FFFFFF; --foreground:#0D1B3E; --navy:#0D1B3E; --cobalt:#1A56DB;
+  --cobalt-soft:#F0F4FF; --frost:#F4F6FB; --muted:#6B7A99; --subtle:#B0B8CC;
+  --border:#D6DCE8; --border-soft:#E8ECF3; --alert:#B91C1C; --success:#2F8F5C;
+  --display:'Spectral',serif; --body:'Inter',sans-serif; --mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);color:var(--foreground);background:var(--background);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+::selection{background:var(--cobalt-soft);color:var(--cobalt)}
+a{color:inherit;text-decoration:none}
+.mono{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.container{max-width:1280px;margin:0 auto;padding:0 48px}
+:focus-visible{outline:2px solid var(--cobalt);outline-offset:3px;border-radius:2px}
+
+/* ---------- NAV ---------- */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--border-soft)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px;max-width:1280px;margin:0 auto;padding:0 48px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-weight:500;font-size:14px;letter-spacing:.18em}
+.logo svg{display:block}
+.nav-links{display:flex;gap:32px;font-size:13.5px;font-weight:500;color:var(--muted)}
+.nav-links a{transition:color .2s}
+.nav-links a:hover{color:var(--navy)}
+.nav-cta{display:flex;align-items:center;gap:20px}
+.nav-cta .signin{font-size:13.5px;font-weight:500;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--cobalt);color:#fff;font-family:var(--body);font-size:13.5px;font-weight:600;padding:11px 22px;border-radius:3px;transition:background .2s,transform .2s;border:none;cursor:pointer}
+.btn:hover{background:#1648b8;transform:translateY(-1px)}
+.btn .arrow{transition:transform .25s}
+.btn:hover .arrow{transform:translateX(3px)}
+.btn-ghost{background:transparent;color:var(--navy);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--frost);border-color:var(--subtle)}
+
+/* ---------- LIFECYCLE SPINE (signature) ---------- */
+.spine{position:fixed;left:0;top:0;bottom:0;width:200px;display:flex;flex-direction:column;justify-content:center;gap:0;padding-left:48px;z-index:50;pointer-events:none}
+.spine-track{position:relative;border-left:1px solid var(--border-soft);padding:8px 0}
+.spine-progress{position:absolute;left:-1px;top:0;width:1px;background:var(--cobalt);height:0%;transition:height .15s linear}
+.spine-item{position:relative;padding:14px 0 14px 22px;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--subtle);transition:color .3s}
+.spine-item::before{content:'';position:absolute;left:-3.5px;top:50%;transform:translateY(-50%);width:6px;height:6px;border-radius:50%;background:var(--border);transition:background .3s,box-shadow .3s}
+.spine-item.active{color:var(--cobalt)}
+.spine-item.active::before{background:var(--cobalt);box-shadow:0 0 0 4px var(--cobalt-soft)}
+@media(max-width:1480px){.spine{display:none}}
+
+/* ---------- HERO ---------- */
+.hero{position:relative;padding:180px 0 110px;overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:64px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:28px}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--cobalt)}
+h1{font-family:var(--display);font-weight:300;font-size:clamp(44px,5.4vw,76px);line-height:1.04;letter-spacing:-.015em}
+h1 em{font-style:italic;font-weight:400;color:var(--cobalt)}
+.hero-sub{margin-top:30px;font-size:18px;line-height:1.65;color:var(--muted);max-width:480px}
+.hero-actions{display:flex;align-items:center;gap:16px;margin-top:40px}
+.hero-meta{margin-top:56px;display:flex;gap:40px;border-top:1px solid var(--border-soft);padding-top:20px}
+.hero-meta div{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--subtle)}
+.hero-meta b{display:block;color:var(--navy);font-size:12px;margin-bottom:2px;font-weight:500}
+/* Guilloché rosette */
+.rosette-wrap{position:relative;display:flex;align-items:center;justify-content:center}
+.rosette{width:100%;max-width:460px;animation:rot 120s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.rosette-core{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center}
+.rosette-core .mono{color:var(--muted)}
+.rosette-core .seal{width:56px;height:56px;border:1px solid var(--cobalt);border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;box-shadow:0 0 0 8px var(--cobalt-soft)}
+@media(prefers-reduced-motion:reduce){.rosette{animation:none}}
+
+/* ---------- SECTION SHELL ---------- */
+section{position:relative}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:32px;margin-bottom:56px;flex-wrap:wrap}
+.sec-index{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--cobalt)}
+h2{font-family:var(--display);font-weight:300;font-size:clamp(32px,3.6vw,52px);line-height:1.1;letter-spacing:-.01em;max-width:680px}
+h2 em{font-style:italic;color:var(--cobalt)}
+
+/* ---------- S2 DIPTYCH ---------- */
+.s2{padding:110px 0;border-top:1px solid var(--border-soft)}
+.diptych{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.product{position:relative;padding:56px 48px 48px;background:#fff;transition:background .35s;min-height:380px;display:flex;flex-direction:column}
+.product+.product{border-left:1px solid var(--border)}
+.product:hover{background:var(--frost)}
+.product .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:18px}
+.product h3{font-family:var(--display);font-weight:400;font-size:34px;letter-spacing:.02em;margin-bottom:10px}
+.product p{color:var(--muted);font-size:14.5px;max-width:340px}
+.product .go{margin-top:auto;display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--cobalt)}
+.product .go svg{transition:transform .25s}
+.product:hover .go svg{transform:translateX(4px)}
+.product .glyph{position:absolute;right:40px;top:48px;opacity:.9}
+.nexus-lines line{stroke:var(--subtle);stroke-width:1}
+.nexus-lines circle{fill:#fff;stroke:var(--navy);stroke-width:1.2}
+.nexus-lines .hub{fill:var(--cobalt);stroke:none}
+.signal-rings circle{fill:none;stroke:var(--subtle);stroke-width:1}
+.signal-rings .pulse{stroke:var(--cobalt);stroke-width:1.4;animation:ping 3s ease-out infinite;transform-origin:center}
+@keyframes ping{0%{transform:scale(.4);opacity:1}100%{transform:scale(1.15);opacity:0}}
+@media(prefers-reduced-motion:reduce){.signal-rings .pulse{animation:none}}
+
+/* ---------- S3 LIFECYCLE BAND ---------- */
+.s3{padding:110px 0;background:var(--frost);border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft)}
+.s3-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:72px}
+.s3 .lede{font-size:17px;color:var(--muted);line-height:1.7;margin-top:24px}
+.s3 .lede b{color:var(--navy);font-weight:600}
+.contrast{margin-top:36px;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:#fff}
+.contrast-row{display:grid;grid-template-columns:1fr 1fr}
+.contrast-cell{padding:18px 22px;font-size:13.5px}
+.contrast-cell:first-child{border-right:1px solid var(--border-soft);color:var(--subtle)}
+.contrast-cell:first-child s{text-decoration-color:var(--subtle)}
+.contrast-cell:last-child{color:var(--navy);font-weight:500}
+.contrast-row+.contrast-row{border-top:1px solid var(--border-soft)}
+.contrast-head{background:var(--frost);font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase}
+.contrast-head .contrast-cell:last-child{color:var(--cobalt)}
+.lifecycle{display:flex;flex-direction:column;gap:0;counter-reset:stage}
+.stage{position:relative;display:grid;grid-template-columns:64px 1fr;gap:24px;padding:30px 0;border-top:1px solid var(--border)}
+.stage:last-child{border-bottom:1px solid var(--border)}
+.stage .num{font-family:var(--mono);font-size:11px;color:var(--cobalt);padding-top:5px}
+.stage h4{font-family:var(--display);font-weight:400;font-size:24px;margin-bottom:6px}
+.stage p{font-size:14px;color:var(--muted);max-width:420px}
+.stage::after{content:'';position:absolute;left:0;top:-1px;height:1px;width:0;background:var(--cobalt);transition:width .8s cubic-bezier(.2,.7,.2,1)}
+.stage.inview::after{width:64px}
+.scale-note{margin-top:40px;display:flex;gap:14px;align-items:flex-start;padding:22px 24px;background:#fff;border:1px solid var(--border);border-left:2px solid var(--cobalt);border-radius:4px}
+.scale-note .mono{color:var(--cobalt);padding-top:2px;white-space:nowrap}
+.scale-note p{font-size:14px;color:var(--muted)}
+
+/* ---------- S4 PILLARS ---------- */
+.s4{padding:110px 0}
+.pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--border)}
+.pillar{padding:48px 40px 48px 0;border-bottom:1px solid var(--border)}
+.pillar+.pillar{padding-left:40px;border-left:1px solid var(--border-soft)}
+.pillar .mono{color:var(--cobalt);display:block;margin-bottom:22px}
+.pillar h3{font-family:var(--display);font-weight:400;font-size:25px;line-height:1.2;margin-bottom:22px;min-height:60px}
+.pillar ul{list-style:none;display:flex;flex-direction:column;gap:14px}
+.pillar li{position:relative;padding-left:22px;font-size:14px;color:var(--muted);line-height:1.55}
+.pillar li::before{content:'';position:absolute;left:0;top:9px;width:8px;height:1px;background:var(--cobalt)}
+
+/* ---------- S5 RESOURCES ---------- */
+.s5{padding:0 0 110px}
+.res-list{border-top:1px solid var(--border)}
+.res-row{display:grid;grid-template-columns:130px 1fr auto;align-items:center;gap:32px;padding:26px 0;border-bottom:1px solid var(--border-soft);transition:background .2s,padding .2s}
+.res-row:hover{background:var(--frost);padding-left:16px;padding-right:16px}
+.res-row .cat{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.res-row h4{font-family:var(--display);font-weight:400;font-size:21px;letter-spacing:0}
+.res-row .go{color:var(--cobalt);font-size:13px;font-weight:600;white-space:nowrap}
+
+/* ---------- S6 CLOSE ---------- */
+.s6{background:var(--navy);color:#fff;padding:120px 0;position:relative;overflow:hidden}
+.s6 .rosette-bg{position:absolute;right:-160px;top:50%;transform:translateY(-50%);opacity:.14;width:560px}
+.s6 .eyebrow{color:var(--subtle)}
+.s6 h2{color:#fff;max-width:760px}
+.s6 p{margin-top:24px;color:var(--subtle);max-width:520px;font-size:16.5px}
+.s6 .btn{margin-top:40px;background:#fff;color:var(--navy)}
+.s6 .btn:hover{background:var(--cobalt-soft)}
+
+/* ---------- FOOTER ---------- */
+footer{background:var(--navy);border-top:1px solid rgba(255,255,255,.1);color:var(--subtle);padding:32px 0;font-size:12.5px}
+footer .container{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+footer .mono{color:var(--muted)}
+
+/* ---------- REVEAL ---------- */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
+.reveal.inview{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+@media(max-width:980px){
+  .container{padding:0 24px}
+  .nav-inner{padding:0 24px}
+  .nav-links{display:none}
+  .hero{padding:140px 0 80px}
+  .hero-grid{grid-template-columns:1fr;gap:48px}
+  .rosette-wrap{order:-1}.rosette{max-width:300px}
+  .diptych,.s3-grid,.pillars,.contrast-row{grid-template-columns:1fr}
+  .product+.product{border-left:none;border-top:1px solid var(--border)}
+  .pillar+.pillar{padding-left:0;border-left:none}
+  .pillar{padding-right:0}
+  .pillar h3{min-height:0}
+  .res-row{grid-template-columns:1fr;gap:8px}
+  .contrast-cell:first-child{border-right:none;border-bottom:1px solid var(--border-soft)}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="logo" href="#">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 1.5 20 6.7v8.6L11 20.5 2 15.3V6.7L11 1.5Z" stroke="#0D1B3E" stroke-width="1.4"/><path d="M11 6 15.5 8.6v5.2L11 16.4 6.5 13.8V8.6L11 6Z" fill="#1A56DB"/></svg>
+      DECONFLICT
+    </a>
+    <div class="nav-links">
+      <a href="#">Signal</a><a href="#">Nexus</a><a href="#">Solutions</a><a href="#">Resources</a><a href="#">Training</a><a href="#">Briefings</a>
+    </div>
+    <div class="nav-cta">
+      <a class="signin" href="#">Sign in</a>
+      <a class="btn" href="#">Schedule a Demo</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ LIFECYCLE SPINE ============ -->
+<aside class="spine" aria-hidden="true">
+  <div class="spine-track">
+    <div class="spine-progress" id="spineProgress"></div>
+    <div class="spine-item" data-spine="hero">Intelligence</div>
+    <div class="spine-item" data-spine="s2">Onboarding</div>
+    <div class="spine-item" data-spine="s3">Monitoring</div>
+    <div class="spine-item" data-spine="s4">Escalation</div>
+    <div class="spine-item" data-spine="s5">Reporting</div>
+  </div>
+</aside>
+
+<!-- ============ S1 · HERO ============ -->
+<header class="hero" id="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">For Financial Institutions</span>
+      <h1 class="reveal">Investigative <em>Intelligence</em> for Compliance and Risk Teams</h1>
+      <p class="hero-sub reveal">Go beyond standard transaction monitoring with direct, secure access to intelligence sourced straight from credentialed law enforcement.</p>
+      <div class="hero-actions reveal">
+        <a class="btn" href="#">Schedule a Demo <svg class="arrow" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5"/></svg></a>
+        <a class="btn btn-ghost" href="#s2">Explore the platform</a>
+      </div>
+      <div class="hero-meta reveal">
+        <div><b>SOC 2 Type II</b>Audited</div>
+        <div><b>GDPR</b>Compliant</div>
+        <div><b>Hashed Exchange</b>Privacy-first</div>
+      </div>
+    </div>
+    <div class="rosette-wrap reveal">
+      <!-- Guilloché security-print rosette -->
+      <svg class="rosette" viewBox="0 0 400 400" fill="none" aria-hidden="true">
+        <g stroke="#D6DCE8" stroke-width=".7">
+          <circle cx="200" cy="200" r="196"/><circle cx="200" cy="200" r="178"/><circle cx="200" cy="200" r="150"/><circle cx="200" cy="200" r="118"/>
+        </g>
+        <g stroke="#B0B8CC" stroke-width=".6" id="petals"></g>
+        <g stroke="#1A56DB" stroke-width=".8" opacity=".75" id="thread"></g>
+      </svg>
+      <div class="rosette-core">
+        <div class="seal"><svg width="24" height="24" viewBox="0 0 22 22" fill="none"><path d="M11 1.5 20 6.7v8.6L11 20.5 2 15.3V6.7L11 1.5Z" stroke="#1A56DB" stroke-width="1.4"/><path d="M11 6 15.5 8.6v5.2L11 16.4 6.5 13.8V8.6L11 6Z" fill="#1A56DB"/></svg></div>
+        <span class="mono">Verified Intelligence</span>
+        <span class="mono" style="color:#B0B8CC">Operational Advantage</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ S2 · CONNECTED INTELLIGENCE ============ -->
+<section class="s2" id="s2">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="sec-index">[ Sec 02 ]</span>
+      <h2>Connected intelligence that goes beyond <em>basic risk scoring</em></h2>
+    </div>
+    <div class="diptych reveal">
+      <a class="product" href="#">
+        <svg class="glyph nexus-lines" width="120" height="120" viewBox="0 0 120 120">
+          <line x1="60" y1="60" x2="18" y2="22"/><line x1="60" y1="60" x2="102" y2="22"/><line x1="60" y1="60" x2="12" y2="78"/><line x1="60" y1="60" x2="108" y2="78"/><line x1="60" y1="60" x2="60" y2="110"/>
+          <circle cx="18" cy="22" r="5"/><circle cx="102" cy="22" r="5"/><circle cx="12" cy="78" r="5"/><circle cx="108" cy="78" r="5"/><circle cx="60" cy="110" r="5"/>
+          <circle class="hub" cx="60" cy="60" r="7"/>
+        </svg>
+        <div class="tag">Operational Coordination</div>
+        <h3>NEXUS</h3>
+        <p>Operational coordination for modern compliance teams. Secure channels between investigative stakeholders.</p>
+        <span class="go">Explore Nexus <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5"/></svg></span>
+      </a>
+      <a class="product" href="#">
+        <svg class="glyph signal-rings" width="120" height="120" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="18"/><circle cx="60" cy="60" r="34"/><circle cx="60" cy="60" r="50"/>
+          <circle class="pulse" cx="60" cy="60" r="50"/>
+          <circle cx="60" cy="60" r="5" fill="#1A56DB" stroke="none"/>
+        </svg>
+        <div class="tag">Intelligence Signals</div>
+        <h3>SIGNAL</h3>
+        <p>Verified intelligence signals beyond risk scoring. Investigative context where analytics stop.</p>
+        <span class="go">Explore Signal <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5"/></svg></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S3 · MORE THAN MONITORING ============ -->
+<section class="s3" id="s3">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="sec-index">[ Sec 03 ]</span>
+      <h2>Compliance teams need more than <em>monitoring</em></h2>
+    </div>
+    <div class="s3-grid">
+      <div class="reveal">
+        <p class="lede">Traditional blockchain analytics platforms generate <b>alerts</b>. Deconflict provides <b>investigative context</b>.</p>
+        <p class="lede">By combining verified intelligence signals with secure operational coordination, your team can act with absolute certainty.</p>
+        <div class="contrast">
+          <div class="contrast-row contrast-head">
+            <div class="contrast-cell">Traditional analytics</div>
+            <div class="contrast-cell">Deconflict</div>
+          </div>
+          <div class="contrast-row"><div class="contrast-cell"><s>Probabilistic risk scoring</s></div><div class="contrast-cell">Verified investigative signals</div></div>
+          <div class="contrast-row"><div class="contrast-cell"><s>Generic alerting</s></div><div class="contrast-cell">Intelligence-driven escalation</div></div>
+          <div class="contrast-row"><div class="contrast-cell"><s>Transaction-only analysis</s></div><div class="contrast-cell">Cross-network investigative visibility</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="lifecycle">
+          <div class="stage reveal"><span class="num">/ 01</span><div><h4>Onboarding</h4><p>Make informed risk decisions from the first interaction.</p></div></div>
+          <div class="stage reveal"><span class="num">/ 02</span><div><h4>Monitoring</h4><p>See what others can't — visibility beyond standard alerts.</p></div></div>
+          <div class="stage reveal"><span class="num">/ 03</span><div><h4>Escalation</h4><p>Act faster with operational context behind every signal.</p></div></div>
+          <div class="stage reveal"><span class="num">/ 04</span><div><h4>Reporting</h4><p>Stronger reports. Audit ready.</p></div></div>
+        </div>
+        <div class="scale-note reveal">
+          <span class="mono">Built for scale</span>
+          <p>Designed specifically for banks, exchanges, fintechs, and regulated institutions managing high-volume digital asset risk.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S4 · VERIFIED INTELLIGENCE ============ -->
+<section class="s4" id="s4">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="sec-index">[ Sec 04 ]</span>
+      <h2>Verified intelligence for <em>faster decisions</em></h2>
+    </div>
+    <div class="pillars">
+      <div class="pillar reveal">
+        <span class="mono">A — Source</span>
+        <h3>Law Enforcement Intelligence</h3>
+        <ul>
+          <li>Crypto intelligence sourced straight from law enforcement</li>
+          <li>Protected coordination channels built for safe, direct communication</li>
+        </ul>
+      </div>
+      <div class="pillar reveal">
+        <span class="mono">B — Scrutiny</span>
+        <h3>Examiner-Ready Compliance</h3>
+        <ul>
+          <li>Tamper-evident reporting and examiner-ready compliance documentation</li>
+          <li>Concrete decision support built to withstand strict regulatory scrutiny</li>
+        </ul>
+      </div>
+      <div class="pillar reveal">
+        <span class="mono">C — Speed</span>
+        <h3>Seamless Integration &amp; Speed</h3>
+        <ul>
+          <li>Drive rapid turnarounds on complex AML and fraud investigations</li>
+          <li>Built to plug directly into your existing compliance stack</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S5 · RESOURCES ============ -->
+<section class="s5" id="s5">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="sec-index">[ Sec 05 ]</span>
+      <h2>Latest resources &amp; news</h2>
+    </div>
+    <div class="res-list reveal">
+      <a class="res-row" href="#"><span class="cat">Briefing · Policy</span><h4>How the New OFAC Sanctions Impact Crypto Compliance Teams</h4><span class="go">Read briefing →</span></a>
+      <a class="res-row" href="#"><span class="cat">Briefing</span><h4>US Seizes $8B in Bitcoin During Global Scam Crackdown</h4><span class="go">Read briefing →</span></a>
+      <a class="res-row" href="#"><span class="cat">Briefing</span><h4>FCA Secures £452k Order Against Ponzi Fraudster Daniel Pugh</h4><span class="go">Read briefing →</span></a>
+      <a class="res-row" href="#"><span class="cat">Briefing · Policy</span><h4>The White House Just Mandated Cybercrime Coordination</h4><span class="go">Read briefing →</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S6 · CLOSE ============ -->
+<section class="s6" id="s6">
+  <svg class="rosette-bg" viewBox="0 0 400 400" fill="none" aria-hidden="true">
+    <g stroke="#fff" stroke-width=".6"><circle cx="200" cy="200" r="196"/><circle cx="200" cy="200" r="160"/><circle cx="200" cy="200" r="120"/><circle cx="200" cy="200" r="80"/></g>
+  </svg>
+  <div class="container">
+    <span class="eyebrow reveal">[ Sec 06 ]</span>
+    <h2 class="reveal">Built for institutions managing <em>digital asset risk</em></h2>
+    <p class="reveal">Deconflict helps compliance and investigative teams operate with greater confidence in fast-moving digital asset environments.</p>
+    <a class="btn reveal" href="#">Schedule a Demo <svg class="arrow" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5"/></svg></a>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <span class="mono">Deconflict, Inc. · United States of America</span>
+    <span>© 2026 Deconflict, Inc. All rights reserved.</span>
+  </div>
+</footer>
+
+<script>
+// Guilloché generation
+(function(){
+  const petals=document.getElementById('petals'),thread=document.getElementById('thread');
+  let p='',t='';
+  for(let i=0;i<36;i++){
+    const a=(i/36)*Math.PI*2,cx=200+Math.cos(a)*92,cy=200+Math.sin(a)*92;
+    p+=`<ellipse cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="62" ry="20" fill="none" transform="rotate(${(i*10).toFixed(1)} ${cx.toFixed(1)} ${cy.toFixed(1)})"/>`;
+  }
+  // single cobalt rose-curve thread (9 lobes)
+  let d='';
+  for(let i=0;i<=720;i++){
+    const a=(i/720)*Math.PI*2;
+    const r=134+30*Math.sin(9*a);
+    d+=`${i?'L':'M'}${(200+r*Math.cos(a)).toFixed(1)},${(200+r*Math.sin(a)).toFixed(1)} `;
+  }
+  t=`<path d="${d}Z" fill="none"/>`;
+  petals.innerHTML=p;thread.innerHTML=t;
+})();
+// Reveal on scroll
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('inview');io.unobserve(e.target)}}),{threshold:.15});
+document.querySelectorAll('.reveal,.stage').forEach(el=>io.observe(el));
+// Spine progress + active state
+const map=[['hero','hero'],['s2','s2'],['s3','s3'],['s4','s4'],['s5','s5']];
+function spine(){
+  const sc=window.scrollY,h=document.body.scrollHeight-innerHeight;
+  document.getElementById('spineProgress').style.height=(sc/h*100)+'%';
+  let active='hero';
+  map.forEach(([id])=>{const el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<innerHeight*.45)active=id});
+  document.querySelectorAll('.spine-item').forEach(it=>it.classList.toggle('active',it.dataset.spine===active));
+}
+addEventListener('scroll',spine,{passive:true});spine();
+</script>
+</body>
+</html>

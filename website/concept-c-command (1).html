@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deconflict — Concept C · Command</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --background:#FFFFFF; --foreground:#0D1B3E; --navy:#0D1B3E; --navy-2:#13244E;
+  --cobalt:#1A56DB; --cobalt-soft:#F0F4FF; --frost:#F4F6FB; --muted:#6B7A99;
+  --subtle:#B0B8CC; --border:#D6DCE8; --border-soft:#E8ECF3;
+  --display:'Barlow Semi Condensed',sans-serif; --body:'IBM Plex Sans',sans-serif; --mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);color:var(--foreground);background:#fff;line-height:1.6;-webkit-font-smoothing:antialiased}
+::selection{background:var(--navy);color:#fff}
+a{color:inherit;text-decoration:none}
+.mono{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.wrap{max-width:1320px;margin:0 auto;padding:0 48px}
+:focus-visible{outline:2px solid var(--cobalt);outline-offset:3px}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;border-bottom:1px solid rgba(255,255,255,.12);transition:background .3s,border-color .3s}
+.nav.solid{background:rgba(13,27,62,.92);backdrop-filter:blur(14px)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:68px;max-width:1320px;margin:0 auto;padding:0 48px;color:#fff}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:14px;font-weight:500;letter-spacing:.2em}
+.nav-links{display:flex;gap:30px;font-size:13.5px;font-weight:500;color:#9FB0D6}
+.nav-links a:hover{color:#fff}
+.btn{display:inline-flex;align-items:center;gap:9px;background:var(--cobalt);color:#fff;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-family:var(--display);padding:12px 24px;border-radius:2px;transition:.2s;cursor:pointer;border:none}
+.btn:hover{background:#1648b8}
+.btn-line{background:transparent;border:1px solid rgba(255,255,255,.35)}
+.btn-line:hover{background:rgba(255,255,255,.08);border-color:#fff}
+
+/* HERO — solid navy field, dot-matrix map, scan sweep */
+.hero{position:relative;background:var(--navy);color:#fff;min-height:100vh;display:flex;align-items:flex-end;overflow:hidden}
+#map{position:absolute;inset:0;width:100%;height:100%}
+.scan{position:absolute;top:0;bottom:0;width:1px;background:rgba(26,86,219,.65);box-shadow:0 0 24px 2px rgba(26,86,219,.5);left:-5%;animation:scan 9s cubic-bezier(.4,.1,.6,.9) infinite;pointer-events:none}
+@keyframes scan{0%{left:-4%;opacity:0}8%{opacity:1}92%{opacity:1}100%{left:104%;opacity:0}}
+@media(prefers-reduced-motion:reduce){.scan{display:none}}
+.hero-inner{position:relative;z-index:2;width:100%;padding:160px 0 0}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-end;gap:48px;padding-bottom:72px}
+.kicker{display:inline-flex;align-items:center;gap:12px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#7E96D8;margin-bottom:30px}
+.kicker::before{content:'';width:32px;height:1px;background:var(--cobalt)}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(56px,8.4vw,128px);line-height:.94;letter-spacing:-.01em;text-transform:uppercase}
+h1 .line{display:block;overflow:hidden}
+h1 .line span{display:inline-block;transform:translateY(110%);animation:rise .9s cubic-bezier(.2,.8,.2,1) forwards}
+h1 .line:nth-child(2) span{animation-delay:.12s;color:#7E96D8}
+@keyframes rise{to{transform:none}}
+@media(prefers-reduced-motion:reduce){h1 .line span{transform:none;animation:none}}
+.hero-side{max-width:380px;padding-bottom:10px}
+.hero-side p{font-size:16px;color:#B7C3E2;line-height:1.7}
+.hero-actions{display:flex;gap:14px;margin-top:30px;flex-wrap:wrap}
+.hero-strip{border-top:1px solid rgba(255,255,255,.14);display:grid;grid-template-columns:repeat(3,1fr);max-width:1320px;margin:0 auto;padding:0 48px}
+.hero-strip>div{padding:22px 0;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#7E96D8}
+.hero-strip b{display:block;color:#fff;font-size:12.5px;font-weight:500;margin-bottom:3px}
+
+/* SECTION SHELL */
+section{position:relative}
+.sec-bar{display:flex;align-items:center;gap:18px;margin-bottom:54px}
+.sec-bar .idx{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--cobalt)}
+.sec-bar .rule{flex:1;height:1px;background:var(--border-soft)}
+h2{font-family:var(--display);font-weight:600;font-size:clamp(36px,4.4vw,64px);line-height:1;letter-spacing:-.005em;text-transform:uppercase}
+h2 .dim{color:var(--subtle)}
+
+/* S2 DIPTYCH full-bleed */
+.s2{padding:120px 0}
+.command-split{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--border);border:1px solid var(--border)}
+.cmd{position:relative;background:#fff;padding:64px 56px;min-height:440px;display:flex;flex-direction:column;transition:background .3s}
+.cmd:hover{background:var(--frost)}
+.cmd .code{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase}
+.cmd h3{font-family:var(--display);font-weight:600;font-size:64px;letter-spacing:.04em;text-transform:uppercase;margin-top:18px;line-height:1}
+.cmd .role{margin-top:8px;font-size:14px;color:var(--cobalt);font-weight:500}
+.cmd ul{list-style:none;margin-top:28px;display:flex;flex-direction:column;gap:0;border-top:1px solid var(--border-soft)}
+.cmd li{padding:12px 0;border-bottom:1px solid var(--border-soft);font-size:14px;color:var(--muted);display:flex;gap:14px}
+.cmd li::before{content:'/';font-family:var(--mono);color:var(--cobalt)}
+.cmd .go{margin-top:auto;padding-top:28px;font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;font-weight:600;font-size:14px;color:var(--navy);display:inline-flex;gap:10px;align-items:center}
+.cmd:hover .go{color:var(--cobalt)}
+
+/* S3 — chain of custody band */
+.s3{background:var(--navy-2);color:#fff;padding:120px 0;position:relative;overflow:hidden}
+.s3 .grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:56px 56px}
+.s3 .wrap{position:relative;z-index:2}
+.s3 .sec-bar .rule{background:rgba(255,255,255,.14)}
+.s3 .lede{display:grid;grid-template-columns:1.1fr .9fr;gap:64px;margin-bottom:80px}
+.s3 .lede p{color:#B7C3E2;font-size:16.5px;line-height:1.75}
+.s3 .lede p b{color:#fff}
+.custody{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.12)}
+.cust{background:var(--navy);padding:36px 30px;position:relative;overflow:hidden}
+.cust .stage-id{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:#7E96D8;text-transform:uppercase}
+.cust h4{font-family:var(--display);font-weight:600;font-size:26px;text-transform:uppercase;letter-spacing:.02em;margin-top:46px}
+.cust p{font-size:13.5px;color:#9FB0D6;margin-top:8px}
+.cust .tick{position:absolute;top:30px;right:26px;width:10px;height:10px;border:1px solid #2E4480}
+.cust.lit .tick{background:var(--cobalt);border-color:var(--cobalt);box-shadow:0 0 14px rgba(26,86,219,.7)}
+.scale-bar{margin-top:64px;border:1px solid rgba(255,255,255,.16);padding:26px 32px;display:flex;gap:28px;align-items:center}
+.scale-bar .mono{color:var(--cobalt);white-space:nowrap}
+.scale-bar p{color:#B7C3E2;font-size:15px}
+
+/* S4 ledger pillars */
+.s4{padding:120px 0}
+.ledger{border-top:2px solid var(--navy)}
+.ledger-row{display:grid;grid-template-columns:90px 1fr 1.4fr;gap:40px;padding:44px 0;border-bottom:1px solid var(--border)}
+.ledger-row .idx{font-family:var(--mono);font-size:12px;color:var(--cobalt);padding-top:8px}
+.ledger-row h3{font-family:var(--display);font-weight:600;font-size:32px;text-transform:uppercase;letter-spacing:.01em;line-height:1.05}
+.ledger-row ul{list-style:none;display:flex;flex-direction:column;gap:14px}
+.ledger-row li{position:relative;padding-left:24px;font-size:15px;color:var(--muted);line-height:1.6}
+.ledger-row li::before{content:'';position:absolute;left:0;top:10px;width:10px;height:1px;background:var(--navy)}
+
+/* S5 resources */
+.s5{padding:0 0 120px}
+.wire{border-top:1px solid var(--border)}
+.wire a{display:grid;grid-template-columns:56px 140px 1fr auto;gap:28px;align-items:center;padding:24px 0;border-bottom:1px solid var(--border-soft);transition:background .2s}
+.wire a:hover{background:var(--frost)}
+.wire .n{font-family:var(--mono);font-size:11px;color:var(--subtle)}
+.wire .cat{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.wire h4{font-family:var(--display);font-weight:500;font-size:22px;letter-spacing:.01em;text-transform:uppercase}
+.wire .go{font-family:var(--mono);font-size:11px;color:var(--cobalt);white-space:nowrap}
+
+/* S6 close */
+.s6{background:var(--navy);color:#fff;padding:130px 0;position:relative;overflow:hidden}
+.s6 .scan2{position:absolute;top:0;bottom:0;width:1px;background:rgba(26,86,219,.5);box-shadow:0 0 20px 2px rgba(26,86,219,.4);animation:scan 11s linear infinite;pointer-events:none}
+.s6 h2{max-width:880px}
+.s6 p{margin-top:26px;color:#B7C3E2;max-width:520px;font-size:16.5px}
+.s6 .btn{margin-top:40px;background:#fff;color:var(--navy)}
+.s6 .btn:hover{background:var(--cobalt-soft)}
+footer{background:var(--navy);border-top:1px solid rgba(255,255,255,.12);color:#7E96D8;padding:30px 0;font-size:12.5px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
+
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s,transform .7s cubic-bezier(.2,.7,.2,1)}
+.reveal.inview{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+@media(max-width:980px){
+  .wrap,.nav-inner,.hero-strip{padding-left:24px;padding-right:24px}
+  .nav-links{display:none}
+  .hero-top{flex-direction:column;align-items:flex-start;gap:36px;padding-bottom:48px}
+  .hero-strip{grid-template-columns:1fr;border-top:none}
+  .hero-strip>div{border-top:1px solid rgba(255,255,255,.14)}
+  .command-split,.s3 .lede,.custody{grid-template-columns:1fr}
+  .cmd{padding:44px 28px;min-height:0}
+  .cust h4{margin-top:24px}
+  .ledger-row{grid-template-columns:1fr;gap:16px;padding:32px 0}
+  .wire a{grid-template-columns:1fr;gap:8px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="logo" href="#">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 1.5 20 6.7v8.6L11 20.5 2 15.3V6.7L11 1.5Z" stroke="#fff" stroke-width="1.4"/><path d="M11 6 15.5 8.6v5.2L11 16.4 6.5 13.8V8.6L11 6Z" fill="#1A56DB"/></svg>
+      DECONFLICT
+    </a>
+    <div class="nav-links"><a href="#">Signal</a><a href="#">Nexus</a><a href="#">Solutions</a><a href="#">Resources</a><a href="#">Training</a><a href="#">Briefings</a></div>
+    <a class="btn" href="#">Schedule a Demo</a>
+  </div>
+</nav>
+
+<!-- S1 HERO -->
+<header class="hero">
+  <canvas id="map" aria-hidden="true"></canvas>
+  <div class="scan" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <div class="wrap hero-top">
+      <div>
+        <span class="kicker">For Financial Institutions</span>
+        <h1>
+          <span class="line"><span>Investigative</span></span>
+          <span class="line"><span>Intelligence.</span></span>
+        </h1>
+      </div>
+      <div class="hero-side">
+        <p>For compliance and risk teams: go beyond standard transaction monitoring with direct, secure access to intelligence sourced straight from credentialed law enforcement.</p>
+        <div class="hero-actions">
+          <a class="btn" href="#">Schedule a Demo</a>
+          <a class="btn btn-line" href="#s2">The Platform</a>
+        </div>
+      </div>
+    </div>
+    <div class="hero-strip">
+      <div><b>SOC 2 Type II</b>Independently audited</div>
+      <div><b>GDPR Compliant</b>Privacy by architecture</div>
+      <div><b>Hashed Identifier Exchange</b>No raw case data moves</div>
+    </div>
+  </div>
+</header>
+
+<!-- S2 -->
+<section class="s2 wrap" id="s2">
+  <div class="sec-bar reveal"><span class="idx">[ SEC 02 ]</span><span class="rule"></span></div>
+  <h2 class="reveal" style="margin-bottom:56px">Connected intelligence<br><span class="dim">beyond basic risk scoring</span></h2>
+  <div class="command-split reveal">
+    <a class="cmd" href="#">
+      <span class="code">DC / NX — Operational Coordination</span>
+      <h3>Nexus</h3>
+      <span class="role">Operational coordination for modern compliance teams</span>
+      <ul>
+        <li>Secure coordination across investigative stakeholders</li>
+        <li>Faster escalation and response workflows</li>
+        <li>Real-time operational communication</li>
+      </ul>
+      <span class="go">Enter Nexus <svg width="15" height="15" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5"/></svg></span>
+    </a>
+    <a class="cmd" href="#">
+      <span class="code">DC / SG — Intelligence Signals</span>
+      <h3>Signal</h3>
+      <span class="role">Verified intelligence signals beyond risk scoring</span>
+      <ul>
+        <li>Verified investigative signals</li>
+        <li>Operational intelligence context</li>
+        <li>Cross-network investigative visibility</li>
+      </ul>
+      <span class="go">Enter Signal <svg width="15" height="15" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5"/></svg></span>
+    </a>
+  </div>
+</section>
+
+<!-- S3 -->
+<section class="s3" id="s3">
+  <div class="grid-bg" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="sec-bar reveal"><span class="idx">[ SEC 03 ]</span><span class="rule"></span></div>
+    <div class="lede reveal">
+      <h2>Compliance teams need<br>more than monitoring</h2>
+      <div>
+        <p>Traditional blockchain analytics platforms generate alerts. <b>Deconflict provides investigative context.</b></p>
+        <p style="margin-top:16px">We help financial institutions get visibility across the entire compliance lifecycle — from onboarding and monitoring to escalation and reporting. By combining verified intelligence signals with secure operational coordination, your team can act with absolute certainty.</p>
+      </div>
+    </div>
+    <div class="custody" id="custody">
+      <div class="cust"><span class="tick"></span><span class="stage-id">Stage 01</span><h4>Onboarding</h4><p>Make informed risk decisions.</p></div>
+      <div class="cust"><span class="tick"></span><span class="stage-id">Stage 02</span><h4>Monitoring</h4><p>See what others can't see.</p></div>
+      <div class="cust"><span class="tick"></span><span class="stage-id">Stage 03</span><h4>Escalation</h4><p>Act faster with operational context.</p></div>
+      <div class="cust"><span class="tick"></span><span class="stage-id">Stage 04</span><h4>Reporting</h4><p>Stronger reports. Audit ready.</p></div>
+    </div>
+    <div class="scale-bar reveal">
+      <span class="mono">Built for scale</span>
+      <p>Designed specifically for banks, exchanges, fintechs, and regulated institutions managing high-volume digital asset risk.</p>
+    </div>
+  </div>
+</section>
+
+<!-- S4 -->
+<section class="s4 wrap" id="s4">
+  <div class="sec-bar reveal"><span class="idx">[ SEC 04 ]</span><span class="rule"></span></div>
+  <h2 class="reveal" style="margin-bottom:48px">Verified intelligence<br><span class="dim">for faster decisions</span></h2>
+  <div class="ledger">
+    <div class="ledger-row reveal">
+      <span class="idx">DC-01</span>
+      <h3>Law Enforcement Intelligence</h3>
+      <ul>
+        <li>Crypto intelligence sourced straight from law enforcement</li>
+        <li>Protected coordination channels built for safe, direct communication</li>
+      </ul>
+    </div>
+    <div class="ledger-row reveal">
+      <span class="idx">DC-02</span>
+      <h3>Examiner-Ready Compliance</h3>
+      <ul>
+        <li>Tamper-evident reporting and examiner-ready compliance documentation</li>
+        <li>Concrete decision support built to withstand strict regulatory scrutiny</li>
+      </ul>
+    </div>
+    <div class="ledger-row reveal">
+      <span class="idx">DC-03</span>
+      <h3>Seamless Integration &amp; Speed</h3>
+      <ul>
+        <li>Drive rapid turnarounds on complex AML and fraud investigations</li>
+        <li>Built to plug directly into your existing compliance stack</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- S5 -->
+<section class="s5 wrap" id="s5">
+  <div class="sec-bar reveal"><span class="idx">[ SEC 05 ]</span><span class="rule"></span></div>
+  <h2 class="reveal" style="margin-bottom:48px">Latest resources <span class="dim">&amp; news</span></h2>
+  <div class="wire reveal">
+    <a href="#"><span class="n">001</span><span class="cat">Briefing · Policy</span><h4>How the New OFAC Sanctions Impact Crypto Compliance Teams</h4><span class="go">READ →</span></a>
+    <a href="#"><span class="n">002</span><span class="cat">Briefing</span><h4>US Seizes $8B in Bitcoin During Global Scam Crackdown</h4><span class="go">READ →</span></a>
+    <a href="#"><span class="n">003</span><span class="cat">Briefing</span><h4>FCA Secures £452k Order Against Ponzi Fraudster Daniel Pugh</h4><span class="go">READ →</span></a>
+    <a href="#"><span class="n">004</span><span class="cat">Briefing · Policy</span><h4>The White House Just Mandated Cybercrime Coordination</h4><span class="go">READ →</span></a>
+  </div>
+</section>
+
+<!-- S6 -->
+<section class="s6" id="s6">
+  <div class="scan2" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="sec-bar reveal" style="margin-bottom:40px"><span class="idx" style="color:#7E96D8">[ SEC 06 ]</span><span class="rule" style="background:rgba(255,255,255,.14)"></span></div>
+    <h2 class="reveal">Built for institutions managing digital asset risk</h2>
+    <p class="reveal">Deconflict helps compliance and investigative teams operate with greater confidence in fast-moving digital asset environments.</p>
+    <a class="btn reveal" href="#">Schedule a Demo</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span class="mono">Deconflict, Inc. · United States of America</span>
+    <span>© 2026 Deconflict, Inc. All rights reserved.</span>
+  </div>
+</footer>
+
+<script>
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Dot-matrix continental field with drifting brightness (abstract agency map)
+(function(){
+  const c=document.getElementById('map'),ctx=c.getContext('2d');
+  let W,H,dots=[];
+  function size(){
+    W=c.width=c.offsetWidth*devicePixelRatio;H=c.height=c.offsetHeight*devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+    dots=[];const w=c.offsetWidth,h=c.offsetHeight,gap=26;
+    for(let x=gap;x<w;x+=gap)for(let y=gap;y<h;y+=gap){
+      // density falls toward edges → landmass-like field
+      const dx=(x/w-0.55),dy=(y/h-0.42);
+      const d=Math.sqrt(dx*dx*1.3+dy*dy*2.6);
+      if(d<0.52&&Math.random()>d*1.5)dots.push({x,y,p:Math.random()*7,s:Math.random()<.06});
+    }
+  }
+  let t=0;
+  function draw(){
+    t+=0.016;const w=c.offsetWidth,h=c.offsetHeight;
+    ctx.clearRect(0,0,w,h);
+    dots.forEach(d=>{
+      const tw=reduced?0.5:(Math.sin(t+d.p)*.5+.5);
+      if(d.s){ctx.fillStyle=`rgba(26,86,219,${.35+tw*.5})`;ctx.beginPath();ctx.arc(d.x,d.y,1.8,0,7);ctx.fill()}
+      else{ctx.fillStyle=`rgba(126,150,216,${.10+tw*.16})`;ctx.fillRect(d.x,d.y,1.6,1.6)}
+    });
+    if(!reduced)requestAnimationFrame(draw);
+  }
+  size();addEventListener('resize',()=>{size();if(reduced)draw()});draw();
+})();
+// nav solid on scroll
+const nav=document.getElementById('nav');
+addEventListener('scroll',()=>nav.classList.toggle('solid',scrollY>40),{passive:true});
+// reveals
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('inview');io.unobserve(e.target)}}),{threshold:.15});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+// custody ticks light sequentially
+const cust=document.getElementById('custody');
+new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){
+    [...cust.children].forEach((el,i)=>setTimeout(()=>el.classList.add('lit'),reduced?0:i*260));
+  }
+}),{threshold:.4}).observe(cust);
+</script>
+</body>
+</html>
