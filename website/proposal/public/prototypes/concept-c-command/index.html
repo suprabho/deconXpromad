@@ -350,5 +350,39 @@ new IntersectionObserver(es=>es.forEach(e=>{
   }
 }),{threshold:.4}).observe(cust);
 </script>
+
+<!-- ===== Prototype nav overlay (Home + concept toggle) ===== -->
+<style>
+#proto-nav{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:2147483000;
+  display:flex;align-items:center;gap:8px;padding:6px;border-radius:999px;
+  background:rgba(255,255,255,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--border,#D6DCE8);box-shadow:0 8px 30px rgba(13,27,62,.16);
+  font-family:var(--body,system-ui,sans-serif)}
+#proto-nav a{text-decoration:none;color:var(--navy,#0D1B3E)}
+#proto-nav .pn-home{display:flex;align-items:center;gap:7px;padding:8px 14px 8px 12px;border-radius:999px;
+  font-size:13px;font-weight:600;letter-spacing:-.01em;transition:background .15s ease}
+#proto-nav .pn-home:hover{background:var(--frost,#F4F6FB)}
+#proto-nav .pn-home svg{width:15px;height:15px;display:block}
+#proto-nav .pn-sep{width:1px;height:22px;background:var(--border,#D6DCE8)}
+#proto-nav .pn-toggle{display:flex;align-items:center;gap:2px;padding:0 2px}
+#proto-nav .pn-toggle a{display:flex;align-items:center;justify-content:center;width:30px;height:30px;
+  border-radius:999px;font-size:12px;font-weight:600;color:var(--muted,#6B7A99);
+  transition:background .15s ease,color .15s ease}
+#proto-nav .pn-toggle a:hover{background:var(--frost,#F4F6FB);color:var(--navy,#0D1B3E)}
+#proto-nav .pn-toggle a.active{background:var(--cobalt,#1A56DB);color:#fff}
+@media print{#proto-nav{display:none}}
+</style>
+<nav id="proto-nav" aria-label="Prototype navigation">
+  <a class="pn-home" href="/" target="_top" title="Back to the proposal">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+    Home
+  </a>
+  <span class="pn-sep" aria-hidden="true"></span>
+  <div class="pn-toggle" role="group" aria-label="Switch concept">
+    <a href="/prototypes/concept-a-dossier/" target="_top" title="Concept A · The Dossier">A</a>
+    <a href="/prototypes/concept-b-signal-path/" target="_top" title="Concept B · Signal Path">B</a>
+    <a class="active" aria-current="page" href="/prototypes/concept-c-command/" target="_top" title="Concept C · Command">C</a>
+  </div>
+</nav>
 </body>
 </html>
