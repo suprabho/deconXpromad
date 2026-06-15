@@ -40,7 +40,8 @@ a{color:inherit;text-decoration:none}
     radial-gradient(900px 500px at 85% -10%, var(--cobalt-soft) 0%, transparent 60%),
     radial-gradient(700px 480px at -10% 90%, var(--frost) 0%, transparent 55%),
     #FFFFFF;}
-#net{position:absolute;inset:0;width:100%;height:100%}
+.hero-bg{position:absolute;inset:0;width:100%;height:100%;border:0;z-index:0;pointer-events:none}
+#net{position:absolute;inset:0;width:100%;height:100%;z-index:1}
 .hero-content{position:relative;z-index:2;text-align:center;max-width:860px;margin:0 auto;padding:140px 24px 110px}
 .chip{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border-soft);border-radius:99px;padding:7px 16px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);box-shadow:0 2px 10px rgba(13,27,62,.05)}
 .chip i{width:6px;height:6px;border-radius:50%;background:var(--cobalt);animation:blink 2.2s infinite}
@@ -56,17 +57,31 @@ h1 .grad{background:linear-gradient(100deg,var(--cobalt) 0%,#4f7fe8 55%,var(--na
 /* SECTION HEADS */
 section{position:relative}
 .head{text-align:center;max-width:760px;margin:0 auto 64px}
-.head .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--cobalt)}
+.head .kicker{font-family:var(--mono);font-size:18px;letter-spacing:.18em;text-transform:uppercase;color:var(--cobalt)}
 h2{font-family:var(--display);font-weight:500;font-size:clamp(30px,3.4vw,46px);line-height:1.12;letter-spacing:-.025em;margin-top:16px}
 .head p{margin-top:18px;color:var(--muted);font-size:16.5px}
 
 /* S2 PLATFORM MAP (rebuilt from reference diagram) */
 .s2{padding:130px 0}
-.pmap{position:relative;border:1px solid var(--border-soft);border-radius:26px;background:
+.pmap{position:relative;overflow:hidden;border:1px solid var(--border-soft);border-radius:26px;background:
   radial-gradient(640px 360px at 50% 38%, var(--cobalt-soft) 0%, transparent 65%),
   linear-gradient(180deg,#fff 0%,var(--frost) 120%);
   padding:56px 48px 40px;box-shadow:0 28px 70px rgba(13,27,62,.07)}
-.pmap-grid{display:grid;grid-template-columns:minmax(0,1fr) 280px minmax(0,1.2fr);gap:56px;align-items:center}
+.pmap-bg{position:absolute;inset:0;width:100%;height:100%;border:0;z-index:0;pointer-events:none}
+/* Segmented tab control */
+.seg-wrap{display:flex;justify-content:center;margin-bottom:38px}
+.seg{position:relative;display:inline-flex;padding:5px;background:var(--frost);border:1px solid var(--border-soft);border-radius:99px;box-shadow:inset 0 1px 2px rgba(13,27,62,.05)}
+.seg-thumb{position:absolute;top:5px;left:5px;bottom:5px;width:calc(50% - 5px);border-radius:99px;background:var(--cobalt);box-shadow:0 4px 14px rgba(26,86,219,.28);transition:transform .4s cubic-bezier(.16,.84,.44,1)}
+.seg[data-active="1"] .seg-thumb{transform:translateX(100%)}
+.seg-btn{position:relative;z-index:1;flex:1 0 auto;min-width:132px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;background:transparent;cursor:pointer;font-family:var(--body);font-size:13.5px;font-weight:600;letter-spacing:.01em;color:var(--muted);padding:10px 24px;border-radius:99px;transition:color .3s ease}
+.seg-btn:hover{color:var(--navy)}
+.seg-btn[aria-selected="true"]{color:#fff}
+/* Tab panels: stacked in one grid cell so the card height holds at the taller of the two */
+.tab-stack{display:grid;position:relative;overflow:hidden;z-index:1}
+.tab-panel{grid-area:1/1;display:grid;grid-template-columns:minmax(0,35fr) minmax(0,65fr);gap:44px;align-items:center;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .4s ease-out,transform .4s ease-out,visibility .4s}
+.tp-nexus{transform:translateX(-28px)}
+.tp-signal{transform:translateX(28px)}
+.tab-panel.active{opacity:1;visibility:visible;pointer-events:auto;transform:translateX(0);transition:opacity .4s ease-out,transform .4s ease-out,visibility 0s}
 .pcol{display:flex;flex-direction:column;color:inherit}
 .pcol .tag{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--cobalt);display:flex;align-items:center;gap:9px}
 .pcol h3{font-family:var(--display);font-weight:600;font-size:30px;letter-spacing:.16em;margin-top:8px}
@@ -74,72 +89,109 @@ h2{font-family:var(--display);font-weight:500;font-size:clamp(30px,3.4vw,46px);l
 .pcol .go{margin-top:20px;display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:13.5px;color:var(--cobalt)}
 .pcol .go svg{transition:transform .25s}
 .pcol:hover .go svg{transform:translateX(4px)}
-/* Nexus capability chips */
-.chiplist{display:flex;flex-direction:column;gap:9px}
-.chip2{position:relative;display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--border-soft);border-radius:99px;padding:8px 18px 8px 9px;font-size:12.5px;line-height:1.35;color:var(--navy);transition:border-color .25s,box-shadow .25s}
-.pcol:hover .chip2{border-color:var(--border)}
-.chip2 .ic{width:30px;height:30px;border-radius:50%;background:var(--cobalt-soft);display:flex;align-items:center;justify-content:center;flex:none;color:var(--cobalt)}
-.chip2::after{content:'';position:absolute;right:-50px;top:50%;width:44px;height:1px;background:linear-gradient(90deg,var(--border),rgba(26,86,219,.45))}
-.chip2::before{content:'';position:absolute;right:-54px;top:50%;transform:translateY(-50%);width:5px;height:5px;border-radius:50%;background:var(--cobalt);opacity:.55}
-/* Hub */
-.hub{position:relative;width:280px;height:280px;display:flex;align-items:center;justify-content:center;margin:0 auto}
-.hub .ring{position:absolute;border-radius:50%;border:1px solid var(--border)}
-.hub .r1{inset:0}.hub .r2{inset:24px;border-color:var(--border-soft)}.hub .r3{inset:-22px;border-style:dashed;border-color:var(--border-soft)}
-.hub .arc{position:absolute;inset:-2px;border-radius:50%;border:2px solid transparent;border-top-color:var(--cobalt);animation:spin 9s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.hub .core{position:relative;z-index:2;text-align:center;display:flex;flex-direction:column;align-items:center;gap:9px;background:#fff;border-radius:50%;width:188px;height:188px;justify-content:center;box-shadow:0 12px 36px rgba(13,27,62,.1)}
-.hub .core .name{font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:.24em}
-.hub .core .tagline{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);line-height:1.7}
-/* Signal comparison table */
-.cmp{border:1px solid var(--border-soft);border-radius:14px;overflow:hidden;background:#fff;position:relative}
-.cmp-row{display:grid;grid-template-columns:1fr 30px 1.05fr;align-items:center}
-.cmp-row+.cmp-row{border-top:1px solid var(--border-soft)}
-.cmp-head{background:var(--frost)}
-.cmp-head .cmp-cell{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500}
-.cmp-head .cmp-cell:last-child{color:var(--cobalt)}
-.cmp-cell{padding:11px 16px;font-size:12.5px;line-height:1.4}
-.cmp-row:not(.cmp-head) .cmp-cell:first-child{color:var(--subtle)}
-.cmp-row:not(.cmp-head) .cmp-cell:last-child{color:var(--navy);font-weight:500;display:flex;align-items:center;gap:10px}
-.cmp-cell .dot{width:6px;height:6px;border-radius:50%;background:var(--cobalt);flex:none}
-.cmp-arrow{font-size:11px;color:var(--subtle);text-align:center}
-.cmp-row:not(.cmp-head) .cmp-cell:first-child{position:relative}
-.cmp::after{content:'';position:absolute;left:-50px;top:50%;width:44px;height:1px;background:linear-gradient(270deg,var(--border),rgba(26,86,219,.45))}
-.cmp::before{content:'';position:absolute;left:-54px;top:50%;transform:translateY(-50%);width:5px;height:5px;border-radius:50%;background:var(--cobalt);opacity:.55;z-index:2}
-/* Workflow strip */
-.wflow{margin-top:48px;border-top:1px solid var(--border-soft);padding-top:34px}
-.wflow .label{text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:var(--muted)}
-.wsteps{display:flex;gap:8px;margin-top:28px}
-.wstep{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:5px}
-.wstep .wic{width:42px;height:42px;border-radius:50%;border:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--cobalt);margin-bottom:8px;box-shadow:0 4px 12px rgba(13,27,62,.05)}
-.wstep h5{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--navy);font-weight:500}
-.wstep p{font-size:12px;color:var(--muted);max-width:150px;line-height:1.45}
-.wstep:not(:last-child)::after{content:'';position:absolute;top:21px;left:calc(50% + 34px);right:calc(-50% + 34px);border-top:1px dashed var(--border)}
-.wstep:not(:last-child)::before{content:'';position:absolute;top:18.5px;right:calc(-50% + 30px);width:5px;height:5px;border-radius:50%;background:var(--cobalt);opacity:.5}
-@media(prefers-reduced-motion:reduce){.hub .arc{animation:none}}
+/* Nexus feature cards (2-col grid, equal-height rows; 7th card spans the row) */
+.fgrid{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:12px}
+.fcard{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--border-soft);border-radius:14px;padding:16px 18px;transition:border-color .25s,box-shadow .25s,transform .25s}
+.fcard:hover{border-color:var(--border);box-shadow:0 8px 22px rgba(13,27,62,.07);transform:translateY(-2px)}
+.fcard .fic{width:67px;height:67px;border-radius:16px;background:transparent;display:flex;align-items:center;justify-content:center;flex:none}
+.fcard .fic svg{width:54px;height:54px;display:block}
+/* Larger icons for Improved SAR (3), Real-time operational (4), Enhanced (7) */
+.fgrid .fcard:nth-child(3) .fic svg,.fgrid .fcard:nth-child(4) .fic svg,.fgrid .fcard:nth-child(7) .fic svg{width:65px;height:65px}
+.fcard .ftitle{font-size:13px;line-height:1.4;color:var(--navy);font-weight:500}
+.fcard.wide{grid-column:1 / -1}
+/* Signal — intelligence-flow network (traditional analytics translating into verified signal) */
+.flow{--col:1.9fr;position:relative}
+.flow-head{display:grid;grid-template-columns:1fr var(--col) 1fr;align-items:end;gap:14px;margin-bottom:34px}
+.flow-head .fh{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600;line-height:1.35}
+.flow-head .fh.from{text-align:right}
+.flow-head .fh.to{color:var(--cobalt);text-align:left}
+.flow-rows{position:relative;display:flex;flex-direction:column;gap:48px}
+/* faint vertical spine linking every node into one network */
+.flow-rows::before{content:'';position:absolute;left:50%;top:6px;bottom:6px;width:1px;transform:translateX(-50%);background:linear-gradient(180deg,transparent,rgba(26,86,219,.16) 12%,rgba(26,86,219,.16) 88%,transparent)}
+.flow-row{position:relative;display:grid;grid-template-columns:1fr var(--col) 1fr;align-items:center;gap:14px}
+.flow-from{text-align:right;font-size:13px;line-height:1.45;color:var(--subtle)}
+.flow-to{text-align:left;font-size:13px;line-height:1.45;color:var(--navy);font-weight:500}
+.flow-link{position:relative;height:1px;background:linear-gradient(90deg,var(--border-soft) 0%,var(--border) 26%,rgba(26,86,219,.5) 68%,var(--cobalt) 100%)}
+.flow-node{position:absolute;left:50%;top:50%;width:11px;height:11px;border-radius:50%;background:var(--cobalt);transform:translate(-50%,-50%);box-shadow:0 0 0 5px rgba(26,86,219,.10),0 0 20px 6px rgba(26,86,219,.40);z-index:1}
+.flow-node::after{content:'';position:absolute;inset:-5px;border-radius:50%;background:rgba(26,86,219,.16);animation:flowpulse 2.8s ease-in-out infinite}
+.flow-row:nth-child(2) .flow-node::after{animation-delay:.5s}
+.flow-row:nth-child(3) .flow-node::after{animation-delay:1s}
+.flow-row:nth-child(4) .flow-node::after{animation-delay:1.5s}
+.flow-row:nth-child(5) .flow-node::after{animation-delay:2s}
+@keyframes flowpulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(2.4);opacity:0}}
+@media(prefers-reduced-motion:reduce){.flow-node::after{animation:none}}
+/* WORKFLOW — dedicated full-width navy intelligence-flow section */
+.wfsec{background:var(--navy);padding:104px 0}
+.wf-head{text-align:center;max-width:720px;margin:0 auto 70px}
+.wf-head .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#7E96D8}
+.wf-head h2{font-family:var(--display);font-weight:500;font-size:clamp(26px,3vw,40px);line-height:1.14;letter-spacing:-.02em;color:#fff;margin-top:14px}
+.wf-steps{position:relative;display:flex}
+/* continuous connection line behind the nodes */
+.wf-steps::before{content:'';position:absolute;top:36px;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(126,150,216,.28) 12%,rgba(26,86,219,.6) 50%,rgba(126,150,216,.28) 88%,transparent);z-index:0}
+.wf-step{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;text-align:center}
+.wf-step .wic{position:relative;z-index:2;width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;margin-bottom:26px;
+  background:radial-gradient(circle at 50% 34%,rgba(26,86,219,.5) 0%,rgba(26,86,219,.1) 72%),#12244f;
+  border:1px solid rgba(126,150,216,.32);
+  box-shadow:0 0 0 6px rgba(26,86,219,.06),0 0 28px 3px rgba(26,86,219,.4)}
+/* glowing node at the midpoint of each connection */
+.wf-step:not(:last-child)::before{content:'';position:absolute;top:36px;left:100%;width:9px;height:9px;border-radius:50%;background:var(--cobalt);transform:translate(-50%,-50%);box-shadow:0 0 14px 3px rgba(26,86,219,.7);z-index:1}
+.wf-step h5{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#fff;font-weight:500;margin-bottom:10px}
+.wf-step p{font-size:13px;color:var(--subtle);max-width:172px;line-height:1.5}
+@media(prefers-reduced-motion:reduce){.tab-panel{transition:opacity .2s ease-out;transform:none!important}.seg-thumb{transition:none}}
 
 /* S3 PIPELINE */
-.s3{padding:130px 0;background:
-  radial-gradient(800px 420px at 50% 0%, var(--cobalt-soft) 0%, transparent 60%), var(--frost)}
+/* Section 03 is a pure-white panel that stands apart from the lighter sections around it */
+.s3{padding:130px 0;background:#FFFFFF;border-bottom:1px solid #EEF1F7}
 .s3 .lede{display:grid;grid-template-columns:1fr 1fr;gap:64px;max-width:1060px;margin:0 auto 80px;align-items:start}
 .s3 .lede h2{text-align:left}
-.s3 .lede .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--cobalt)}
+.s3 .lede .kicker{font-family:var(--mono);font-size:18px;letter-spacing:.18em;text-transform:uppercase;color:var(--cobalt)}
 .s3 .lede p{color:var(--muted);font-size:16.5px;line-height:1.7}
 .s3 .lede p b{color:var(--navy)}
 /* S3 narrative illustration: alerts → investigative context */
-.illus{max-width:1060px;margin:0 auto;background:#fff;border:1px solid var(--border-soft);border-radius:20px;padding:30px 26px 18px;box-shadow:0 14px 40px rgba(13,27,62,.06)}
+.illus{max-width:1060px;margin:0 auto;background:#FFFFFF;border:1px solid #E6EBF5;border-radius:20px;padding:34px 30px 24px;box-shadow:0 20px 54px rgba(13,27,62,.10),0 2px 8px rgba(13,27,62,.04)}
 .illus svg{display:block;width:100%;height:auto}
-.il-label{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;fill:var(--muted);text-transform:uppercase}
-.il-faint{stroke:#D6DCE8;stroke-width:1;fill:none}
-.il-noise{fill:#B0B8CC}
-.il-noise circle{animation:flicker 2.8s ease-in-out infinite}
-@keyframes flicker{0%,100%{opacity:.35}50%{opacity:.85}}
-.il-lens circle{fill:none;stroke:#1A56DB;stroke-width:1}
-.il-net line{stroke:#0D1B3E;stroke-width:1;opacity:.45}
-.il-net circle{fill:#fff;stroke:#0D1B3E;stroke-width:1.2}
-.il-net .verified{fill:#1A56DB;stroke:none}
-.il-pkt{animation:travel 5.5s linear infinite}
-@keyframes travel{0%{transform:translateX(0);opacity:0}6%{opacity:1}94%{opacity:1}100%{transform:translateX(760px);opacity:0}}
-@media(prefers-reduced-motion:reduce){.il-pkt,.il-noise circle{animation:none}}
+/* Living investigative network — smooth unified entrance + continuous ambient motion */
+.illus svg{opacity:0;transform:translateY(26px);will-change:opacity,transform}
+.illus.inview svg{opacity:1;transform:translateY(0);transition:opacity 1.2s cubic-bezier(.215,.61,.355,1),transform 1.2s cubic-bezier(.215,.61,.355,1)}
+.ill-hex{transform-box:fill-box;transform-origin:center}
+.ill-verify{transform-box:fill-box;transform-origin:center}
+/* ambient drift on the grey background nodes — gentle, intentional, varied timing */
+.ill-dots circle{will-change:transform}
+.illus.inview .ill-dots circle{animation:drift 6s linear infinite}
+.illus.inview .ill-dots circle:nth-child(4n+1){animation-name:driftA;animation-duration:5.6s}
+.illus.inview .ill-dots circle:nth-child(4n+2){animation-name:driftB;animation-duration:6.8s}
+.illus.inview .ill-dots circle:nth-child(4n+3){animation-name:driftC;animation-duration:6.2s}
+.illus.inview .ill-dots circle:nth-child(4n){animation-name:driftD;animation-duration:7.4s}
+.illus.inview .ill-dots circle:nth-child(odd){animation-delay:-2.3s}
+.illus.inview .ill-dots circle:nth-child(3n){animation-delay:-3.7s}
+.illus.inview .ill-dots circle:nth-child(5n){animation-delay:-1.4s}
+@keyframes driftA{0%{transform:translate(0,0)}25%{transform:translate(6px,-3px)}50%{transform:translate(8px,3px)}75%{transform:translate(3px,6px)}100%{transform:translate(0,0)}}
+@keyframes driftB{0%{transform:translate(0,0)}25%{transform:translate(-5px,4px)}50%{transform:translate(-7px,-2px)}75%{transform:translate(-2px,-6px)}100%{transform:translate(0,0)}}
+@keyframes driftC{0%{transform:translate(0,0)}25%{transform:translate(4px,5px)}50%{transform:translate(-3px,7px)}75%{transform:translate(-6px,2px)}100%{transform:translate(0,0)}}
+@keyframes driftD{0%{transform:translate(0,0)}25%{transform:translate(-6px,-4px)}50%{transform:translate(3px,-7px)}75%{transform:translate(6px,-2px)}100%{transform:translate(0,0)}}
+/* center engine — slow breathing + soft ring fade */
+.illus.inview .ill-hex{animation:illhex 4.6s ease-in-out infinite}
+.illus.inview .ill-ring{animation:illring 4.6s ease-in-out infinite}
+@keyframes illhex{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
+@keyframes illring{0%,100%{opacity:.9}50%{opacity:.5}}
+/* periodic cobalt signal — alerts → deconflict → verified context (smooth, low frequency) */
+.ill-pulse{offset-path:path("M246 130 L1041 278 L1265 276 L1491 278 L1918 327 L1956 330 L2140 266 L2164 265");offset-rotate:0deg;opacity:0}
+.illus.inview .ill-pulse{animation:illsignal 6s linear 2.2s infinite}
+@keyframes illsignal{0%{offset-distance:0%;opacity:0}6%{offset-distance:0%;opacity:.9;animation-timing-function:cubic-bezier(.4,0,.2,1)}36%{offset-distance:100%;opacity:.9}44%{offset-distance:100%;opacity:0}100%{offset-distance:100%;opacity:0}}
+/* verified node softly pulses just after the signal arrives */
+.illus.inview .ill-verify{animation:illverify 6s ease-in-out 2.2s infinite}
+@keyframes illverify{0%,30%{transform:scale(1)}38%{transform:scale(1.05)}50%{transform:scale(1)}100%{transform:scale(1)}}
+/* hover — emphasize the active investigation path + connected nodes */
+.ill-path{transition:stroke-width .25s ease}
+.ill-pathnode,.ill-verify{transition:opacity .25s ease}
+.ill-pathnode{opacity:.85}.ill-verify{opacity:.94}
+.illus:hover .ill-path{stroke-width:4.5}
+.illus:hover .ill-pathnode,.illus:hover .ill-verify{opacity:1}
+@media(prefers-reduced-motion:reduce){
+  .illus svg{opacity:1;transform:none}
+  .illus.inview .ill-hex,.illus.inview .ill-ring,.illus.inview .ill-pulse,.illus.inview .ill-verify,.illus.inview .ill-dots circle{animation:none}
+  .ill-pulse{opacity:0}
+}
 .scale-strip{max-width:1060px;margin:48px auto 0;background:#fff;border:1px solid var(--border-soft);border-radius:16px;padding:28px 36px;display:flex;align-items:center;gap:28px;box-shadow:0 10px 34px rgba(13,27,62,.06)}
 .scale-strip .mono{color:var(--cobalt);white-space:nowrap}
 .scale-strip p{color:var(--muted);font-size:15px}
@@ -157,50 +209,82 @@ h2{font-family:var(--display);font-weight:500;font-size:clamp(30px,3.4vw,46px);l
 .card li{position:relative;padding-left:20px;font-size:14px;color:var(--muted);line-height:1.55}
 .card li::before{content:'';position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:50%;background:var(--cobalt);opacity:.55}
 
-/* S5 RESOURCES */
+/* S5 RESOURCES — editorial / newsroom layout */
 .s5{padding:0 0 130px}
-.res{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
-.res a{border:1px solid var(--border-soft);border-radius:16px;padding:26px;background:#fff;display:flex;flex-direction:column;gap:14px;transition:.3s;min-height:200px}
-.res a:hover{border-color:var(--cobalt);transform:translateY(-4px);box-shadow:0 14px 36px rgba(13,27,62,.08)}
-.res .cat{font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--cobalt)}
-.res h4{font-family:var(--display);font-weight:500;font-size:16px;line-height:1.35;letter-spacing:-.01em}
-.res .go{margin-top:auto;font-size:12.5px;font-weight:600;color:var(--muted)}
-.res a:hover .go{color:var(--cobalt)}
+.ed{display:grid;grid-template-columns:1.95fr 1fr;gap:26px;align-items:start}
+/* shared cover (editorial intelligence motif on navy) */
+.ed-cover{position:relative;overflow:hidden;background:
+  radial-gradient(circle at 1px 1px, rgba(255,255,255,.06) 1px, transparent 0) 0 0/22px 22px,
+  linear-gradient(135deg,#0B1734 0%,#15295f 60%,#1A347e 100%)}
+.ed-cover svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.ed-cat{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--cobalt);font-weight:500}
+.ed-cat::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--cobalt)}
+/* featured hero */
+.ed-feature{display:flex;flex-direction:column;border:1px solid var(--border-soft);border-radius:20px;overflow:hidden;background:#fff;transition:transform .3s,box-shadow .3s,border-color .3s}
+.ed-feature:hover{transform:translateY(-4px);box-shadow:0 24px 54px rgba(13,27,62,.11);border-color:var(--border)}
+.ed-feature .ed-cover{aspect-ratio:16/8.2}
+.ed-feature .ed-body{padding:30px 32px 32px;display:flex;flex-direction:column;gap:15px}
+.ed-feature h3{font-family:var(--display);font-weight:600;font-size:clamp(22px,2.3vw,31px);line-height:1.16;letter-spacing:-.025em;color:var(--navy);max-width:19ch}
+.ed-cta{margin-top:5px;display:inline-flex;align-items:center;gap:9px;align-self:flex-start;background:var(--cobalt);color:#fff;font-size:13.5px;font-weight:600;padding:11px 22px;border-radius:99px;transition:.25s;box-shadow:0 4px 14px rgba(26,86,219,.28)}
+.ed-cta svg{transition:transform .25s}
+.ed-feature:hover .ed-cta{background:#1648b8}
+.ed-feature:hover .ed-cta svg{transform:translateX(3px)}
+/* secondary stacked list */
+.ed-side{display:flex;flex-direction:column;gap:16px}
+.ed-item{display:grid;grid-template-columns:108px 1fr;border:1px solid var(--border-soft);border-radius:16px;overflow:hidden;background:#fff;transition:transform .3s,box-shadow .3s,border-color .3s}
+.ed-item:hover{transform:translateY(-3px);box-shadow:0 16px 34px rgba(13,27,62,.09);border-color:var(--border)}
+.ed-item .ed-cover{min-height:118px}
+.ed-item .ed-body{padding:15px 17px;display:flex;flex-direction:column;gap:8px;justify-content:center}
+.ed-item .ed-cat{font-size:9px;letter-spacing:.14em}
+.ed-item h4{font-family:var(--display);font-weight:500;font-size:15px;line-height:1.3;letter-spacing:-.01em;color:var(--navy)}
+.ed-more{margin-top:1px;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--muted);transition:color .25s}
+.ed-item:hover .ed-more{color:var(--cobalt)}
 
-/* S6 CLOSE */
-.s6{padding:40px 40px 60px}
-.close-panel{position:relative;max-width:1240px;margin:0 auto;background:var(--navy);border-radius:28px;padding:110px 64px;text-align:center;overflow:hidden}
-.close-panel canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.5}
-.close-panel .inner{position:relative;z-index:2}
-.close-panel .kicker{color:#7E96D8}
-.close-panel h2{color:#fff;max-width:680px;margin:16px auto 0}
-.close-panel p{margin:22px auto 0;color:var(--subtle);max-width:480px;font-size:16px}
-.close-panel .btn{margin-top:38px;background:#fff;color:var(--navy);box-shadow:none}
-.close-panel .btn:hover{background:var(--cobalt-soft)}
+/* S6 — full-width immersive closing section (flows into footer) */
+.s6{position:relative;overflow:hidden;padding:160px 0 140px;background:
+  radial-gradient(circle at 1px 1px, rgba(255,255,255,.045) 1px, transparent 0) 0 0/26px 26px,
+  radial-gradient(1100px 620px at 84% 10%, rgba(26,86,219,.32) 0%, transparent 60%),
+  radial-gradient(900px 600px at 2% 115%, rgba(26,86,219,.14) 0%, transparent 55%),
+  var(--navy)}
+.s6 canvas{position:absolute;top:0;right:0;bottom:0;width:60%;height:100%;opacity:.6;z-index:1}
+.s6 .inner{position:relative;z-index:2;max-width:620px}
+.s6 .kicker{color:#7E96D8;display:inline-block;margin-bottom:18px}
+.s6 h2{color:#fff;font-family:var(--display);font-weight:600;font-size:clamp(38px,5.4vw,68px);line-height:1.04;letter-spacing:-.03em;max-width:15ch}
+.s6 p{margin-top:24px;color:var(--subtle);max-width:520px;font-size:17px;line-height:1.7}
+.s6 .btn{margin-top:40px;background:#fff;color:var(--navy);box-shadow:0 10px 34px rgba(0,0,0,.28)}
+.s6 .btn:hover{background:var(--cobalt-soft);transform:translateY(-1px)}
 
-footer{padding:28px 40px 36px;display:flex;justify-content:space-between;color:var(--muted);font-size:12.5px;max-width:1240px;margin:0 auto;flex-wrap:wrap;gap:12px}
+footer{background:var(--navy);padding:0 0 46px}
+footer .wrap{display:flex;justify-content:space-between;align-items:center;color:var(--subtle);font-size:12.5px;flex-wrap:wrap;gap:12px;padding-top:30px;border-top:1px solid rgba(255,255,255,.09)}
 
 .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s,transform .7s cubic-bezier(.2,.7,.2,1)}
 .reveal.inview{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
 
 @media(max-width:1180px){
-  .pmap-grid{grid-template-columns:1fr;gap:48px;justify-items:center}
-  .pcol{width:100%;max-width:560px}
-  .chip2::after,.chip2::before,.cmp::after,.cmp::before{display:none}
-  .hub{order:-1}
+  .tab-panel{grid-template-columns:1fr;gap:34px}
+  .pcol{width:100%;max-width:620px;margin:0 auto}
+  .fgrid{max-width:620px;margin:0 auto}
 }
 @media(max-width:980px){
   .wrap{padding:0 22px}
   .nav-links{display:none}
   .pmap{padding:36px 22px 28px;border-radius:20px}
-  .wsteps{flex-direction:column;gap:22px}
-  .wstep:not(:last-child)::after,.wstep:not(:last-child)::before{display:none}
+  .wfsec{padding:72px 0}
+  .wf-steps{flex-direction:column;gap:40px}
+  .wf-steps::before,.wf-step:not(:last-child)::before{display:none}
   .s3 .lede{grid-template-columns:1fr;gap:24px}
   .illus{padding:18px 12px 10px}
-  .cards,.res{grid-template-columns:1fr}
+  .cards{grid-template-columns:1fr}
+  .ed{grid-template-columns:1fr;gap:18px}
+  .fgrid{grid-template-columns:1fr}
+  .fcard.wide{grid-column:auto}
+  .flow{--col:1fr}
+  .flow-rows{gap:36px}
   .scale-strip{flex-direction:column;align-items:flex-start;gap:12px}
-  .close-panel{padding:72px 28px;border-radius:20px}
+  .s6{padding:96px 0 80px}
+  .s6 canvas{width:100%;opacity:.28}
+  .s6 .inner{max-width:100%}
 }
 </style>
 </head>
@@ -219,6 +303,7 @@ footer{padding:28px 40px 36px;display:flex;justify-content:space-between;color:v
 
 <!-- S1 HERO -->
 <header class="hero">
+  <iframe class="hero-bg" src="https://aura.promad.design/embed/blue-background-images-ethereal-color-blends-for-design" frameborder="0" allowfullscreen aria-hidden="true" tabindex="-1" title="Ambient background"></iframe>
   <canvas id="net" aria-hidden="true"></canvas>
   <div class="hero-content">
     <span class="chip"><i></i>For Compliance &amp; Risk Teams</span>
@@ -239,71 +324,106 @@ footer{padding:28px 40px 36px;display:flex;justify-content:space-between;color:v
 <!-- S2 — full platform map per source diagram -->
 <section class="s2 wrap" id="s2">
   <div class="head reveal">
-    <span class="kicker">[ Sec 02 — The Platform ]</span>
+    <span class="kicker">[ The Platform ]</span>
     <h2>Connected intelligence that goes beyond basic risk scoring</h2>
   </div>
-  <div class="pmap reveal">
-    <div class="pmap-grid">
-
-      <!-- NEXUS (half links to product page) -->
-      <a class="pcol" href="/nexus/">
-        <span class="tag">Operational Coordination</span>
-        <h3>NEXUS</h3>
-        <span class="sub">Operational Coordination for Modern Compliance Teams</span>
-        <div class="chiplist">
-          <div class="chip2"><span class="ic"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5" cy="5" r="2.2" stroke="currentColor"/><circle cx="9.5" cy="9" r="2.2" stroke="currentColor"/><path d="M2 12c.5-1.6 1.6-2.5 3-2.5M12 12c-.3-.9-.8-1.5-1.5-1.9" stroke="currentColor"/></svg></span>Secure coordination across investigative stakeholders</div>
-          <div class="chip2"><span class="ic"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8 1 3 8h3l-1 5 5-7H7l1-5Z" stroke="currentColor" stroke-linejoin="round"/></svg></span>Faster escalation and response workflows</div>
-          <div class="chip2"><span class="ic"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="3" y="1.5" width="8" height="11" rx="1.2" stroke="currentColor"/><path d="M5 5h4M5 7.5h4M5 10h2.5" stroke="currentColor"/></svg></span>Improved SAR documentation and audit readiness</div>
-          <div class="chip2"><span class="ic"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10v7H6l-2.5 2.2V10H2V3Z" stroke="currentColor" stroke-linejoin="round"/></svg></span>Real-time operational communication</div>
-          <div class="chip2"><span class="ic"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor"/><circle cx="7" cy="7" r="1.4" fill="currentColor"/><path d="M7 .8v2M7 11.2v2M.8 7h2M11.2 7h2" stroke="currentColor"/></svg></span>Reduced investigation delays and operational blind spots</div>
-          <div class="chip2"><span class="ic"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5 12.5 4 7 6.5 1.5 4 7 1.5Z" stroke="currentColor" stroke-linejoin="round"/><path d="M1.5 7 7 9.5 12.5 7M1.5 10 7 12.5 12.5 10" stroke="currentColor" stroke-linejoin="round"/></svg></span>Centralized intelligence-sharing infrastructure</div>
-          <div class="chip2"><span class="ic"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 12.5h10M3.5 12V8M7 12V4.5M10.5 12V6.5" stroke="currentColor" stroke-linecap="round"/></svg></span>Enhanced decision-making across compliance operations</div>
-        </div>
-        <span class="go">Explore Nexus <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5"/></svg></span>
-      </a>
-
-      <!-- HUB -->
-      <div class="hub" aria-hidden="true">
-        <span class="ring r3"></span><span class="ring r1"></span><span class="ring r2"></span>
-        <span class="arc"></span>
-        <div class="core">
-          <svg width="34" height="34" viewBox="0 0 22 22" fill="none"><path d="M11 1.5 20 6.7v8.6L11 20.5 2 15.3V6.7L11 1.5Z" stroke="#0D1B3E" stroke-width="1.4"/><path d="M11 6 15.5 8.6v5.2L11 16.4 6.5 13.8V8.6L11 6Z" fill="#1A56DB"/></svg>
-          <span class="name">DECONFLICT</span>
-          <span class="tagline">Verified Intelligence.<br>Operational Advantage.</span>
-        </div>
-      </div>
-
-      <!-- SIGNAL (half links to product page) -->
-      <a class="pcol" href="/signal/">
-        <span class="tag">Intelligence Signals</span>
-        <h3>SIGNAL</h3>
-        <span class="sub">Verified Intelligence Signals Beyond Risk Scoring</span>
-        <div class="cmp">
-          <div class="cmp-row cmp-head">
-            <div class="cmp-cell">Traditional blockchain analytics</div>
-            <div class="cmp-arrow"></div>
-            <div class="cmp-cell">Deconflict signal intelligence</div>
-          </div>
-          <div class="cmp-row"><div class="cmp-cell">Probabilistic risk scoring</div><div class="cmp-arrow">→</div><div class="cmp-cell"><span class="dot"></span>Verified investigative signals</div></div>
-          <div class="cmp-row"><div class="cmp-cell">Behavioral heuristics</div><div class="cmp-arrow">→</div><div class="cmp-cell"><span class="dot"></span>Operational intelligence context</div></div>
-          <div class="cmp-row"><div class="cmp-cell">Static monitoring</div><div class="cmp-arrow">→</div><div class="cmp-cell"><span class="dot"></span>Real-time coordination workflows</div></div>
-          <div class="cmp-row"><div class="cmp-cell">Generic alerting</div><div class="cmp-arrow">→</div><div class="cmp-cell"><span class="dot"></span>Intelligence-driven escalation</div></div>
-          <div class="cmp-row"><div class="cmp-cell">Transaction-only analysis</div><div class="cmp-arrow">→</div><div class="cmp-cell"><span class="dot"></span>Cross-network investigative visibility</div></div>
-        </div>
-        <span class="go">Explore Signal <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5"/></svg></span>
-      </a>
+  <!-- Segmented pill control: choose a capability to view -->
+  <div class="seg-wrap reveal">
+    <div class="seg" role="tablist" aria-label="Platform capabilities" data-active="0">
+      <span class="seg-thumb" aria-hidden="true"></span>
+      <button id="tab-nexus" class="seg-btn" role="tab" aria-selected="true" aria-controls="panel-nexus" tabindex="0">Nexus</button>
+      <button id="tab-signal" class="seg-btn" role="tab" aria-selected="false" aria-controls="panel-signal" tabindex="-1">Signal</button>
     </div>
+  </div>
 
-    <!-- Workflow strip (belongs to Section 2 per source diagram) -->
-    <div class="wflow">
-      <div class="label">Stronger context across every workflow</div>
-      <div class="wsteps">
-        <div class="wstep"><span class="wic"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="2.6" stroke="currentColor"/><path d="M3 13.5c.8-2.6 2.6-4 5-4s4.2 1.4 5 4" stroke="currentColor"/></svg></span><h5>Onboarding</h5><p>Make informed risk decisions</p></div>
-        <div class="wstep"><span class="wic"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.2" stroke="currentColor"/><path d="M10.2 10.2 14 14" stroke="currentColor" stroke-linecap="round"/></svg></span><h5>Monitoring</h5><p>See what others can't see</p></div>
-        <div class="wstep"><span class="wic"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 13 13 3M6 3h7v7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h5>Escalation</h5><p>Act faster with operational context</p></div>
-        <div class="wstep"><span class="wic"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3.5" y="1.8" width="9" height="12.4" rx="1.4" stroke="currentColor"/><path d="M6 5.5h4M6 8h4M6 10.5h2.5" stroke="currentColor"/></svg></span><h5>Reporting</h5><p>Stronger reports. Audit ready.</p></div>
-        <div class="wstep"><span class="wic"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5 14 4v4c0 3.4-2.4 5.8-6 6.8C4.4 13.8 2 11.4 2 8V4l6-2.5Z" stroke="currentColor" stroke-linejoin="round"/><path d="M5.5 8l1.8 1.8L11 6.2" stroke="currentColor" stroke-linecap="round"/></svg></span><h5>Decision-Making</h5><p>Confidence in every action</p></div>
+  <div class="pmap reveal">
+    <iframe class="pmap-bg" src="https://aura.promad.design/embed/blue-light-backgrounds-clean-professional-web-backdrops" frameborder="0" allowfullscreen aria-hidden="true" tabindex="-1" title="Ambient background"></iframe>
+    <div class="tab-stack">
+
+      <!-- NEXUS PANEL -->
+      <div id="panel-nexus" class="tab-panel tp-nexus active" role="tabpanel" aria-labelledby="tab-nexus">
+        <div class="pcol">
+          <span class="tag">Operational Coordination</span>
+          <h3>NEXUS</h3>
+          <span class="sub">Operational Coordination for Modern Compliance Teams</span>
+          <a class="go" href="/nexus/">Explore Nexus <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5"/></svg></a>
+        </div>
+        <div class="pcol-body">
+          <div class="fgrid">
+            <div class="fcard"><span class="fic"><svg viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M157.759 64.9697C194.436 64.9698 224.168 94.7022 224.168 131.379C224.168 168.056 194.436 197.788 157.759 197.788C121.083 197.788 91.3501 168.056 91.3501 131.379C91.3501 94.7022 121.083 64.9697 157.759 64.9697Z" stroke="url(#sc_p0)" stroke-width="3.32045"/><path d="M157.759 66.6299C193.519 66.6299 222.508 95.6191 222.508 131.379C222.508 167.139 193.519 196.128 157.759 196.128C121.999 196.128 93.0103 167.139 93.0103 131.379C93.0103 95.6191 121.999 66.6299 157.759 66.6299Z" stroke="url(#sc_p1)" stroke-width="6.64091"/><path d="M225.829 217.71C225.829 180.117 195.353 149.641 157.759 149.641C120.166 149.641 89.6899 180.117 89.6899 217.71" stroke="url(#sc_p3)" stroke-width="6.64091"/><path d="M157.76 93.1931C169.68 93.1931 179.343 102.856 179.343 114.776C179.343 126.696 169.68 136.359 157.76 136.359C145.84 136.359 136.177 126.696 136.177 114.776C136.177 102.856 145.84 93.1931 157.76 93.1931Z" stroke="#D9D9D9" stroke-width="6.64091"/><path d="M182.726 162.528C182.859 159.373 185.348 156.97 188.456 156.415C190.681 156.017 193.224 155.485 195.27 154.843C197.991 153.99 201.591 152.393 204.153 151.192C206.182 150.241 208.536 150.241 210.565 151.192C213.127 152.393 216.727 153.99 219.448 154.843C221.494 155.485 224.037 156.017 226.262 156.415C229.37 156.97 231.859 159.373 231.992 162.528C232.449 173.354 230.939 197.629 209.366 205.429C208.078 205.894 206.64 205.894 205.352 205.429C183.779 197.629 182.268 173.354 182.726 162.528Z" fill="#1A56DB"/><path d="M32.377 116.437L72.6555 116.437" stroke="url(#sc_p5)" stroke-width="8.95079"/><path d="M32.377 156.716L72.6555 156.716" stroke="url(#sc_p6)" stroke-width="8.95079"/><path d="M10 134.339L72.6555 134.339" stroke="url(#sc_p7)" stroke-width="8.95079"/><defs><radialGradient id="sc_p0" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(111.273 93.1937) rotate(66.3706) scale(115.978)"><stop stop-color="#EEEEEF"/><stop offset="1" stop-color="#A6A8AB"/></radialGradient><radialGradient id="sc_p1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(111.273 93.1937) rotate(66.3706) scale(115.978)"><stop stop-color="#EEEEEF"/><stop offset="1" stop-color="#A6A8AB"/></radialGradient><radialGradient id="sc_p3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(89.6899 216.05) rotate(-13.707) scale(140.129)"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="0.48" stop-color="#D0D0D0"/><stop offset="1" stop-color="#EEEEEF" stop-opacity="0"/></radialGradient><linearGradient id="sc_p5" x1="25.0089" y1="115.876" x2="53.1268" y2="152.558" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="sc_p6" x1="25.0089" y1="156.155" x2="53.1268" y2="192.837" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="sc_p7" x1="-1.46137" y1="133.778" x2="21.6284" y2="180.635" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient></defs></svg></span><span class="ftitle">Secure coordination across investigative stakeholders</span></div>
+            <div class="fcard"><span class="fic"><svg viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.6113 128.994L60.4721 128.994" stroke="url(#fe_p0)" stroke-width="8.85795"/><path d="M20.6113 168.855L60.4721 168.855" stroke="url(#fe_p1)" stroke-width="8.85795"/><path d="M-1.53369 146.71L60.4719 146.71" stroke="url(#fe_p2)" stroke-width="8.85795"/><path d="M191.912 146.709L218.485 146.709" stroke="#1A56DB" stroke-width="8.85795"/><path d="M162.767 146.709L178.626 146.709" stroke="#1A56DB" stroke-width="7.49598"/><path d="M125.479 145.908H136.781" stroke="#1A56DB" stroke-width="8.85795"/><path d="M140.329 83.7036C172.088 83.7036 197.835 109.449 197.835 141.208C197.835 172.968 172.088 198.714 140.329 198.714C108.57 198.714 82.8242 172.968 82.8242 141.208C82.8244 109.449 108.57 83.7037 140.329 83.7036Z" stroke="url(#fe_p3)" stroke-width="6.57203"/><path d="M189.697 105.803C211.066 105.803 228.39 123.126 228.39 144.495C228.39 165.865 211.066 183.189 189.697 183.189C168.327 183.189 151.004 165.865 151.004 144.495C151.004 123.126 168.327 105.803 189.697 105.803Z" stroke="url(#fe_p4)" stroke-opacity="0.4" stroke-width="6.7647"/><ellipse cx="230.13" cy="147.781" rx="14.7871" ry="14.7871" fill="#1A56DB"/><defs><radialGradient id="fe_p3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(98.8133 107.106) rotate(66.3706) scale(103.578)"><stop stop-color="#EEEEEF"/><stop offset="1" stop-color="#A6A8AB"/></radialGradient><radialGradient id="fe_p4" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(160.963 120.892) rotate(66.3706) scale(71.6891)"><stop stop-color="#EEEEEF"/><stop offset="1" stop-color="#A6A8AB"/></radialGradient><linearGradient id="fe_p0" x1="13.3197" y1="128.433" x2="41.5124" y2="164.832" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="fe_p1" x1="13.3197" y1="168.294" x2="41.5124" y2="204.693" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="fe_p2" x1="-12.8762" y1="146.149" x2="10.3599" y2="192.815" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient></defs></svg></span><span class="ftitle">Faster escalation and response workflows</span></div>
+            <div class="fcard"><span class="fic"><svg viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M38.1929 130.103L71.9433 130.103" stroke="url(#is_p0)" stroke-width="7.50011"/><path d="M38.1929 163.854L71.9433 163.854" stroke="url(#is_p1)" stroke-width="7.50011"/><path d="M19.4429 145.104L71.9436 145.103" stroke="url(#is_p2)" stroke-width="7.50011"/><path d="M176.142 136.891H131.625" stroke="url(#is_p3)" stroke-width="3.56134" stroke-linecap="round"/><path d="M157.52 160.991H132.62" stroke="url(#is_p4)" stroke-width="3.56134" stroke-linecap="round"/><path d="M151.212 147.576L131.625 147.576" stroke="url(#is_p5)" stroke-width="3.56134" stroke-linecap="round"/><path d="M157.166 194.096H115.432C114.325 194.096 113.263 193.656 112.48 192.873C111.698 192.091 111.258 191.029 111.258 189.922V123.147L140.472 93.9329H190.554C191.66 93.9329 192.722 94.3726 193.505 95.1552C194.287 95.9379 194.727 96.9994 194.727 98.1063V135.667" stroke="url(#is_p7)" stroke-width="4.52713" stroke-linecap="round" stroke-linejoin="round"/><path d="M140.473 93.933V123.147H111.259" stroke="#AECFFF" stroke-width="4.52713" stroke-linecap="round" stroke-linejoin="round"/><path d="M187.183 190.786C199.053 190.786 208.676 181.163 208.676 169.292C208.676 157.422 199.053 147.799 187.183 147.799C175.312 147.799 165.689 157.422 165.689 169.292C165.689 181.163 175.312 190.786 187.183 190.786Z" fill="#1A56DB"/><path d="M176.821 171.02L182.348 176.547L195.244 163.651" stroke="#fff" stroke-width="3.35832" stroke-linecap="round" stroke-linejoin="round"/><defs><radialGradient id="is_p7" cx="0" cy="0" r="1" gradientTransform="matrix(-75.8294 135.814 110.073 82.4788 197.132 69.3166)" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF"/><stop offset="0.31" stop-color="#A6A8AB"/><stop offset="0.62" stop-color="#A6A8AB"/><stop offset="1" stop-color="#EEEEEF"/></radialGradient><linearGradient id="is_p0" x1="32.019" y1="129.542" x2="61.0216" y2="161.247" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="is_p1" x1="32.019" y1="163.293" x2="61.0216" y2="194.997" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="is_p2" x1="9.83908" y1="144.543" x2="35.2856" y2="187.814" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="is_p3" x1="176.142" y1="136.891" x2="132.374" y2="157.329" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="is_p4" x1="157.52" y1="160.991" x2="129.606" y2="153.701" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="is_p5" x1="151.212" y1="147.576" x2="128.705" y2="152.2" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient></defs></svg></span><span class="ftitle">Improved SAR documentation and audit readiness</span></div>
+            <div class="fcard"><span class="fic"><svg viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M37.1997 120.803L68.854 120.803" stroke="url(#rt_p0)" stroke-width="7.03429"/><path d="M37.1997 152.457L68.854 152.457" stroke="url(#rt_p1)" stroke-width="7.03429"/><path d="M19.6138 134.871L68.8538 134.871" stroke="url(#rt_p2)" stroke-width="7.03429"/><path d="M108.891 150.732C103.372 141.642 101.347 130.855 103.194 120.382C105.041 109.91 110.634 100.466 118.929 93.8119C127.224 87.1579 137.657 83.7478 148.281 84.2175C158.905 84.6871 168.995 89.0044 176.671 96.3644C184.347 103.724 189.085 113.625 190 124.22C190.916 134.815 187.947 145.381 181.647 153.948C175.347 162.516 166.147 168.5 155.761 170.785C145.375 173.071 134.512 171.501 125.199 166.368L108.275 172.435C107.636 172.663 106.946 172.709 106.283 172.567C105.62 172.425 105.009 172.101 104.52 171.632C104.03 171.162 103.681 170.566 103.512 169.909C103.342 169.253 103.359 168.562 103.56 167.914L108.891 150.732Z" stroke="url(#rt_p3)" stroke-width="3.43934" stroke-linecap="round" stroke-linejoin="round"/><circle cx="5.21899" cy="5.21899" r="5.21899" transform="matrix(-1 0 0 1 173.309 122.899)" fill="#AECFFF"/><circle cx="5.21899" cy="5.21899" r="5.21899" transform="matrix(-1 0 0 1 152.34 123.34)" fill="#1A56DB"/><circle cx="5.21899" cy="5.21899" r="5.21899" transform="matrix(-1 0 0 1 131.372 123.78)" fill="#AECFFF"/><path d="M199.669 110.365L199.792 110.567C204.751 118.681 204.751 128.888 199.792 137.003L199.669 137.205" stroke="#1A56DB" stroke-width="2.98219" stroke-linecap="round"/><path d="M208.057 101.418L208.242 101.721C215.68 113.893 215.68 129.203 208.242 141.375L208.057 141.678" stroke="#1A56DB" stroke-width="2.98219" stroke-linecap="round"/><path d="M217.002 93.9625L217.249 94.3661C227.166 110.595 227.166 131.009 217.249 147.238L217.002 147.642" stroke="#1A56DB" stroke-width="2.98219" stroke-linecap="round"/><defs><radialGradient id="rt_p3" cx="0" cy="0" r="1" gradientTransform="matrix(-136.355 14.5296 18.0101 129.376 209.355 105.245)" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF"/><stop offset="0.31" stop-color="#A6A8AB"/><stop offset="0.62" stop-color="#A6A8AB"/><stop offset="1" stop-color="#EEEEEF" stop-opacity="0"/></radialGradient><linearGradient id="rt_p0" x1="31.4093" y1="120.242" x2="60.5179" y2="150.086" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="rt_p1" x1="31.4093" y1="151.896" x2="60.5179" y2="181.74" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="rt_p2" x1="10.6064" y1="134.31" x2="36.8166" y2="176.112" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient></defs></svg></span><span class="ftitle">Real-time operational communication</span></div>
+            <div class="fcard"><span class="fic"><svg viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M39.6777 123.051L79.0994 123.051" stroke="url(#ri_p0)" stroke-width="8.76038"/><path d="M39.6777 162.473L79.0994 162.473" stroke="url(#ri_p1)" stroke-width="8.76038"/><path d="M17.7769 140.572L79.0995 140.572" stroke="url(#ri_p2)" stroke-width="8.76038"/><ellipse cx="166.107" cy="129.627" rx="19.112" ry="19.8471" fill="url(#ri_p3)"/><path d="M165.643 95.4266C183.52 95.4266 198.141 110.632 198.141 129.55C198.141 148.467 183.52 163.673 165.643 163.673C147.765 163.673 133.145 148.467 133.145 129.55C133.145 110.632 147.765 95.4266 165.643 95.4266Z" stroke="url(#ri_p4)" stroke-width="3.24982"/><path d="M177.173 122.586L235.515 96.4329" stroke="#AECFFF" stroke-width="4.02358" stroke-linecap="round" stroke-linejoin="round"/><path d="M203.326 89.2562C193.284 79.9744 179.855 74.3029 165.102 74.3029C133.992 74.3029 108.772 99.5227 108.772 130.633C108.772 161.743 133.992 186.963 165.102 186.963C196.212 186.963 221.432 161.743 221.432 130.633C221.432 128.938 221.357 127.26 221.211 125.604" stroke="url(#ri_p5)" stroke-width="4.32535" stroke-linecap="round"/><path d="M165.103 204.296C205.486 204.296 238.223 171.558 238.223 131.175C238.223 128.975 238.126 126.797 237.936 124.646" stroke="url(#ri_p6)" stroke-width="5.61464" stroke-linecap="round"/><defs><linearGradient id="ri_p3" x1="161.93" y1="109.78" x2="161.93" y2="154.79" gradientUnits="userSpaceOnUse"><stop stop-color="#1A56DB"/><stop offset="1" stop-color="#6BA3FF"/></linearGradient><radialGradient id="ri_p4" cx="0" cy="0" r="1" gradientTransform="matrix(-9.74945 69.8711 -63.1688 -11.5075 185.142 116.55)" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF"/><stop offset="0.31" stop-color="#A6A8AB"/><stop offset="0.62" stop-color="#A6A8AB"/><stop offset="1" stop-color="#EEEEEF" stop-opacity="0"/></radialGradient><radialGradient id="ri_p5" cx="0" cy="0" r="1" gradientTransform="matrix(-14.9915 175.648 -166.765 -19.6541 192.638 49.0334)" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF"/><stop offset="0.31" stop-color="#A6A8AB"/><stop offset="0.62" stop-color="#A6A8AB"/><stop offset="1" stop-color="#EEEEEF" stop-opacity="0"/></radialGradient><radialGradient id="ri_p6" cx="0" cy="0" r="1" gradientTransform="matrix(-19.4601 228.004 -216.474 -25.5125 200.846 25.2522)" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF"/><stop offset="0.31" stop-color="#A6A8AB"/><stop offset="0.62" stop-color="#A6A8AB"/><stop offset="1" stop-color="#EEEEEF" stop-opacity="0"/></radialGradient><linearGradient id="ri_p0" x1="32.4664" y1="122.49" x2="60.7357" y2="158.586" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="ri_p1" x1="32.4664" y1="161.912" x2="60.7357" y2="198.008" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="ri_p2" x1="6.5593" y1="140.011" x2="29.9501" y2="186.469" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient></defs></svg></span><span class="ftitle">Reduced investigation delays and operational blind spots</span></div>
+            <div class="fcard"><span class="fic"><svg viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M171.746 105.286L171.746 81.7302" stroke="url(#ce_p0)" stroke-width="3.36506" stroke-linecap="round"/><path d="M121.271 174.269L148.273 146.125" stroke="url(#ce_p1)" stroke-width="4.30727" stroke-linecap="round"/><path d="M222.222 175.952L190.217 146.41" stroke="url(#ce_p2)" stroke-width="4.30727" stroke-linecap="round"/><path d="M39.6309 91.826L80.4504 91.826" stroke="url(#ce_p3)" stroke-width="9.07102"/><path d="M39.6309 132.647L80.4504 132.647" stroke="url(#ce_p4)" stroke-width="9.07102"/><path d="M16.9536 109.968L80.4507 109.968" stroke="url(#ce_p5)" stroke-width="9.07102"/><path d="M171.746 61.8762C176.206 61.8762 179.822 65.4922 179.822 69.9524C179.822 74.4127 176.206 78.0285 171.746 78.0285C167.285 78.0283 163.669 74.4125 163.669 69.9524C163.67 65.4924 167.286 61.8764 171.746 61.8762Z" stroke="url(#ce_p6)" stroke-width="4.03807"/><path d="M111.175 174.605C115.635 174.605 119.251 178.221 119.251 182.681C119.251 187.141 115.635 190.757 111.175 190.757C106.715 190.757 103.099 187.141 103.099 182.681C103.099 178.221 106.715 174.605 111.175 174.605Z" stroke="url(#ce_p7)" stroke-width="4.03807"/><path d="M228.951 177.971C233.411 177.971 237.027 181.587 237.027 186.047C237.027 190.507 233.411 194.123 228.951 194.123C224.491 194.123 220.875 190.507 220.875 186.047C220.875 181.587 224.491 177.971 228.951 177.971Z" stroke="url(#ce_p8)" stroke-width="4.03807"/><ellipse cx="170.543" cy="132.566" rx="19.7897" ry="20.5509" fill="url(#ce_p9)"/><defs><linearGradient id="ce_p9" x1="166.218" y1="112.015" x2="166.218" y2="158.621" gradientUnits="userSpaceOnUse"><stop stop-color="#1A56DB"/><stop offset="1" stop-color="#6BA3FF"/></linearGradient><linearGradient id="ce_p0" x1="171.746" y1="105.286" x2="178.315" y2="78.6999" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="ce_p1" x1="109.835" y1="183.826" x2="147.235" y2="132.4" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="ce_p2" x1="222.222" y1="175.952" x2="203.885" y2="132.196" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="ce_p3" x1="32.1639" y1="91.265" x2="60.1821" y2="128.309" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="ce_p4" x1="32.1639" y1="132.086" x2="60.1821" y2="169.129" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="ce_p5" x1="5.33828" y1="109.407" x2="28.2398" y2="156.507" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="ce_p6" x1="161.651" y1="59.8576" x2="185.827" y2="60.1112" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="ce_p7" x1="101.08" y1="172.586" x2="125.256" y2="172.84" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="ce_p8" x1="218.856" y1="175.952" x2="243.032" y2="176.206" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient></defs></svg></span><span class="ftitle">Centralized intelligence-sharing infrastructure</span></div>
+            <div class="fcard wide"><span class="fic"><svg viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M61.6191 123.959L94.2966 123.959" stroke="url(#en_p0)" stroke-width="7.26165"/><path d="M61.6191 156.636L94.2966 156.636" stroke="url(#en_p1)" stroke-width="7.26165"/><path d="M43.4639 138.482L94.2954 138.482" stroke="url(#en_p2)" stroke-width="7.26165"/><path d="M151.776 177.836H188.036" stroke="url(#en_p3)" stroke-width="3.55587" stroke-linecap="round" stroke-linejoin="round"/><path d="M147.561 148.375C143.251 145.008 139.76 140.708 137.35 135.798C134.94 130.887 133.674 125.495 133.647 120.025C133.538 100.373 149.384 84.0153 169.031 83.5621C176.646 83.3776 184.125 85.5957 190.408 89.9017C196.691 94.2077 201.458 100.383 204.033 107.551C206.608 114.719 206.861 122.516 204.755 129.836C202.649 137.156 198.292 143.626 192.301 148.33C190.979 149.355 189.909 150.667 189.17 152.166C188.431 153.666 188.043 155.315 188.036 156.987V159.706C188.036 160.668 187.654 161.59 186.974 162.27C186.294 162.95 185.372 163.332 184.41 163.332H155.403C154.441 163.332 153.519 162.95 152.839 162.27C152.159 161.59 151.777 160.668 151.777 159.706V156.987C151.775 155.326 151.394 153.686 150.664 152.194C149.934 150.702 148.873 149.396 147.561 148.375Z" stroke="url(#en_p4)" stroke-width="3.55587" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="196.694" cy="94.6159" rx="15.8423" ry="16.4517" fill="url(#en_p5)"/><defs><linearGradient id="en_p5" x1="193.231" y1="78.1643" x2="193.231" y2="115.474" gradientUnits="userSpaceOnUse"><stop stop-color="#1A56DB"/><stop offset="1" stop-color="#6BA3FF"/></linearGradient><radialGradient id="en_p3" cx="0" cy="0" r="1" gradientTransform="matrix(-5.17988 0.977273 -33.5616 -0.160953 180.266 178.154)" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF"/><stop offset="0.31" stop-color="#A6A8AB"/><stop offset="0.62" stop-color="#A6A8AB"/><stop offset="1" stop-color="#EEEEEF" stop-opacity="0"/></radialGradient><radialGradient id="en_p4" cx="0" cy="0" r="1" gradientTransform="matrix(-10.3603 77.9676 -67.1267 -12.841 190.628 108.936)" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF"/><stop offset="0.31" stop-color="#A6A8AB"/><stop offset="0.62" stop-color="#A6A8AB"/><stop offset="1" stop-color="#EEEEEF" stop-opacity="0"/></radialGradient><linearGradient id="en_p0" x1="55.6416" y1="123.398" x2="84.7124" y2="154.166" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="en_p1" x1="55.6416" y1="156.075" x2="84.7124" y2="186.844" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient><linearGradient id="en_p2" x1="34.1654" y1="137.921" x2="60.0043" y2="180.462" gradientUnits="userSpaceOnUse"><stop stop-color="#EEEEEF" stop-opacity="0"/><stop offset="1" stop-color="#A6A8AB"/></linearGradient></defs></svg></span><span class="ftitle">Enhanced decision-making across compliance operations</span></div>
+          </div>
+        </div>
       </div>
+
+      <!-- SIGNAL PANEL -->
+      <div id="panel-signal" class="tab-panel tp-signal" role="tabpanel" aria-labelledby="tab-signal" aria-hidden="true">
+        <div class="pcol">
+          <span class="tag">Intelligence Signals</span>
+          <h3>SIGNAL</h3>
+          <span class="sub">Verified Intelligence Signals Beyond Risk Scoring</span>
+          <a class="go" href="/signal/">Explore Signal <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5"/></svg></a>
+        </div>
+        <div class="pcol-body">
+          <div class="flow">
+            <div class="flow-head">
+              <span class="fh from">Traditional Analytics</span>
+              <span aria-hidden="true"></span>
+              <span class="fh to">Deconflict Signal Intelligence</span>
+            </div>
+            <div class="flow-rows">
+              <div class="flow-row">
+                <span class="flow-from">Probabilistic risk scoring</span>
+                <span class="flow-link" aria-hidden="true"><span class="flow-node"></span></span>
+                <span class="flow-to">Verified investigative signals</span>
+              </div>
+              <div class="flow-row">
+                <span class="flow-from">Behavioral heuristics</span>
+                <span class="flow-link" aria-hidden="true"><span class="flow-node"></span></span>
+                <span class="flow-to">Operational intelligence context</span>
+              </div>
+              <div class="flow-row">
+                <span class="flow-from">Static monitoring</span>
+                <span class="flow-link" aria-hidden="true"><span class="flow-node"></span></span>
+                <span class="flow-to">Real-time coordination workflows</span>
+              </div>
+              <div class="flow-row">
+                <span class="flow-from">Generic alerting</span>
+                <span class="flow-link" aria-hidden="true"><span class="flow-node"></span></span>
+                <span class="flow-to">Intelligence-driven escalation</span>
+              </div>
+              <div class="flow-row">
+                <span class="flow-from">Transaction-only analysis</span>
+                <span class="flow-link" aria-hidden="true"><span class="flow-node"></span></span>
+                <span class="flow-to">Cross-network investigative visibility</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- WORKFLOW — dedicated full-width section, visually independent from the tabbed component -->
+<section class="wfsec" id="workflow">
+  <div class="wrap">
+    <div class="wf-head reveal">
+      <span class="kicker">[ The Workflow ]</span>
+      <h2>Stronger context across every workflow</h2>
+    </div>
+    <div class="wf-steps reveal">
+      <div class="wf-step"><span class="wic"><svg width="26" height="26" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="2.6" stroke="currentColor"/><path d="M3 13.5c.8-2.6 2.6-4 5-4s4.2 1.4 5 4" stroke="currentColor"/></svg></span><h5>Onboarding</h5><p>Make informed risk decisions</p></div>
+      <div class="wf-step"><span class="wic"><svg width="26" height="26" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.2" stroke="currentColor"/><path d="M10.2 10.2 14 14" stroke="currentColor" stroke-linecap="round"/></svg></span><h5>Monitoring</h5><p>See what others can't see</p></div>
+      <div class="wf-step"><span class="wic"><svg width="26" height="26" viewBox="0 0 16 16" fill="none"><path d="M3 13 13 3M6 3h7v7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h5>Escalation</h5><p>Act faster with operational context</p></div>
+      <div class="wf-step"><span class="wic"><svg width="26" height="26" viewBox="0 0 16 16" fill="none"><rect x="3.5" y="1.8" width="9" height="12.4" rx="1.4" stroke="currentColor"/><path d="M6 5.5h4M6 8h4M6 10.5h2.5" stroke="currentColor"/></svg></span><h5>Reporting</h5><p>Stronger reports. Audit ready.</p></div>
+      <div class="wf-step"><span class="wic"><svg width="26" height="26" viewBox="0 0 16 16" fill="none"><path d="M8 1.5 14 4v4c0 3.4-2.4 5.8-6 6.8C4.4 13.8 2 11.4 2 8V4l6-2.5Z" stroke="currentColor" stroke-linejoin="round"/><path d="M5.5 8l1.8 1.8L11 6.2" stroke="currentColor" stroke-linecap="round"/></svg></span><h5>Decision-Making</h5><p>Confidence in every action</p></div>
     </div>
   </div>
 </section>
@@ -313,7 +433,7 @@ footer{padding:28px 40px 36px;display:flex;justify-content:space-between;color:v
   <div class="wrap">
     <div class="lede reveal">
       <div>
-        <span class="kicker">[ Sec 03 — Why Deconflict ]</span>
+        <span class="kicker">[ Why Deconflict ]</span>
         <h2>Compliance teams need more than monitoring</h2>
       </div>
       <div>
@@ -322,72 +442,268 @@ footer{padding:28px 40px 36px;display:flex;justify-content:space-between;color:v
       </div>
     </div>
 
-    <!-- Narrative illustration: alert noise → deconfliction → investigative context -->
-    <div class="illus reveal">
-      <svg viewBox="0 0 1000 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Scattered alerts pass through Deconflict and emerge as connected investigative context">
-        <!-- labels -->
-        <text class="il-label" x="70" y="36">Alerts — Noise</text>
-        <text class="il-label" x="448" y="36">Deconfliction</text>
-        <text class="il-label" x="790" y="36">Investigative Context</text>
+    <!-- Living workflow diagram: alerts/noise → Deconflict → verified investigative context -->
+    <div class="illus">
+      <svg viewBox="0 0 2565 654" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Incoming alerts and noise on the left flow through the central Deconflict node and become verified investigative context on the right">
 
-        <!-- left: scattered alert noise -->
-        <g class="il-noise">
-          <circle cx="84" cy="92" r="4" style="animation-delay:0s"/>
-          <circle cx="150" cy="70" r="3.4" style="animation-delay:.4s"/>
-          <circle cx="216" cy="100" r="4.4" style="animation-delay:.8s"/>
-          <circle cx="110" cy="152" r="3.6" style="animation-delay:1.2s"/>
-          <circle cx="190" cy="168" r="4" style="animation-delay:1.6s"/>
-          <circle cx="86" cy="216" r="4.2" style="animation-delay:2s"/>
-          <circle cx="158" cy="236" r="3.4" style="animation-delay:2.4s"/>
-          <circle cx="232" cy="214" r="3.8" style="animation-delay:.6s"/>
-          <circle cx="252" cy="142" r="3.2" style="animation-delay:1.8s"/>
-        </g>
-        <!-- converging hairlines into the lens -->
-        <g class="il-faint">
-          <path d="M88 92 C 300 110, 380 140, 444 154"/>
-          <path d="M154 70 C 320 100, 390 134, 444 150"/>
-          <path d="M220 100 C 340 122, 400 142, 444 152"/>
-          <path d="M114 152 C 300 152, 390 152, 444 153"/>
-          <path d="M194 168 C 330 162, 400 156, 444 154"/>
-          <path d="M90 216 C 300 196, 390 168, 444 156"/>
-          <path d="M162 236 C 330 204, 400 170, 444 157"/>
-          <path d="M236 214 C 350 190, 408 166, 444 156"/>
-          <path d="M256 142 C 350 146, 410 150, 444 152"/>
+        <!-- CENTER — Deconflict node (revealed second; idle pulse + ring drift) -->
+        <g class="ill-center">
+          <g class="ill-hex">
+            <g filter="url(#filter0_f_26_850)">
+              <path d="M1251.1 88.8347C1260.38 83.4796 1271.8 83.4796 1281.08 88.8347L1413.36 165.209C1422.64 170.564 1428.35 180.461 1428.35 191.171V343.921C1428.35 354.631 1422.64 364.528 1413.36 369.883L1281.08 446.258C1271.8 451.613 1260.38 451.613 1251.1 446.258L1118.82 369.883C1109.54 364.528 1103.83 354.631 1103.83 343.921V191.171C1103.83 180.461 1109.54 170.565 1118.82 165.209L1251.1 88.8347Z" fill="#134FDF" fill-opacity="0.2"/>
+            </g>
+            <path d="M1251.1 88.8347C1260.38 83.4796 1271.8 83.4796 1281.08 88.8347L1413.36 165.209C1422.64 170.564 1428.35 180.461 1428.35 191.171V343.921C1428.35 354.631 1422.64 364.528 1413.36 369.883L1281.08 446.258C1271.8 451.613 1260.38 451.613 1251.1 446.258L1118.82 369.883C1109.54 364.528 1103.83 354.631 1103.83 343.921V191.171C1103.83 180.461 1109.54 170.564 1118.82 165.209L1251.1 88.8347Z" fill="white"/>
+            <path d="M1251.53 89.5791C1260.54 84.3775 1271.64 84.3775 1280.65 89.5791L1412.93 165.954C1421.94 171.156 1427.49 180.769 1427.49 191.172V343.921C1427.49 354.324 1421.94 363.937 1412.93 369.139L1280.65 445.514C1271.64 450.715 1260.54 450.715 1251.53 445.514L1119.25 369.139C1110.24 363.937 1104.69 354.324 1104.69 343.921V191.172C1104.69 180.769 1110.24 171.156 1119.25 165.954L1251.53 89.5791Z" stroke="url(#paint0_linear_26_850)" stroke-opacity="0.47" stroke-width="1.71895"/>
+            <path class="ill-ring" d="M1248.61 50.8643C1259.43 44.6202 1272.75 44.6202 1283.57 50.8643L1442.36 142.546C1453.18 148.79 1459.84 160.329 1459.84 172.817V356.181C1459.84 368.669 1453.18 380.208 1442.36 386.452L1283.57 478.134C1272.75 484.378 1259.43 484.378 1248.61 478.134L1089.82 386.452C1079 380.208 1072.34 368.669 1072.34 356.181V172.817C1072.34 160.329 1079 148.79 1089.82 142.546L1248.61 50.8643Z" stroke="#CBD8FF" stroke-opacity="0.5" stroke-width="2.06346"/>
+            <path class="ill-ring" d="M1245.89 21.7881C1258.39 14.57 1273.79 14.57 1286.29 21.7881L1469.86 127.771C1482.36 134.989 1490.06 148.328 1490.06 162.764V374.729C1490.06 389.164 1482.36 402.504 1469.86 409.722L1286.29 515.704C1273.79 522.922 1258.39 522.922 1245.89 515.704L1062.32 409.722C1049.82 402.504 1042.12 389.164 1042.12 374.729V162.764C1042.12 148.328 1049.82 134.989 1062.32 127.771L1245.89 21.7881Z" stroke="#CBD8FF" stroke-opacity="0.43" stroke-width="2.38532"/>
+            <path d="M1262.39 232.045C1264.68 230.723 1267.5 230.723 1269.79 232.045L1302.45 250.9C1304.74 252.222 1306.15 254.665 1306.15 257.309V295.02C1306.15 297.664 1304.74 300.107 1302.45 301.429L1269.79 320.285C1267.5 321.607 1264.68 321.607 1262.39 320.285L1229.73 301.429C1227.44 300.107 1226.03 297.664 1226.03 295.02V257.309C1226.03 254.665 1227.44 252.222 1229.73 250.9L1262.39 232.045Z" fill="#134FDF"/>
+            <g filter="url(#filter1_f_26_850)">
+              <circle cx="1262.5" cy="276.056" r="18.5" fill="white"/>
+            </g>
+            <path d="M1261.44 210.622C1264.32 208.961 1267.86 208.961 1270.74 210.622L1319.72 238.905C1322.6 240.566 1324.37 243.635 1324.37 246.957V303.523C1324.37 306.845 1322.6 309.914 1319.72 311.575L1270.74 339.858C1267.86 341.519 1264.32 341.519 1261.44 339.858L1212.45 311.575C1209.58 309.914 1207.8 306.844 1207.8 303.523V246.957C1207.8 243.635 1209.58 240.566 1212.45 238.905L1261.44 210.622Z" stroke="#134FDF" stroke-width="3.60754"/>
+          </g>
         </g>
 
-        <!-- center: deconfliction lens -->
-        <g class="il-lens">
-          <circle cx="500" cy="154" r="26" opacity=".9"/>
-          <circle cx="500" cy="154" r="44" opacity=".45"/>
-          <circle cx="500" cy="154" r="62" opacity=".2"/>
+        <!-- LEFT — incoming alert / noise network (revealed first) -->
+        <g class="ill-left">
+          <path d="M1027.88 277.246C899.163 133.827 536.313 43.3082 328.503 67.8316" stroke="#D9D9D9" stroke-width="2"/>
+          <path d="M1025.26 279.443C847.069 206.049 589.255 187.443 397.255 254.442" stroke="#D9D9D9" stroke-width="2"/>
+          <path d="M1021.74 278.163C914.54 199.995 745.909 135.958 562.255 146.442" stroke="#D9D9D9" stroke-width="2"/>
+          <path d="M1028.51 278.121C853.367 473.264 363.386 598.539 80.6307 565.172" stroke="#D9D9D9" stroke-width="2.7213"/>
+          <path d="M1028.66 277.244C786.216 377.107 455.832 397.868 178.26 343.442" stroke="#D9D9D9" stroke-width="2.7213"/>
+          <path d="M1028.01 277.246C892.732 396.777 607.685 471.856 357.558 481.018" stroke="#D9D9D9" stroke-width="2.7213"/>
+          <g class="ill-dots">
+            <circle cx="323.505" cy="69.4424" r="9.25" fill="#D9D9D9"/>
+            <circle cx="246.505" cy="130.329" r="9.25" fill="#D9D9D9"/>
+            <circle cx="228.005" cy="436.108" r="9.25" fill="#D9D9D9"/>
+            <circle cx="108.381" cy="417.608" r="9.25" fill="#D9D9D9"/>
+            <circle cx="132.005" cy="519.192" r="9.25" fill="#D9D9D9"/>
+            <circle cx="467.005" cy="426.858" r="9.25" fill="#D9D9D9"/>
+            <circle cx="448.505" cy="187.442" r="9.25" fill="#D9D9D9"/>
+            <circle cx="237.255" cy="239.492" r="9.25" fill="#D9D9D9"/>
+            <circle cx="9.25" cy="226.908" r="9.25" fill="#D9D9D9"/>
+            <circle cx="27.75" cy="320.071" r="9.25" fill="#D9D9D9"/>
+            <circle cx="132.005" cy="178.192" r="9.25" fill="#D9D9D9"/>
+            <circle cx="565.901" cy="147.366" r="9.25" fill="#D9D9D9"/>
+            <circle cx="395.578" cy="257.992" r="9.25" fill="#D9D9D9"/>
+            <circle cx="187.358" cy="344.321" r="9.25" fill="#D9D9D9"/>
+            <circle cx="353.25" cy="479.862" r="9.25" fill="#D9D9D9"/>
+            <circle cx="89.8809" cy="569.862" r="9.25" fill="#D9D9D9"/>
+          </g>
+          <g filter="url(#filter6_d_26_850)">
+            <circle cx="1041.17" cy="278.746" r="16" fill="#134FDF"/>
+          </g>
+          <g filter="url(#filter7_f_26_850)">
+            <circle cx="1038.5" cy="278.056" r="6.5" fill="white"/>
+          </g>
         </g>
-        <path d="M500 142.5 510 148.2v11.6L500 165.5 490 159.8v-11.6L500 142.5Z" fill="none" stroke="#1A56DB" stroke-width="1.4"/>
-        <path d="M500 147.5 505 150.4v5.8L500 159.2 495 156.2v-5.8L500 147.5Z" fill="#1A56DB"/>
 
-        <!-- right: connected constellation -->
-        <g class="il-net">
-          <line x1="566" y1="152" x2="700" y2="96"/>
-          <line x1="566" y1="156" x2="700" y2="210"/>
-          <line x1="700" y1="96" x2="812" y2="64"/>
-          <line x1="700" y1="96" x2="836" y2="152"/>
-          <line x1="700" y1="210" x2="836" y2="152"/>
-          <line x1="700" y1="210" x2="820" y2="244"/>
-          <line x1="836" y1="152" x2="930" y2="118"/>
-          <line x1="820" y1="244" x2="930" y2="118" opacity=".25"/>
-          <circle cx="700" cy="96" r="6"/>
-          <circle cx="700" cy="210" r="6"/>
-          <circle cx="812" cy="64" r="5"/>
-          <circle cx="820" cy="244" r="5"/>
-          <circle class="verified" cx="836" cy="152" r="8"/>
-          <circle cx="930" cy="118" r="5"/>
+        <!-- RIGHT — verified investigative context network (revealed last) -->
+        <g class="ill-right">
+          <path d="M1501.25 278.746L1662.25 136.746L1854.25 112.746" stroke="#D9D9D9" stroke-width="2"/>
+          <g class="ill-dots">
+            <circle cx="1705.25" cy="198.806" r="9.25" fill="#D9D9D9"/>
+            <circle cx="1977.25" cy="240.806" r="9.25" fill="#D9D9D9"/>
+            <circle cx="2061.25" cy="365.806" r="9.25" fill="#D9D9D9"/>
+            <circle cx="2111.25" cy="179.806" r="9.25" fill="#D9D9D9"/>
+            <circle cx="2280.25" cy="179.806" r="9.25" fill="#D9D9D9"/>
+            <circle cx="2398.25" cy="313.806" r="9.25" fill="#D9D9D9"/>
+            <circle cx="2235.25" cy="322.806" r="9.25" fill="#D9D9D9"/>
+            <circle cx="1775.25" cy="332.806" r="9.25" fill="#D9D9D9"/>
+          </g>
+          <g filter="url(#filter2_d_26_850)">
+            <circle cx="1491.01" cy="278.746" r="16" fill="#134FDF"/>
+          </g>
+          <g filter="url(#filter3_f_26_850)">
+            <circle cx="1495" cy="277.556" r="6" fill="white"/>
+          </g>
+          <g class="ill-pathnode" filter="url(#filter4_d_26_850)">
+            <circle cx="1665.5" cy="137.056" r="6.5" fill="#134FDF"/>
+          </g>
+          <g filter="url(#filter5_f_26_850)">
+            <circle cx="1667.12" cy="136.572" r="2.4375" fill="white"/>
+          </g>
+          <path class="ill-path" d="M2187.01 259.996H2489.01" stroke="#1A56DB" stroke-width="3"/>
+          <path class="ill-path" d="M2001.01 313.996L2140.01 265.996" stroke="#1A56DB" stroke-width="3"/>
+          <path class="ill-path" d="M1512.01 277.996L1918.01 327.996" stroke="#1A56DB" stroke-width="3"/>
+          <path d="M2157.51 262.996L1875.01 96.9956L1776.01 229.996L1510 277.556L1870.01 473.996L1957.01 325.996L2060.01 431.996L2157.51 262.996ZM2157.51 262.996L2270.01 96.9956L2520.01 266.996L2395.01 446.996L2157.51 262.996Z" stroke="#D9D9D9" stroke-width="2"/>
+          <circle cx="1873.01" cy="98.9956" r="44" fill="white" stroke="#D9D9D9" stroke-width="2"/>
+          <g clip-path="url(#clip0_26_850)">
+            <path d="M1851.67 91.9522H1895.21L1873.44 78.5557L1851.67 91.9522Z" stroke="#1A56DB" stroke-width="1.82018" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M1858.37 91.9521V108.698" stroke="#1A56DB" stroke-width="1.82018" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M1868.42 91.9521V108.698" stroke="#1A56DB" stroke-width="1.82018" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M1878.46 91.9521V108.698" stroke="#1A56DB" stroke-width="1.82018" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M1888.51 91.9521V108.698" stroke="#1A56DB" stroke-width="1.82018" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M1853.35 108.698H1893.54" stroke="#1A56DB" stroke-width="1.82018" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M1850 115.396H1896.88" stroke="#1A56DB" stroke-width="1.82018" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+          <circle cx="2271.01" cy="98.9956" r="44" fill="white" stroke="#D9D9D9" stroke-width="2"/>
+          <g clip-path="url(#clip1_26_850)">
+            <path d="M2271.44 106.356C2279.57 106.356 2286.16 99.7652 2286.16 91.6355C2286.16 83.5059 2279.57 76.9155 2271.44 76.9155C2263.31 76.9155 2256.72 83.5059 2256.72 91.6355C2256.72 99.7652 2263.31 106.356 2271.44 106.356Z" stroke="#1A56DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2249.36 119.235C2253.82 111.537 2261.91 106.355 2271.44 106.355C2280.97 106.355 2289.07 111.537 2293.52 119.235" stroke="#1A56DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+          <circle cx="2520.01" cy="257.996" r="44" fill="white" stroke="#D9D9D9" stroke-width="2"/>
+          <circle cx="2398.01" cy="445.996" r="44" fill="white" stroke="#D9D9D9" stroke-width="2"/>
+          <g clip-path="url(#clip2_26_850)">
+            <path d="M2415 466.076H2381.88C2381.39 466.076 2380.92 465.882 2380.58 465.537C2380.23 465.192 2380.04 464.724 2380.04 464.236V423.756C2380.04 423.268 2380.23 422.8 2380.58 422.454C2380.92 422.109 2381.39 421.916 2381.88 421.916H2403.96L2416.84 434.796V464.236C2416.84 464.724 2416.65 465.192 2416.3 465.537C2415.96 465.882 2415.49 466.076 2415 466.076Z" stroke="#1A56DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2403.96 421.916V434.796H2416.84" stroke="#1A56DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2391.08 445.835H2405.8" stroke="#1A56DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2391.08 453.195H2405.8" stroke="#1A56DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+          <circle cx="1956.01" cy="330.496" r="44" fill="white" stroke="#D9D9D9" stroke-width="2"/>
+          <circle cx="1873.01" cy="458.496" r="44" fill="white" stroke="#D9D9D9" stroke-width="2"/>
+          <g filter="url(#filter8_d_26_850)">
+            <circle cx="1775.5" cy="228.056" r="6.5" fill="#134FDF"/>
+          </g>
+          <g filter="url(#filter9_f_26_850)">
+            <circle cx="1777.12" cy="227.572" r="2.4375" fill="white"/>
+          </g>
+          <g filter="url(#filter10_d_26_850)">
+            <circle cx="2059.5" cy="431.056" r="6.5" fill="#134FDF"/>
+          </g>
+          <g filter="url(#filter11_f_26_850)">
+            <circle cx="2061.12" cy="430.572" r="2.4375" fill="white"/>
+          </g>
+          <path d="M1971.08 329.755C1973.3 329.754 1975.48 330.268 1977.46 331.258C1979.44 332.247 1981.16 333.684 1982.48 335.455" stroke="#1A56DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M1929.28 335.455C1930.61 333.684 1932.33 332.247 1934.31 331.258C1936.29 330.268 1938.47 329.754 1940.68 329.755" stroke="#1A56DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M1955.88 344.956C1961.13 344.956 1965.38 340.702 1965.38 335.456C1965.38 330.209 1961.13 325.956 1955.88 325.956C1950.64 325.956 1946.38 330.209 1946.38 335.456C1946.38 340.702 1950.64 344.956 1955.88 344.956Z" stroke="#1A56DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M1942.58 352.556C1943.95 350.241 1945.89 348.322 1948.22 346.99C1950.56 345.657 1953.2 344.956 1955.88 344.956C1958.57 344.956 1961.21 345.657 1963.54 346.99C1965.88 348.322 1967.82 350.241 1969.18 352.556" stroke="#1A56DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M1963.72 320.256C1964.08 318.879 1964.81 317.631 1965.84 316.651C1966.87 315.671 1968.15 314.999 1969.55 314.712C1970.94 314.425 1972.38 314.534 1973.72 315.027C1975.05 315.52 1976.22 316.377 1977.09 317.5C1977.96 318.624 1978.5 319.969 1978.64 321.382C1978.79 322.796 1978.53 324.223 1977.91 325.499C1977.28 326.775 1976.31 327.851 1975.1 328.603C1973.9 329.356 1972.51 329.755 1971.08 329.756" stroke="#1A56DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M1940.68 329.756C1939.26 329.755 1937.87 329.356 1936.66 328.603C1935.46 327.851 1934.49 326.775 1933.86 325.499C1933.24 324.223 1932.98 322.796 1933.13 321.382C1933.27 319.969 1933.81 318.624 1934.68 317.5C1935.55 316.377 1936.72 315.52 1938.05 315.027C1939.39 314.534 1940.83 314.425 1942.22 314.712C1943.61 314.999 1944.9 315.671 1945.93 316.651C1946.96 317.631 1947.69 318.879 1948.05 320.256" stroke="#1A56DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <g class="ill-verify">
+            <ellipse cx="2164.5" cy="265.056" rx="43.5" ry="43.5" fill="#D9D9D9"/>
+            <ellipse cx="2164.5" cy="265.056" rx="43.5" ry="43.5" fill="#1A56DB"/>
+            <g filter="url(#filter12_f_26_850)">
+              <ellipse cx="2159.66" cy="269.891" rx="19.3333" ry="19.3333" fill="white"/>
+            </g>
+            <path d="M2145 265.828L2156.45 277.282L2183.18 250.556" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2145 265.828L2156.45 277.282L2183.18 250.556" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+          <path d="M2542 242.556H2497.84C2496.82 242.556 2496 243.379 2496 244.396V273.836C2496 274.852 2496.82 275.676 2497.84 275.676H2542C2543.02 275.676 2543.84 274.852 2543.84 273.836V244.396C2543.84 243.379 2543.02 242.556 2542 242.556Z" stroke="#1A56DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2529.12 268.316H2536.48" stroke="#1A56DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2518.08 268.316H2521.76" stroke="#1A56DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2496 251.756H2543.84" stroke="#1A56DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M1872.85 461.632C1876.33 461.632 1879.15 458.808 1879.15 455.325C1879.15 451.841 1876.33 449.017 1872.85 449.017C1869.36 449.017 1866.54 451.841 1866.54 455.325C1866.54 458.808 1869.36 461.632 1872.85 461.632Z" stroke="#1A56DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M1888.62 455.325C1888.62 469.517 1872.85 480.556 1872.85 480.556C1872.85 480.556 1857.08 469.517 1857.08 455.325C1857.08 451.143 1858.74 447.132 1861.7 444.174C1864.65 441.217 1868.66 439.556 1872.85 439.556C1877.03 439.556 1881.04 441.217 1884 444.174C1886.95 447.132 1888.62 451.143 1888.62 455.325Z" stroke="#1A56DB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </g>
-        <path d="M831.5 152.5 834.8 155.8 841 148.8" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 
-        <!-- traveling signal packet -->
-        <g class="il-pkt">
-          <circle cx="100" cy="154" r="3.4" fill="#1A56DB"/>
-          <circle cx="100" cy="154" r="8" fill="#1A56DB" opacity=".18"/>
+        <!-- periodic cobalt signal pulse (Alerts → Deconflict → Investigative Context) -->
+        <g class="ill-pulse" aria-hidden="true">
+          <circle r="15" fill="#1A56DB" opacity="0.16"/>
+          <circle r="6.5" fill="#1A56DB"/>
+          <circle r="2.6" fill="#fff"/>
         </g>
+
+        <defs>
+          <filter id="filter0_f_26_850" x="1019.01" y="0.000228882" width="494.163" height="535.092" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+            <feGaussianBlur stdDeviation="42.4091" result="effect1_foregroundBlur_26_850"/>
+          </filter>
+          <filter id="filter1_f_26_850" x="1180.2" y="193.756" width="164.6" height="164.6" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+            <feGaussianBlur stdDeviation="31.9" result="effect1_foregroundBlur_26_850"/>
+          </filter>
+          <filter id="filter2_d_26_850" x="1455.51" y="242.246" width="73" height="73" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+            <feMorphology radius="9" operator="dilate" in="SourceAlpha" result="effect1_dropShadow_26_850"/>
+            <feOffset dx="1"/>
+            <feGaussianBlur stdDeviation="5.75"/>
+            <feComposite in2="hardAlpha" operator="out"/>
+            <feColorMatrix type="matrix" values="0 0 0 0 0.672326 0 0 0 0 0.774193 0 0 0 0 1 0 0 0 1 0"/>
+            <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_26_850"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_26_850" result="shape"/>
+          </filter>
+          <filter id="filter3_f_26_850" x="1468.1" y="250.656" width="53.8" height="53.8" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+            <feGaussianBlur stdDeviation="10.45" result="effect1_foregroundBlur_26_850"/>
+          </filter>
+          <filter id="filter4_d_26_850" x="1651.08" y="122.228" width="29.6562" height="29.6562" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+            <feMorphology radius="3.65625" operator="dilate" in="SourceAlpha" result="effect1_dropShadow_26_850"/>
+            <feOffset dx="0.40625"/>
+            <feGaussianBlur stdDeviation="2.33594"/>
+            <feComposite in2="hardAlpha" operator="out"/>
+            <feColorMatrix type="matrix" values="0 0 0 0 0.672326 0 0 0 0 0.774193 0 0 0 0 1 0 0 0 1 0"/>
+            <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_26_850"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_26_850" result="shape"/>
+          </filter>
+          <filter id="filter5_f_26_850" x="1656.19" y="125.644" width="21.8562" height="21.8562" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+            <feGaussianBlur stdDeviation="4.24531" result="effect1_foregroundBlur_26_850"/>
+          </filter>
+          <filter id="filter6_d_26_850" x="1005.67" y="242.246" width="73" height="73" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+            <feMorphology radius="9" operator="dilate" in="SourceAlpha" result="effect1_dropShadow_26_850"/>
+            <feOffset dx="1"/>
+            <feGaussianBlur stdDeviation="5.75"/>
+            <feComposite in2="hardAlpha" operator="out"/>
+            <feColorMatrix type="matrix" values="0 0 0 0 0.672326 0 0 0 0 0.774193 0 0 0 0 1 0 0 0 1 0"/>
+            <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_26_850"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_26_850" result="shape"/>
+          </filter>
+          <filter id="filter7_f_26_850" x="1010.1" y="249.656" width="56.8" height="56.8" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+            <feGaussianBlur stdDeviation="10.95" result="effect1_foregroundBlur_26_850"/>
+          </filter>
+          <filter id="filter8_d_26_850" x="1761.08" y="213.228" width="29.6562" height="29.6562" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+            <feMorphology radius="3.65625" operator="dilate" in="SourceAlpha" result="effect1_dropShadow_26_850"/>
+            <feOffset dx="0.40625"/>
+            <feGaussianBlur stdDeviation="2.33594"/>
+            <feComposite in2="hardAlpha" operator="out"/>
+            <feColorMatrix type="matrix" values="0 0 0 0 0.672326 0 0 0 0 0.774193 0 0 0 0 1 0 0 0 1 0"/>
+            <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_26_850"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_26_850" result="shape"/>
+          </filter>
+          <filter id="filter9_f_26_850" x="1766.19" y="216.644" width="21.8562" height="21.8562" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+            <feGaussianBlur stdDeviation="4.24531" result="effect1_foregroundBlur_26_850"/>
+          </filter>
+          <filter id="filter10_d_26_850" x="2045.08" y="416.228" width="29.6562" height="29.6562" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+            <feMorphology radius="3.65625" operator="dilate" in="SourceAlpha" result="effect1_dropShadow_26_850"/>
+            <feOffset dx="0.40625"/>
+            <feGaussianBlur stdDeviation="2.33594"/>
+            <feComposite in2="hardAlpha" operator="out"/>
+            <feColorMatrix type="matrix" values="0 0 0 0 0.672326 0 0 0 0 0.774193 0 0 0 0 1 0 0 0 1 0"/>
+            <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_26_850"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_26_850" result="shape"/>
+          </filter>
+          <filter id="filter11_f_26_850" x="2050.19" y="419.644" width="21.8562" height="21.8562" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+            <feGaussianBlur stdDeviation="4.24531" result="effect1_foregroundBlur_26_850"/>
+          </filter>
+          <filter id="filter12_f_26_850" x="2076.53" y="186.758" width="166.267" height="166.267" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+            <feGaussianBlur stdDeviation="31.9" result="effect1_foregroundBlur_26_850"/>
+          </filter>
+          <linearGradient id="paint0_linear_26_850" x1="1266.09" y1="80.1807" x2="1266.09" y2="454.912" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#AECFFF"/>
+            <stop offset="1" stop-color="#1A56DB"/>
+          </linearGradient>
+          <clipPath id="clip0_26_850">
+            <rect width="58.88" height="58.88" fill="white" transform="translate(1844 69.5557)"/>
+          </clipPath>
+          <clipPath id="clip1_26_850">
+            <rect width="58.88" height="58.88" fill="white" transform="translate(2242 69.5557)"/>
+          </clipPath>
+          <clipPath id="clip2_26_850">
+            <rect width="58.88" height="58.88" fill="white" transform="translate(2369 414.556)"/>
+          </clipPath>
+        </defs>
       </svg>
     </div>
 
@@ -401,7 +717,7 @@ footer{padding:28px 40px 36px;display:flex;justify-content:space-between;color:v
 <!-- S4 -->
 <section class="s4 wrap" id="s4">
   <div class="head reveal">
-    <span class="kicker">[ Sec 04 — Capabilities ]</span>
+    <span class="kicker">[ Capabilities ]</span>
     <h2>Verified intelligence for faster decisions</h2>
   </div>
   <div class="cards">
@@ -435,23 +751,100 @@ footer{padding:28px 40px 36px;display:flex;justify-content:space-between;color:v
 <!-- S5 -->
 <section class="s5 wrap" id="s5">
   <div class="head reveal">
-    <span class="kicker">[ Sec 05 — From the Briefing Room ]</span>
+    <span class="kicker">[ From the Briefing Room ]</span>
     <h2>Latest resources &amp; news</h2>
   </div>
-  <div class="res reveal">
-    <a href="#"><span class="cat">Briefing · Policy</span><h4>How the New OFAC Sanctions Impact Crypto Compliance Teams</h4><span class="go">Read briefing →</span></a>
-    <a href="#"><span class="cat">Briefing</span><h4>US Seizes $8B in Bitcoin During Global Scam Crackdown</h4><span class="go">Read briefing →</span></a>
-    <a href="#"><span class="cat">Briefing</span><h4>FCA Secures £452k Order Against Ponzi Fraudster Daniel Pugh</h4><span class="go">Read briefing →</span></a>
-    <a href="#"><span class="cat">Briefing · Policy</span><h4>The White House Just Mandated Cybercrime Coordination</h4><span class="go">Read briefing →</span></a>
+  <div class="ed reveal">
+
+    <!-- Featured hero article -->
+    <a class="ed-feature" href="#">
+      <div class="ed-cover">
+        <svg viewBox="0 0 640 328" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <g stroke="rgba(255,255,255,.16)" stroke-width="1">
+            <line x1="70" y1="80" x2="200" y2="150"/>
+            <line x1="200" y1="150" x2="340" y2="92"/>
+            <line x1="340" y1="92" x2="486" y2="168"/>
+            <line x1="200" y1="150" x2="262" y2="252"/>
+            <line x1="486" y1="168" x2="566" y2="104"/>
+            <line x1="340" y1="92" x2="408" y2="232"/>
+            <line x1="486" y1="168" x2="408" y2="232"/>
+          </g>
+          <g fill="rgba(255,255,255,.55)">
+            <circle cx="70" cy="80" r="3.2"/>
+            <circle cx="262" cy="252" r="3"/>
+            <circle cx="566" cy="104" r="3"/>
+            <circle cx="408" cy="232" r="3"/>
+            <circle cx="200" cy="150" r="4"/>
+          </g>
+          <circle cx="340" cy="92" r="6.5" fill="#3F76F0"/>
+          <circle cx="486" cy="168" r="16" fill="none" stroke="rgba(26,86,219,.35)" stroke-width="9"/>
+          <circle cx="486" cy="168" r="9" fill="#1A56DB"/>
+          <path d="M481.5 168 l3.2 3.2 6.4 -7.6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="ed-body">
+        <span class="ed-cat">Briefing · Policy</span>
+        <h3>How the New OFAC Sanctions Impact Crypto Compliance Teams</h3>
+        <span class="ed-cta">Read Briefing <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5"/></svg></span>
+      </div>
+    </a>
+
+    <!-- Secondary stacked resources -->
+    <div class="ed-side">
+      <a class="ed-item" href="#">
+        <div class="ed-cover">
+          <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <g fill="none" stroke="rgba(255,255,255,.18)">
+              <path d="M100 36 L154 67 V129 L100 160 L46 129 V67 Z"/>
+              <path d="M100 58 L135 78 V118 L100 138 L65 118 V78 Z" stroke="rgba(255,255,255,.26)"/>
+            </g>
+            <path d="M100 80 L118 90 V110 L100 120 L82 110 V90 Z" fill="#1A56DB"/>
+          </svg>
+        </div>
+        <div class="ed-body">
+          <span class="ed-cat">Briefing</span>
+          <h4>US Seizes $8B in Bitcoin During Global Scam Crackdown</h4>
+          <span class="ed-more">Read more →</span>
+        </div>
+      </a>
+      <a class="ed-item" href="#">
+        <div class="ed-cover">
+          <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <rect x="48" y="118" width="15" height="46" rx="3" fill="rgba(255,255,255,.25)"/>
+            <rect x="73" y="92" width="15" height="72" rx="3" fill="rgba(255,255,255,.34)"/>
+            <rect x="98" y="64" width="15" height="100" rx="3" fill="#1A56DB"/>
+            <rect x="123" y="100" width="15" height="64" rx="3" fill="rgba(255,255,255,.25)"/>
+            <rect x="148" y="82" width="15" height="82" rx="3" fill="rgba(255,255,255,.3)"/>
+          </svg>
+        </div>
+        <div class="ed-body">
+          <span class="ed-cat">Briefing</span>
+          <h4>FCA Secures £452k Order Against Ponzi Fraudster Daniel Pugh</h4>
+          <span class="ed-more">Read more →</span>
+        </div>
+      </a>
+      <a class="ed-item" href="#">
+        <div class="ed-cover">
+          <svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <path d="M100 40 L142 56 V100 C142 132 123 153 100 162 C77 153 58 132 58 100 V56 Z" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="2"/>
+            <path d="M84 100 l11 11 22 -27" fill="none" stroke="#1A56DB" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="ed-body">
+          <span class="ed-cat">Briefing · Policy</span>
+          <h4>The White House Just Mandated Cybercrime Coordination</h4>
+          <span class="ed-more">Read more →</span>
+        </div>
+      </a>
+    </div>
   </div>
 </section>
 
 <!-- S6 -->
 <section class="s6" id="s6">
-  <div class="close-panel">
-    <canvas id="netClose" aria-hidden="true"></canvas>
+  <canvas id="netClose" aria-hidden="true"></canvas>
+  <div class="wrap">
     <div class="inner">
-      <span class="kicker mono">[ Sec 06 ]</span>
       <h2 class="reveal">Built for institutions managing digital asset risk</h2>
       <p class="reveal">Deconflict helps compliance and investigative teams operate with greater confidence in fast-moving digital asset environments.</p>
       <a class="btn reveal" href="#">Schedule a Demo</a>
@@ -460,8 +853,10 @@ footer{padding:28px 40px 36px;display:flex;justify-content:space-between;color:v
 </section>
 
 <footer>
-  <span>Deconflict, Inc. · United States of America</span>
-  <span>© 2026 Deconflict, Inc. All rights reserved.</span>
+  <div class="wrap">
+    <span>Deconflict, Inc. · United States of America</span>
+    <span>© 2026 Deconflict, Inc. All rights reserved.</span>
+  </div>
 </footer>
 
 <script>
@@ -511,9 +906,40 @@ function network(id,light){
   draw();
 }
 network('net',true);network('netClose',false);
+// ---- S2 capability tabs (Nexus / Signal) ----
+(function(){
+  const seg=document.querySelector('#s2 .seg');
+  if(!seg)return;
+  const tabs=[...seg.querySelectorAll('[role="tab"]')];
+  const panels=tabs.map(t=>document.getElementById(t.getAttribute('aria-controls')));
+  function select(i){
+    tabs.forEach((t,idx)=>{
+      const on=idx===i;
+      t.setAttribute('aria-selected',on?'true':'false');
+      t.tabIndex=on?0:-1;
+      panels[idx].classList.toggle('active',on);
+      panels[idx].setAttribute('aria-hidden',on?'false':'true');
+    });
+    seg.dataset.active=i;
+  }
+  tabs.forEach((t,i)=>{
+    t.addEventListener('click',()=>select(i));
+    t.addEventListener('keydown',e=>{
+      let n=null;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown')n=(i+1)%tabs.length;
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp')n=(i-1+tabs.length)%tabs.length;
+      else if(e.key==='Home')n=0;
+      else if(e.key==='End')n=tabs.length-1;
+      if(n!==null){e.preventDefault();select(n);tabs[n].focus();}
+    });
+  });
+})();
 // reveals
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('inview');io.unobserve(e.target)}}),{threshold:.15});
 document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+// illustration: trigger its progressive reveal once ~25% is in view
+const illObs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('inview');illObs.unobserve(e.target)}}),{threshold:.25});
+document.querySelectorAll('.illus').forEach(el=>illObs.observe(el));
 </script>
 
 <!-- ===== Prototype nav overlay (Home + concept toggle) ===== -->
