@@ -1,0 +1,31 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M64.5664 52.6993L77.6069 52.6993" stroke="black" stroke-width="4.34682"/>
+<path d="M64.5664 52.6993L77.6069 52.6993" stroke="#1A56DB" stroke-width="4.34682"/>
+<path d="M50.2642 52.6993L58.0464 52.6993" stroke="black" stroke-width="3.67847"/>
+<path d="M50.2642 52.6993L58.0464 52.6993" stroke="#1A56DB" stroke-width="3.67847"/>
+<path d="M31.9663 52.3058H37.5123" stroke="black" stroke-width="4.34682"/>
+<path d="M31.9663 52.3058H37.5123" stroke="#1A56DB" stroke-width="4.34682"/>
+<path d="M39.2539 21.7805C54.8389 21.7806 67.4727 34.4152 67.4727 50.0002C67.4726 65.5851 54.8388 78.2188 39.2539 78.2189C23.6689 78.2189 11.0343 65.5852 11.0342 50.0002C11.0342 34.4151 23.6688 21.7805 39.2539 21.7805Z" stroke="black" stroke-width="3.22506"/>
+<path d="M39.2539 21.7805C54.8389 21.7806 67.4727 34.4152 67.4727 50.0002C67.4726 65.5851 54.8388 78.2188 39.2539 78.2189C23.6689 78.2189 11.0343 65.5852 11.0342 50.0002C11.0342 34.4151 23.6688 21.7805 39.2539 21.7805Z" stroke="url(#paint0_radial_28_433)" stroke-width="3.22506"/>
+<path d="M63.479 32.6255C73.9656 32.6256 82.4663 41.1263 82.4663 51.6128C82.4663 62.0994 73.9655 70.6001 63.479 70.6001C52.9924 70.6001 44.4917 62.0994 44.4917 51.6128C44.4917 41.1263 52.9924 32.6255 63.479 32.6255Z" stroke="url(#paint1_radial_28_433)" stroke-opacity="0.4" stroke-width="3.31961"/>
+<ellipse cx="83.3213" cy="53.2251" rx="7.25639" ry="7.25639" fill="#D9D9D9"/>
+<ellipse cx="83.3213" cy="53.2251" rx="7.25639" ry="7.25639" fill="#1A56DB"/>
+<g filter="url(#filter0_f_28_433)">
+<ellipse cx="82.5146" cy="54.0315" rx="3.22506" ry="3.22506" fill="white"/>
+</g>
+<defs>
+<filter id="filter0_f_28_433" x="68.6468" y="40.1637" width="27.7356" height="27.7356" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="5.32135" result="effect1_foregroundBlur_28_433"/>
+</filter>
+<radialGradient id="paint0_radial_28_433" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(18.8807 33.2651) rotate(66.3706) scale(50.8284 50.8283)">
+<stop stop-color="#EEEEEF"/>
+<stop offset="1" stop-color="#A6A8AB"/>
+</radialGradient>
+<radialGradient id="paint1_radial_28_433" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(49.3783 40.0301) rotate(66.3706) scale(35.1797 35.1797)">
+<stop stop-color="#EEEEEF"/>
+<stop offset="1" stop-color="#A6A8AB"/>
+</radialGradient>
+</defs>
+</svg>
