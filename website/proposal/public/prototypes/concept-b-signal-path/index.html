@@ -40,7 +40,8 @@ a{color:inherit;text-decoration:none}
     radial-gradient(900px 500px at 85% -10%, var(--cobalt-soft) 0%, transparent 60%),
     radial-gradient(700px 480px at -10% 90%, var(--frost) 0%, transparent 55%),
     #FFFFFF;}
-#net{position:absolute;inset:0;width:100%;height:100%}
+.hero-bg{position:absolute;inset:0;width:100%;height:100%;border:0;z-index:0;pointer-events:none}
+#net{position:absolute;inset:0;width:100%;height:100%;z-index:1}
 .hero-content{position:relative;z-index:2;text-align:center;max-width:860px;margin:0 auto;padding:140px 24px 110px}
 .chip{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border-soft);border-radius:99px;padding:7px 16px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);box-shadow:0 2px 10px rgba(13,27,62,.05)}
 .chip i{width:6px;height:6px;border-radius:50%;background:var(--cobalt);animation:blink 2.2s infinite}
@@ -62,10 +63,11 @@ h2{font-family:var(--display);font-weight:500;font-size:clamp(30px,3.4vw,46px);l
 
 /* S2 PLATFORM MAP (rebuilt from reference diagram) */
 .s2{padding:130px 0}
-.pmap{position:relative;border:1px solid var(--border-soft);border-radius:26px;background:
+.pmap{position:relative;overflow:hidden;border:1px solid var(--border-soft);border-radius:26px;background:
   radial-gradient(640px 360px at 50% 38%, var(--cobalt-soft) 0%, transparent 65%),
   linear-gradient(180deg,#fff 0%,var(--frost) 120%);
   padding:56px 48px 40px;box-shadow:0 28px 70px rgba(13,27,62,.07)}
+.pmap-bg{position:absolute;inset:0;width:100%;height:100%;border:0;z-index:0;pointer-events:none}
 /* Segmented tab control */
 .seg-wrap{display:flex;justify-content:center;margin-bottom:38px}
 .seg{position:relative;display:inline-flex;padding:5px;background:var(--frost);border:1px solid var(--border-soft);border-radius:99px;box-shadow:inset 0 1px 2px rgba(13,27,62,.05)}
@@ -75,7 +77,7 @@ h2{font-family:var(--display);font-weight:500;font-size:clamp(30px,3.4vw,46px);l
 .seg-btn:hover{color:var(--navy)}
 .seg-btn[aria-selected="true"]{color:#fff}
 /* Tab panels: stacked in one grid cell so the card height holds at the taller of the two */
-.tab-stack{display:grid;position:relative;overflow:hidden}
+.tab-stack{display:grid;position:relative;overflow:hidden;z-index:1}
 .tab-panel{grid-area:1/1;display:grid;grid-template-columns:minmax(0,35fr) minmax(0,65fr);gap:44px;align-items:center;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .4s ease-out,transform .4s ease-out,visibility .4s}
 .tp-nexus{transform:translateX(-28px)}
 .tp-signal{transform:translateX(28px)}
@@ -91,8 +93,10 @@ h2{font-family:var(--display);font-weight:500;font-size:clamp(30px,3.4vw,46px);l
 .fgrid{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:12px}
 .fcard{display:flex;align-items:center;gap:14px;background:#fff;border:1px solid var(--border-soft);border-radius:14px;padding:16px 18px;transition:border-color .25s,box-shadow .25s,transform .25s}
 .fcard:hover{border-color:var(--border);box-shadow:0 8px 22px rgba(13,27,62,.07);transform:translateY(-2px)}
-.fcard .fic{width:38px;height:38px;border-radius:10px;background:#FFFFFF;border:1px solid var(--border-soft);display:flex;align-items:center;justify-content:center;flex:none;color:var(--cobalt)}
-.fcard .fic svg{width:30px;height:30px;display:block}
+.fcard .fic{width:67px;height:67px;border-radius:16px;background:transparent;display:flex;align-items:center;justify-content:center;flex:none}
+.fcard .fic svg{width:54px;height:54px;display:block}
+/* Larger icons for Improved SAR (3), Real-time operational (4), Enhanced (7) */
+.fgrid .fcard:nth-child(3) .fic svg,.fgrid .fcard:nth-child(4) .fic svg,.fgrid .fcard:nth-child(7) .fic svg{width:65px;height:65px}
 .fcard .ftitle{font-size:13px;line-height:1.4;color:var(--navy);font-weight:500}
 .fcard.wide{grid-column:1 / -1}
 /* Signal — intelligence-flow network (traditional analytics translating into verified signal) */
@@ -236,18 +240,22 @@ h2{font-family:var(--display);font-weight:500;font-size:clamp(30px,3.4vw,46px);l
 .ed-more{margin-top:1px;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--muted);transition:color .25s}
 .ed-item:hover .ed-more{color:var(--cobalt)}
 
-/* S6 CLOSE */
-.s6{padding:40px 40px 60px}
-.close-panel{position:relative;max-width:1240px;margin:0 auto;background:var(--navy);border-radius:28px;padding:110px 64px;text-align:center;overflow:hidden}
-.close-panel canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.5}
-.close-panel .inner{position:relative;z-index:2}
-.close-panel .kicker{color:#7E96D8}
-.close-panel h2{color:#fff;max-width:680px;margin:16px auto 0}
-.close-panel p{margin:22px auto 0;color:var(--subtle);max-width:480px;font-size:16px}
-.close-panel .btn{margin-top:38px;background:#fff;color:var(--navy);box-shadow:none}
-.close-panel .btn:hover{background:var(--cobalt-soft)}
+/* S6 — full-width immersive closing section (flows into footer) */
+.s6{position:relative;overflow:hidden;padding:160px 0 140px;background:
+  radial-gradient(circle at 1px 1px, rgba(255,255,255,.045) 1px, transparent 0) 0 0/26px 26px,
+  radial-gradient(1100px 620px at 84% 10%, rgba(26,86,219,.32) 0%, transparent 60%),
+  radial-gradient(900px 600px at 2% 115%, rgba(26,86,219,.14) 0%, transparent 55%),
+  var(--navy)}
+.s6 canvas{position:absolute;top:0;right:0;bottom:0;width:60%;height:100%;opacity:.6;z-index:1}
+.s6 .inner{position:relative;z-index:2;max-width:620px}
+.s6 .kicker{color:#7E96D8;display:inline-block;margin-bottom:18px}
+.s6 h2{color:#fff;font-family:var(--display);font-weight:600;font-size:clamp(38px,5.4vw,68px);line-height:1.04;letter-spacing:-.03em;max-width:15ch}
+.s6 p{margin-top:24px;color:var(--subtle);max-width:520px;font-size:17px;line-height:1.7}
+.s6 .btn{margin-top:40px;background:#fff;color:var(--navy);box-shadow:0 10px 34px rgba(0,0,0,.28)}
+.s6 .btn:hover{background:var(--cobalt-soft);transform:translateY(-1px)}
 
-footer{padding:28px 40px 36px;display:flex;justify-content:space-between;color:var(--muted);font-size:12.5px;max-width:1240px;margin:0 auto;flex-wrap:wrap;gap:12px}
+footer{background:var(--navy);padding:0 0 46px}
+footer .wrap{display:flex;justify-content:space-between;align-items:center;color:var(--subtle);font-size:12.5px;flex-wrap:wrap;gap:12px;padding-top:30px;border-top:1px solid rgba(255,255,255,.09)}
 
 .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s,transform .7s cubic-bezier(.2,.7,.2,1)}
 .reveal.inview{opacity:1;transform:none}
@@ -274,7 +282,9 @@ footer{padding:28px 40px 36px;display:flex;justify-content:space-between;color:v
   .flow{--col:1fr}
   .flow-rows{gap:36px}
   .scale-strip{flex-direction:column;align-items:flex-start;gap:12px}
-  .close-panel{padding:72px 28px;border-radius:20px}
+  .s6{padding:96px 0 80px}
+  .s6 canvas{width:100%;opacity:.28}
+  .s6 .inner{max-width:100%}
 }
 </style>
 </head>
@@ -293,6 +303,7 @@ footer{padding:28px 40px 36px;display:flex;justify-content:space-between;color:v
 
 <!-- S1 HERO -->
 <header class="hero">
+  <iframe class="hero-bg" src="https://aura.promad.design/embed/blue-background-images-ethereal-color-blends-for-design" frameborder="0" allowfullscreen aria-hidden="true" tabindex="-1" title="Ambient background"></iframe>
   <canvas id="net" aria-hidden="true"></canvas>
   <div class="hero-content">
     <span class="chip"><i></i>For Compliance &amp; Risk Teams</span>
@@ -326,6 +337,7 @@ footer{padding:28px 40px 36px;display:flex;justify-content:space-between;color:v
   </div>
 
   <div class="pmap reveal">
+    <iframe class="pmap-bg" src="https://aura.promad.design/embed/blue-light-backgrounds-clean-professional-web-backdrops" frameborder="0" allowfullscreen aria-hidden="true" tabindex="-1" title="Ambient background"></iframe>
     <div class="tab-stack">
 
       <!-- NEXUS PANEL -->
@@ -830,8 +842,8 @@ footer{padding:28px 40px 36px;display:flex;justify-content:space-between;color:v
 
 <!-- S6 -->
 <section class="s6" id="s6">
-  <div class="close-panel">
-    <canvas id="netClose" aria-hidden="true"></canvas>
+  <canvas id="netClose" aria-hidden="true"></canvas>
+  <div class="wrap">
     <div class="inner">
       <h2 class="reveal">Built for institutions managing digital asset risk</h2>
       <p class="reveal">Deconflict helps compliance and investigative teams operate with greater confidence in fast-moving digital asset environments.</p>
@@ -841,8 +853,10 @@ footer{padding:28px 40px 36px;display:flex;justify-content:space-between;color:v
 </section>
 
 <footer>
-  <span>Deconflict, Inc. · United States of America</span>
-  <span>© 2026 Deconflict, Inc. All rights reserved.</span>
+  <div class="wrap">
+    <span>Deconflict, Inc. · United States of America</span>
+    <span>© 2026 Deconflict, Inc. All rights reserved.</span>
+  </div>
 </footer>
 
 <script>
