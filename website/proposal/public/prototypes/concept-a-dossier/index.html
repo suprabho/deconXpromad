@@ -1,461 +1,1635 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Deconflict — Concept A · The Dossier</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@300;400;500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root{
-  --background:#FFFFFF; --foreground:#0D1B3E; --navy:#0D1B3E; --cobalt:#1A56DB;
-  --cobalt-soft:#F0F4FF; --frost:#F4F6FB; --muted:#6B7A99; --subtle:#B0B8CC;
-  --border:#D6DCE8; --border-soft:#E8ECF3; --alert:#B91C1C; --success:#2F8F5C;
-  --display:'Spectral',serif; --body:'Inter',sans-serif; --mono:'IBM Plex Mono',monospace;
-}
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{font-family:var(--body);color:var(--foreground);background:var(--background);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
-::selection{background:var(--cobalt-soft);color:var(--cobalt)}
-a{color:inherit;text-decoration:none}
-.mono{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
-.container{max-width:1280px;margin:0 auto;padding:0 48px}
-:focus-visible{outline:2px solid var(--cobalt);outline-offset:3px;border-radius:2px}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deconflict — Concept A · The Dossier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Spectral:wght@300;400;500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --background: #FFFFFF;
+      --foreground: #0D1B3E;
+      --navy: #0D1B3E;
+      --cobalt: #1A56DB;
+      --cobalt-soft: #F0F4FF;
+      --frost: #F4F6FB;
+      --muted: #6B7A99;
+      --subtle: #B0B8CC;
+      --border: #D6DCE8;
+      --border-soft: #E8ECF3;
+      --alert: #B91C1C;
+      --success: #2F8F5C;
+      --display: 'Spectral', serif;
+      --body: 'Inter', sans-serif;
+      --mono: 'IBM Plex Mono', monospace;
+    }
 
-/* ---------- NAV ---------- */
-.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--border-soft)}
-.nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px;max-width:1280px;margin:0 auto;padding:0 48px}
-.logo{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-weight:500;font-size:14px;letter-spacing:.18em}
-.logo svg{display:block}
-.nav-links{display:flex;gap:32px;font-size:13.5px;font-weight:500;color:var(--muted)}
-.nav-links a{transition:color .2s}
-.nav-links a:hover{color:var(--navy)}
-.nav-cta{display:flex;align-items:center;gap:20px}
-.nav-cta .signin{font-size:13.5px;font-weight:500;color:var(--muted)}
-.btn{display:inline-flex;align-items:center;gap:10px;background:var(--cobalt);color:#fff;font-family:var(--body);font-size:13.5px;font-weight:600;padding:11px 22px;border-radius:3px;transition:background .2s,transform .2s;border:none;cursor:pointer}
-.btn:hover{background:#1648b8;transform:translateY(-1px)}
-.btn .arrow{transition:transform .25s}
-.btn:hover .arrow{transform:translateX(3px)}
-.btn-ghost{background:transparent;color:var(--navy);border:1px solid var(--border)}
-.btn-ghost:hover{background:var(--frost);border-color:var(--subtle)}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
 
-/* ---------- LIFECYCLE SPINE (signature) ---------- */
-.spine{position:fixed;left:0;top:0;bottom:0;width:200px;display:flex;flex-direction:column;justify-content:center;gap:0;padding-left:48px;z-index:50;pointer-events:none}
-.spine-track{position:relative;border-left:1px solid var(--border-soft);padding:8px 0}
-.spine-progress{position:absolute;left:-1px;top:0;width:1px;background:var(--cobalt);height:0%;transition:height .15s linear}
-.spine-item{position:relative;padding:14px 0 14px 22px;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--subtle);transition:color .3s}
-.spine-item::before{content:'';position:absolute;left:-3.5px;top:50%;transform:translateY(-50%);width:6px;height:6px;border-radius:50%;background:var(--border);transition:background .3s,box-shadow .3s}
-.spine-item.active{color:var(--cobalt)}
-.spine-item.active::before{background:var(--cobalt);box-shadow:0 0 0 4px var(--cobalt-soft)}
-@media(max-width:1480px){.spine{display:none}}
+    html {
+      scroll-behavior: smooth
+    }
 
-/* ---------- HERO ---------- */
-.hero{position:relative;padding:180px 0 110px;overflow:hidden}
-.hero-grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:64px;align-items:center}
-.eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:28px}
-.eyebrow::before{content:'';width:24px;height:1px;background:var(--cobalt)}
-h1{font-family:var(--display);font-weight:300;font-size:clamp(44px,5.4vw,76px);line-height:1.04;letter-spacing:-.015em}
-h1 em{font-style:italic;font-weight:400;color:var(--cobalt)}
-.hero-sub{margin-top:30px;font-size:18px;line-height:1.65;color:var(--muted);max-width:480px}
-.hero-actions{display:flex;align-items:center;gap:16px;margin-top:40px}
-.hero-meta{margin-top:56px;display:flex;gap:40px;border-top:1px solid var(--border-soft);padding-top:20px}
-.hero-meta div{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--subtle)}
-.hero-meta b{display:block;color:var(--navy);font-size:12px;margin-bottom:2px;font-weight:500}
-/* Guilloché rosette */
-.rosette-wrap{position:relative;display:flex;align-items:center;justify-content:center}
-.rosette{width:100%;max-width:460px;animation:rot 120s linear infinite}
-@keyframes rot{to{transform:rotate(360deg)}}
-.rosette-core{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center}
-.rosette-core .mono{color:var(--muted)}
-.rosette-core .seal{width:56px;height:56px;border:1px solid var(--cobalt);border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;box-shadow:0 0 0 8px var(--cobalt-soft)}
-@media(prefers-reduced-motion:reduce){.rosette{animation:none}}
+    body {
+      font-family: var(--body);
+      color: var(--foreground);
+      background: var(--background);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased
+    }
 
-/* ---------- SECTION SHELL ---------- */
-section{position:relative}
-.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:32px;margin-bottom:56px;flex-wrap:wrap}
-.sec-index{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--cobalt)}
-h2{font-family:var(--display);font-weight:300;font-size:clamp(32px,3.6vw,52px);line-height:1.1;letter-spacing:-.01em;max-width:680px}
-h2 em{font-style:italic;color:var(--cobalt)}
+    ::selection {
+      background: var(--cobalt-soft);
+      color: var(--cobalt)
+    }
 
-/* ---------- S2 DIPTYCH ---------- */
-.s2{padding:110px 0;border-top:1px solid var(--border-soft)}
-.diptych{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--border);border-radius:6px;overflow:hidden}
-.product{position:relative;padding:56px 48px 48px;background:#fff;transition:background .35s;min-height:380px;display:flex;flex-direction:column}
-.product+.product{border-left:1px solid var(--border)}
-.product:hover{background:var(--frost)}
-.product .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:18px}
-.product h3{font-family:var(--display);font-weight:400;font-size:34px;letter-spacing:.02em;margin-bottom:10px}
-.product p{color:var(--muted);font-size:14.5px;max-width:340px}
-.product .go{margin-top:auto;display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--cobalt)}
-.product .go svg{transition:transform .25s}
-.product:hover .go svg{transform:translateX(4px)}
-.product .glyph{position:absolute;right:40px;top:48px;opacity:.9}
-.nexus-lines line{stroke:var(--subtle);stroke-width:1}
-.nexus-lines circle{fill:#fff;stroke:var(--navy);stroke-width:1.2}
-.nexus-lines .hub{fill:var(--cobalt);stroke:none}
-.signal-rings circle{fill:none;stroke:var(--subtle);stroke-width:1}
-.signal-rings .pulse{stroke:var(--cobalt);stroke-width:1.4;animation:ping 3s ease-out infinite;transform-origin:center}
-@keyframes ping{0%{transform:scale(.4);opacity:1}100%{transform:scale(1.15);opacity:0}}
-@media(prefers-reduced-motion:reduce){.signal-rings .pulse{animation:none}}
+    a {
+      color: inherit;
+      text-decoration: none
+    }
 
-/* ---------- S3 LIFECYCLE BAND ---------- */
-.s3{padding:110px 0;background:var(--frost);border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft)}
-.s3-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:72px}
-.s3 .lede{font-size:17px;color:var(--muted);line-height:1.7;margin-top:24px}
-.s3 .lede b{color:var(--navy);font-weight:600}
-.contrast{margin-top:36px;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:#fff}
-.contrast-row{display:grid;grid-template-columns:1fr 1fr}
-.contrast-cell{padding:18px 22px;font-size:13.5px}
-.contrast-cell:first-child{border-right:1px solid var(--border-soft);color:var(--subtle)}
-.contrast-cell:first-child s{text-decoration-color:var(--subtle)}
-.contrast-cell:last-child{color:var(--navy);font-weight:500}
-.contrast-row+.contrast-row{border-top:1px solid var(--border-soft)}
-.contrast-head{background:var(--frost);font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase}
-.contrast-head .contrast-cell:last-child{color:var(--cobalt)}
-.lifecycle{display:flex;flex-direction:column;gap:0;counter-reset:stage}
-.stage{position:relative;display:grid;grid-template-columns:64px 1fr;gap:24px;padding:30px 0;border-top:1px solid var(--border)}
-.stage:last-child{border-bottom:1px solid var(--border)}
-.stage .num{font-family:var(--mono);font-size:11px;color:var(--cobalt);padding-top:5px}
-.stage h4{font-family:var(--display);font-weight:400;font-size:24px;margin-bottom:6px}
-.stage p{font-size:14px;color:var(--muted);max-width:420px}
-.stage::after{content:'';position:absolute;left:0;top:-1px;height:1px;width:0;background:var(--cobalt);transition:width .8s cubic-bezier(.2,.7,.2,1)}
-.stage.inview::after{width:64px}
-.scale-note{margin-top:40px;display:flex;gap:14px;align-items:flex-start;padding:22px 24px;background:#fff;border:1px solid var(--border);border-left:2px solid var(--cobalt);border-radius:4px}
-.scale-note .mono{color:var(--cobalt);padding-top:2px;white-space:nowrap}
-.scale-note p{font-size:14px;color:var(--muted)}
+    .mono {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase
+    }
 
-/* ---------- S4 PILLARS ---------- */
-.s4{padding:110px 0}
-.pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--border)}
-.pillar{padding:48px 40px 48px 0;border-bottom:1px solid var(--border)}
-.pillar+.pillar{padding-left:40px;border-left:1px solid var(--border-soft)}
-.pillar .mono{color:var(--cobalt);display:block;margin-bottom:22px}
-.pillar h3{font-family:var(--display);font-weight:400;font-size:25px;line-height:1.2;margin-bottom:22px;min-height:60px}
-.pillar ul{list-style:none;display:flex;flex-direction:column;gap:14px}
-.pillar li{position:relative;padding-left:22px;font-size:14px;color:var(--muted);line-height:1.55}
-.pillar li::before{content:'';position:absolute;left:0;top:9px;width:8px;height:1px;background:var(--cobalt)}
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 48px
+    }
 
-/* ---------- S5 RESOURCES ---------- */
-.s5{padding:0 0 110px}
-.res-list{border-top:1px solid var(--border)}
-.res-row{display:grid;grid-template-columns:130px 1fr auto;align-items:center;gap:32px;padding:26px 0;border-bottom:1px solid var(--border-soft);transition:background .2s,padding .2s}
-.res-row:hover{background:var(--frost);padding-left:16px;padding-right:16px}
-.res-row .cat{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-.res-row h4{font-family:var(--display);font-weight:400;font-size:21px;letter-spacing:0}
-.res-row .go{color:var(--cobalt);font-size:13px;font-weight:600;white-space:nowrap}
+    :focus-visible {
+      outline: 2px solid var(--cobalt);
+      outline-offset: 3px;
+      border-radius: 2px
+    }
 
-/* ---------- S6 CLOSE ---------- */
-.s6{background:var(--navy);color:#fff;padding:120px 0;position:relative;overflow:hidden}
-.s6 .rosette-bg{position:absolute;right:-160px;top:50%;transform:translateY(-50%);opacity:.14;width:560px}
-.s6 .eyebrow{color:var(--subtle)}
-.s6 h2{color:#fff;max-width:760px}
-.s6 p{margin-top:24px;color:var(--subtle);max-width:520px;font-size:16.5px}
-.s6 .btn{margin-top:40px;background:#fff;color:var(--navy)}
-.s6 .btn:hover{background:var(--cobalt-soft)}
+    /* ---------- NAV ---------- */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, .88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-soft)
+    }
 
-/* ---------- FOOTER ---------- */
-footer{background:var(--navy);border-top:1px solid rgba(255,255,255,.1);color:var(--subtle);padding:32px 0;font-size:12.5px}
-footer .container{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
-footer .mono{color:var(--muted)}
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 48px
+    }
 
-/* ---------- REVEAL ---------- */
-.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
-.reveal.inview{opacity:1;transform:none}
-@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--mono);
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: .18em
+    }
 
-@media(max-width:980px){
-  .container{padding:0 24px}
-  .nav-inner{padding:0 24px}
-  .nav-links{display:none}
-  .hero{padding:140px 0 80px}
-  .hero-grid{grid-template-columns:1fr;gap:48px}
-  .rosette-wrap{order:-1}.rosette{max-width:300px}
-  .diptych,.s3-grid,.pillars,.contrast-row{grid-template-columns:1fr}
-  .product+.product{border-left:none;border-top:1px solid var(--border)}
-  .pillar+.pillar{padding-left:0;border-left:none}
-  .pillar{padding-right:0}
-  .pillar h3{min-height:0}
-  .res-row{grid-template-columns:1fr;gap:8px}
-  .contrast-cell:first-child{border-right:none;border-bottom:1px solid var(--border-soft)}
-}
-</style>
+    .logo svg {
+      display: block
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--muted)
+    }
+
+    .nav-links a {
+      transition: color .2s
+    }
+
+    .nav-links a:hover {
+      color: var(--navy)
+    }
+
+    .nav-cta {
+      display: flex;
+      align-items: center;
+      gap: 20px
+    }
+
+    .nav-cta .signin {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--muted)
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--cobalt);
+      color: #fff;
+      font-family: var(--body);
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 11px 22px;
+      border-radius: 3px;
+      transition: background .2s, transform .2s;
+      border: none;
+      cursor: pointer
+    }
+
+    .btn:hover {
+      background: #1648b8;
+      transform: translateY(-1px)
+    }
+
+    .btn .arrow {
+      transition: transform .25s
+    }
+
+    .btn:hover .arrow {
+      transform: translateX(3px)
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--navy);
+      border: 1px solid var(--border)
+    }
+
+    .btn-ghost:hover {
+      background: var(--frost);
+      border-color: var(--subtle)
+    }
+
+    /* ---------- LIFECYCLE SPINE (signature) ---------- */
+    .spine {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 200px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0;
+      padding-left: 48px;
+      z-index: 50;
+      pointer-events: none
+    }
+
+    .spine-track {
+      position: relative;
+      border-left: 1px solid var(--border-soft);
+      padding: 8px 0
+    }
+
+    .spine-progress {
+      position: absolute;
+      left: -1px;
+      top: 0;
+      width: 1px;
+      background: var(--cobalt);
+      height: 0%;
+      transition: height .15s linear
+    }
+
+    .spine-item {
+      position: relative;
+      padding: 14px 0 14px 22px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      transition: color .3s
+    }
+
+    .spine-item::before {
+      content: '';
+      position: absolute;
+      left: -3.5px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--border);
+      transition: background .3s, box-shadow .3s
+    }
+
+    .spine-item.active {
+      color: var(--cobalt)
+    }
+
+    .spine-item.active::before {
+      background: var(--cobalt);
+      box-shadow: 0 0 0 4px var(--cobalt-soft)
+    }
+
+    @media(max-width:1480px) {
+      .spine {
+        display: none
+      }
+    }
+
+    /* ---------- HERO ---------- */
+    .hero {
+      position: relative;
+      padding: 180px 0 110px;
+      overflow: hidden
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: 64px;
+      align-items: center
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 28px
+    }
+
+    .eyebrow::before {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: var(--cobalt)
+    }
+
+    h1 {
+      font-family: var(--display);
+      font-weight: 300;
+      font-size: clamp(44px, 5.4vw, 76px);
+      line-height: 1.04;
+      letter-spacing: -.015em
+    }
+
+    h1 em {
+      font-style: italic;
+      font-weight: 400;
+      color: var(--cobalt)
+    }
+
+    .hero-sub {
+      margin-top: 30px;
+      font-size: 18px;
+      line-height: 1.65;
+      color: var(--muted);
+      max-width: 480px
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 40px
+    }
+
+    .hero-meta {
+      margin-top: 56px;
+      display: flex;
+      gap: 40px;
+      border-top: 1px solid var(--border-soft);
+      padding-top: 20px
+    }
+
+    .hero-meta div {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--subtle)
+    }
+
+    .hero-meta b {
+      display: block;
+      color: var(--navy);
+      font-size: 12px;
+      margin-bottom: 2px;
+      font-weight: 500
+    }
+
+    /* 3D glass logo (hero centerpiece) */
+    .logo3d-wrap {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px
+    }
+
+    .logo3d {
+      position: relative;
+      width: 100%;
+      max-width: 460px;
+      aspect-ratio: 1/1
+    }
+
+    .logo3d iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      background: transparent
+    }
+
+    .logo3d-cap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-align: center
+    }
+
+    .logo3d-cap .mono {
+      color: var(--muted)
+    }
+
+    .logo3d-cap .mono.dim {
+      color: var(--subtle)
+    }
+
+    /* ---------- SECTION SHELL ---------- */
+    section {
+      position: relative
+    }
+
+    .sec-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 32px;
+      margin-bottom: 56px;
+      flex-wrap: wrap
+    }
+
+    h2 {
+      font-family: var(--display);
+      font-weight: 300;
+      font-size: clamp(32px, 3.6vw, 52px);
+      line-height: 1.1;
+      letter-spacing: -.01em;
+      max-width: 680px
+    }
+
+    h2 em {
+      font-style: italic;
+      color: var(--cobalt)
+    }
+
+    /* ---------- S2 DIPTYCH ---------- */
+    .s2 {
+      padding: 110px 0;
+      border-top: 1px solid var(--border-soft)
+    }
+
+    .diptych {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden
+    }
+
+    .product {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      padding: 56px 48px 48px;
+      background: #fff;
+      transition: background .35s;
+      min-height: 380px;
+      display: flex;
+      flex-direction: column
+    }
+
+    .product+.product {
+      border-left: 1px solid var(--border)
+    }
+
+    .product:hover {
+      background: var(--frost)
+    }
+
+    .product::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      filter: blur(2px);
+      transform: scale(1.1);
+      opacity: 0;
+      transition: opacity .45s ease;
+      pointer-events: none;
+      z-index: 0
+    }
+
+    .product:hover::before {
+      opacity: .55
+    }
+
+    .product:nth-child(1)::before {
+      background-image: linear-gradient(rgba(244, 246, 251, .4), rgba(244, 246, 251, .4)), url(nexus-bg.png)
+    }
+
+    .product:nth-child(2)::before {
+      background-image: linear-gradient(rgba(244, 246, 251, .4), rgba(244, 246, 251, .4)), url(signal-bg.png)
+    }
+
+    .product>* {
+      position: relative;
+      z-index: 1
+    }
+
+    .product .tag {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 18px
+    }
+
+    .product h3 {
+      font-family: var(--display);
+      font-weight: 400;
+      font-size: 34px;
+      letter-spacing: .02em;
+      margin-bottom: 10px
+    }
+
+    .product p {
+      color: var(--muted);
+      font-size: 14.5px;
+      max-width: 340px
+    }
+
+    .product .go {
+      margin-top: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--cobalt)
+    }
+
+    .product .go svg {
+      transition: transform .25s
+    }
+
+    .product:hover .go svg {
+      transform: translateX(4px)
+    }
+
+    .product .glyph {
+      position: absolute;
+      right: 40px;
+      top: 48px;
+      opacity: .9
+    }
+
+    .nexus-lines line {
+      stroke: var(--subtle);
+      stroke-width: 1
+    }
+
+    .nexus-lines circle {
+      fill: #fff;
+      stroke: var(--navy);
+      stroke-width: 1.2
+    }
+
+    .nexus-lines .hub {
+      fill: var(--cobalt);
+      stroke: none;
+      transform-origin: center;
+      animation: hub-pulse 3s ease-in-out infinite
+    }
+
+    .nexus-lines circle:not(.hub) {
+      animation: node-blink 3.6s ease-in-out infinite
+    }
+
+    .nexus-lines circle:not(.hub):nth-of-type(2) {
+      animation-delay: .45s
+    }
+
+    .nexus-lines circle:not(.hub):nth-of-type(3) {
+      animation-delay: .9s
+    }
+
+    .nexus-lines circle:not(.hub):nth-of-type(4) {
+      animation-delay: 1.35s
+    }
+
+    .nexus-lines circle:not(.hub):nth-of-type(5) {
+      animation-delay: 1.8s
+    }
+
+    .signal-rings circle {
+      fill: none;
+      stroke: var(--subtle);
+      stroke-width: 1
+    }
+
+    .signal-rings .dot {
+      fill: var(--cobalt);
+      stroke: none
+    }
+
+    .signal-rings .pulse {
+      stroke: var(--cobalt);
+      stroke-width: 1.4;
+      animation: ping 3s ease-out infinite;
+      transform-origin: center
+    }
+
+    @keyframes ping {
+      0% {
+        transform: scale(.4);
+        opacity: 1
+      }
+
+      100% {
+        transform: scale(1.15);
+        opacity: 0
+      }
+    }
+
+    @keyframes hub-pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1
+      }
+
+      50% {
+        transform: scale(1.16);
+        opacity: .82
+      }
+    }
+
+    @keyframes node-blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .4
+      }
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+
+      .signal-rings .pulse,
+      .nexus-lines .hub,
+      .nexus-lines circle:not(.hub) {
+        animation: none
+      }
+    }
+
+    /* ---------- S3 LIFECYCLE BAND ---------- */
+    .s3 {
+      padding: 110px 0;
+      background: linear-gradient(rgba(244, 246, 251, .66), rgba(244, 246, 251, .66)), url(s3-bg.jpg) center/cover no-repeat;
+      border-top: 1px solid var(--border-soft);
+      border-bottom: 1px solid var(--border-soft)
+    }
+
+    .s3-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: 72px
+    }
+
+    .s3 .lede {
+      font-size: 17px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-top: 24px
+    }
+
+    .s3 .lede b {
+      color: var(--navy);
+      font-weight: 600
+    }
+
+    .contrast {
+      margin-top: 36px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      background: #fff
+    }
+
+    .contrast-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr
+    }
+
+    .contrast-cell {
+      padding: 18px 22px;
+      font-size: 13.5px
+    }
+
+    .contrast-cell:first-child {
+      border-right: 1px solid var(--border-soft);
+      color: var(--subtle)
+    }
+
+    .contrast-cell:first-child s {
+      text-decoration-color: var(--subtle)
+    }
+
+    .contrast-cell:last-child {
+      color: var(--navy);
+      font-weight: 500
+    }
+
+    .contrast-row+.contrast-row {
+      border-top: 1px solid var(--border-soft)
+    }
+
+    .contrast-head {
+      background: var(--frost);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase
+    }
+
+    .contrast-head .contrast-cell:last-child {
+      color: var(--cobalt)
+    }
+
+    .lifecycle {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      counter-reset: stage
+    }
+
+    .stage {
+      position: relative;
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 24px;
+      padding: 30px 0;
+      border-top: 1px solid var(--border)
+    }
+
+    .stage:last-child {
+      border-bottom: 1px solid var(--border)
+    }
+
+    .stage .num {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--cobalt)
+    }
+
+    .stage-mark {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 9px;
+      padding-top: 1px
+    }
+
+    /* Phosphor inline icons (Sec 03) */
+    .ph {
+      display: block;
+      flex: none;
+      fill: currentColor
+    }
+
+    .stage-mark .ph {
+      width: 26px;
+      height: 26px;
+      color: var(--cobalt)
+    }
+
+    .contrast-cell {
+      display: flex;
+      align-items: center;
+      gap: 9px
+    }
+
+    .contrast-cell .ph {
+      width: 15px;
+      height: 15px
+    }
+
+    .contrast-cell:first-child .ph {
+      color: var(--subtle)
+    }
+
+    .contrast-cell:last-child .ph {
+      color: var(--cobalt)
+    }
+
+    .scale-note .ph {
+      width: 20px;
+      height: 20px;
+      color: var(--cobalt);
+      margin-top: 1px
+    }
+
+    .pillar-icon {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px
+    }
+
+    .pillar-icon::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 72px;
+      height: 72px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: var(--cobalt);
+      opacity: .12;
+      filter: blur(20px);
+      pointer-events: none;
+      z-index: 0
+    }
+
+    .pillar .ph {
+      width: 30px;
+      height: 30px;
+      color: var(--cobalt);
+      margin-bottom: 18px
+    }
+
+    .pillar-icon .ph {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 0
+    }
+
+    .hero-meta .ph {
+      width: 16px;
+      height: 16px;
+      color: var(--cobalt);
+      margin-bottom: 8px
+    }
+
+    .stage h4 {
+      font-family: var(--display);
+      font-weight: 400;
+      font-size: 24px;
+      margin-bottom: 6px
+    }
+
+    .stage p {
+      font-size: 14px;
+      color: var(--muted);
+      max-width: 420px
+    }
+
+    .stage::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: -1px;
+      height: 1px;
+      width: 0;
+      background: var(--cobalt);
+      transition: width .8s cubic-bezier(.2, .7, .2, 1)
+    }
+
+    .stage.inview::after {
+      width: 64px
+    }
+
+    .scale-note {
+      margin-top: 40px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 22px 24px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-left: 2px solid var(--cobalt);
+      border-radius: 4px
+    }
+
+    .scale-note .mono {
+      color: var(--cobalt);
+      padding-top: 2px;
+      white-space: nowrap
+    }
+
+    .scale-note p {
+      font-size: 14px;
+      color: var(--muted)
+    }
+
+    /* ---------- S4 PILLARS ---------- */
+    .s4 {
+      padding: 110px 0
+    }
+
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      border-top: 1px solid var(--border)
+    }
+
+    .pillar {
+      padding: 48px 40px 48px 0;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .pillar+.pillar {
+      padding-left: 40px;
+      border-left: 1px solid var(--border-soft)
+    }
+
+    .pillar .mono {
+      color: var(--cobalt);
+      display: block;
+      margin-bottom: 22px
+    }
+
+    .pillar h3 {
+      font-family: var(--display);
+      font-weight: 400;
+      font-size: 25px;
+      line-height: 1.2;
+      margin-bottom: 22px;
+      min-height: 60px
+    }
+
+    .pillar ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px
+    }
+
+    .pillar li {
+      position: relative;
+      padding-left: 22px;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.55
+    }
+
+    .pillar li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 9px;
+      width: 8px;
+      height: 1px;
+      background: var(--cobalt)
+    }
+
+    /* ---------- S5 RESOURCES ---------- */
+    .s5 {
+      padding: 0 0 110px
+    }
+
+    .res-list {
+      border-top: 1px solid var(--border)
+    }
+
+    .res-row {
+      display: grid;
+      grid-template-columns: 130px 1fr auto;
+      align-items: center;
+      gap: 32px;
+      padding: 26px 0;
+      border-bottom: 1px solid var(--border-soft);
+      transition: background .2s, padding .2s
+    }
+
+    .res-row:hover {
+      background: var(--frost);
+      padding-left: 16px;
+      padding-right: 16px
+    }
+
+    .res-row .cat {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted)
+    }
+
+    .res-row h4 {
+      font-family: var(--display);
+      font-weight: 400;
+      font-size: 21px;
+      letter-spacing: 0
+    }
+
+    .res-row .go {
+      color: var(--cobalt);
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap
+    }
+
+    /* ---------- S6 CLOSE ---------- */
+    .s6 {
+      background: var(--navy);
+      color: #fff;
+      padding: 120px 0;
+      position: relative;
+      overflow: hidden
+    }
+
+    .s6 .container {
+      position: relative;
+      z-index: 1
+    }
+
+    .s6-logo3d {
+      position: absolute;
+      right: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: clamp(240px, 28vw, 420px);
+      aspect-ratio: 1;
+      pointer-events: none
+    }
+
+    /* White Deconflict logomark (static SVG): a live WebGL embed can't be recolored
+       white on a dark section — mix-blend-mode doesn't composite across iframe boundaries. */
+    .s6-logo3d svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      opacity: .9
+    }
+
+    @media(max-width:980px) {
+      .s6-logo3d {
+        display: none
+      }
+    }
+
+    .s6 .eyebrow {
+      color: var(--subtle)
+    }
+
+    .s6 h2 {
+      color: #fff;
+      max-width: min(680px, 56%)
+    }
+
+    .s6 p {
+      margin-top: 24px;
+      color: var(--subtle);
+      max-width: 520px;
+      font-size: 16.5px
+    }
+
+    .s6 .btn {
+      margin-top: 40px;
+      background: #fff;
+      color: var(--navy)
+    }
+
+    .s6 .btn:hover {
+      background: var(--cobalt-soft)
+    }
+
+    /* ---------- FOOTER ---------- */
+    footer {
+      background: var(--navy);
+      border-top: 1px solid rgba(255, 255, 255, .1);
+      color: var(--subtle);
+      padding: 32px 0;
+      font-size: 12.5px
+    }
+
+    footer .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px
+    }
+
+    footer .mono {
+      color: var(--muted)
+    }
+
+    /* ---------- REVEAL ---------- */
+    .reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity .7s ease, transform .7s cubic-bezier(.2, .7, .2, 1)
+    }
+
+    .reveal.inview {
+      opacity: 1;
+      transform: none
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+      .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none
+      }
+    }
+
+    @media(max-width:980px) {
+      .container {
+        padding: 0 24px
+      }
+
+      .nav-inner {
+        padding: 0 24px
+      }
+
+      .nav-links {
+        display: none
+      }
+
+      .hero {
+        padding: 140px 0 80px
+      }
+
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 48px
+      }
+
+      .logo3d-wrap {
+        order: -1
+      }
+
+      .logo3d {
+        max-width: 300px
+      }
+
+      .diptych,
+      .s3-grid,
+      .pillars,
+      .contrast-row {
+        grid-template-columns: 1fr
+      }
+
+      .product+.product {
+        border-left: none;
+        border-top: 1px solid var(--border)
+      }
+
+      .pillar+.pillar {
+        padding-left: 0;
+        border-left: none
+      }
+
+      .pillar {
+        padding-right: 0
+      }
+
+      .pillar h3 {
+        min-height: 0
+      }
+
+      .res-row {
+        grid-template-columns: 1fr;
+        gap: 8px
+      }
+
+      .contrast-cell:first-child {
+        border-right: none;
+        border-bottom: 1px solid var(--border-soft)
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- ============ NAV ============ -->
-<nav class="nav">
-  <div class="nav-inner">
-    <a class="logo" href="#">
-      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 1.5 20 6.7v8.6L11 20.5 2 15.3V6.7L11 1.5Z" stroke="#0D1B3E" stroke-width="1.4"/><path d="M11 6 15.5 8.6v5.2L11 16.4 6.5 13.8V8.6L11 6Z" fill="#1A56DB"/></svg>
-      DECONFLICT
-    </a>
-    <div class="nav-links">
-      <a href="#">Signal</a><a href="#">Nexus</a><a href="#">Solutions</a><a href="#">Resources</a><a href="#">Training</a><a href="#">Briefings</a>
-    </div>
-    <div class="nav-cta">
-      <a class="signin" href="#">Sign in</a>
-      <a class="btn" href="#">Schedule a Demo</a>
-    </div>
-  </div>
-</nav>
-
-<!-- ============ LIFECYCLE SPINE ============ -->
-<aside class="spine" aria-hidden="true">
-  <div class="spine-track">
-    <div class="spine-progress" id="spineProgress"></div>
-    <div class="spine-item" data-spine="hero">Intelligence</div>
-    <div class="spine-item" data-spine="s2">Onboarding</div>
-    <div class="spine-item" data-spine="s3">Monitoring</div>
-    <div class="spine-item" data-spine="s4">Escalation</div>
-    <div class="spine-item" data-spine="s5">Reporting</div>
-  </div>
-</aside>
-
-<!-- ============ S1 · HERO ============ -->
-<header class="hero" id="hero">
-  <div class="container hero-grid">
-    <div>
-      <span class="eyebrow">For Financial Institutions</span>
-      <h1 class="reveal">Investigative <em>Intelligence</em> for Compliance and Risk Teams</h1>
-      <p class="hero-sub reveal">Go beyond standard transaction monitoring with direct, secure access to intelligence sourced straight from credentialed law enforcement.</p>
-      <div class="hero-actions reveal">
-        <a class="btn" href="#">Schedule a Demo <svg class="arrow" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5"/></svg></a>
-        <a class="btn btn-ghost" href="#s2">Explore the platform</a>
+  <!-- ============ NAV ============ -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="logo" href="#" aria-label="Deconflict"><svg width="150" height="26" viewBox="0 0 300 52" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Deconflict"><path d="M44.3,13.5L22.8.5c-.2-.1-.5-.1-.7,0L.8,13.5c-.2.1-.3.3-.3.5v24.3c0,.2.1.4.3.5l13.7,8.5c.4.3,1,0,1-.5v-4.3c0-.2-.1-.4-.3-.5l-9-5.7c-.2-.1-.3-.3-.3-.5l-.2-18.5c0-.2.1-.4.3-.6L22.1,6.7c.2-.1.5-.1.7,0l16.2,10c.2.1.3.3.3.6l-.1,18.3c0,.2-.1.4-.3.5l-9,5.6c-.2.1-.3.3-.3.5v4.3c0,.5.6.8,1,.5l13.7-8.4c.2-.1.3-.3.3-.5V14c0-.2-.1-.4-.3-.5Z" fill="#0d1b3e"/><path d="M30.7,35.5l3.5-2.3c.2-.1.3-.3.3-.5l-.1-12c0-.2-.1-.4-.3-.5l-11.3-7c-.2-.1-.5-.1-.7,0l-11.4,7.1c-.2.1-.3.3-.3.5v12.1c0,.2.1.4.3.5l3.6,2.2c.4.3,1,0,1-.5l.2-11.4c0-.2.1-.4.3-.5l6.4-4c.2-.1.5-.1.7,0l6.4,4.1c.2.1.3.3.3.5l.1,11.2c0,.4.5.7,1,.5Z" fill="#1a56db"/><path d="M24.9,26.5l-2.1-1.2c-.2-.1-.4-.1-.6,0l-2.1,1.1c-.2.1-.3.3-.3.6v23c0,.2.1.5.3.6l2,1.1c.2.1.4.1.6,0l2.1-1.1c.2-.1.3-.3.3-.6v-22.9c.1-.2,0-.4-.2-.6Z" fill="#1a56db"/><path d="M62,15.3h-9.7v1.5l2.7.3c.1,2.8.1,5.5.1,8.3v1.2c0,3,0,5.8-.1,8.5l-2.7.3v1.5h9c6.7,0,11.4-3.9,11.4-10.8.1-6.9-4.1-10.8-10.7-10.8ZM61.3,35.2h-1.9c-.1-2.8-.1-5.7-.1-8.7v-1.2c0-2.8,0-5.7.1-8.4h2c4.2,0,6.8,3.2,6.8,9.1.1,5.9-2.5,9.2-6.9,9.2Z" fill="#0d1b3e"/><path d="M94.6,35.2h-7.3c-.1-2.8-.1-5.6-.1-8.5h4.2l.4,2.8h1.7v-7.4h-1.7l-.4,2.8h-4.2c0-2.7,0-5.3.1-7.9h6.7l.7,4h2.3l-.2-5.7h-16.5v1.5l2.7.3c.1,2.8.1,5.5.1,8.3v1.4c0,2.8,0,5.6-.1,8.3l-2.7.3v1.5h17.1l.2-5.7h-2.3l-.7,4Z" fill="#0d1b3e"/><path d="M120.4,34.9c-1.1.5-2.3.8-3.4.8-4,0-7.1-3.1-7.1-9.6s3.3-9.6,7.2-9.6c.9,0,1.9.3,2.9.8l.8,4h2.2l-.1-4.9c-2.1-1.2-4.2-1.6-6.3-1.6-6.2,0-11.3,4.2-11.3,11.4s4.7,11.4,11.2,11.4c2.5,0,4.8-.6,6.7-1.6l.1-4.9h-2.2l-.7,3.8Z" fill="#0d1b3e"/><path d="M141.6,14.7c-5.2,0-10.2,4-10.2,11.4s5,11.4,10.2,11.4,10.2-4,10.2-11.4c-.1-7.5-5.1-11.4-10.2-11.4ZM141.6,35.7c-3.9,0-5.6-4.5-5.6-9.6s1.6-9.6,5.6-9.6,5.5,4.5,5.5,9.6-1.6,9.6-5.5,9.6Z" fill="#0d1b3e"/><polygon points="176.2 15.3 172.6 15.3 172.6 16.8 176.2 17.2 176.2 30 165.5 15.3 159.3 15.3 159.3 16.8 161.6 17 162 17.6 162 35 159.2 35.4 159.2 36.9 162 36.9 163.8 36.9 167.4 36.9 167.4 35.4 163.8 34.9 163.8 20.1 176.1 37 178.1 37 178.1 32.6 178.1 17.2 180.8 16.8 180.8 15.3 178.1 15.3 176.2 15.3" fill="#0d1b3e"/><path d="M195.7,15.3h-7.1v1.5l2.7.3c.1,2.8.1,5.5.1,8.3v1.4c0,2.8,0,5.6-.1,8.3l-2.7.3v1.5h10v-1.5l-3-.3c-.1-2.7-.1-5.5-.1-8.4h4.4l.4,3.1h1.7v-7.7h-1.7l-.4,2.8h-4.4c0-2.7,0-5.3.1-7.9h6.7l.7,4h2.3l-.2-5.7s-9.4,0-9.4,0Z" fill="#0d1b3e"/><path d="M226.6,35.2h-6.6c-.1-2.7-.1-5.5-.1-7.8v-2c0-2.8,0-5.5.1-8.3l2.9-.3v-1.5h-9.9v1.5l2.7.3c.1,2.7.1,5.5.1,8.3v1.8c0,2.5,0,5.2-.1,7.9l-2.7.3v1.5h16.5l.3-6.3h-2.3l-.9,4.6Z" fill="#0d1b3e"/><path d="M240.1,15.3h-2.7v1.5l2.7.3c.1,2.8.1,5.5.1,8.3v1.4c0,2.8,0,5.6-.1,8.3l-2.7.3v1.5h9.8v-1.5l-2.7-.3c-.1-2.8-.1-5.5-.1-8.3v-1.4c0-2.8,0-5.6.1-8.3l2.7-.3v-1.5h-2.7s-4.4,0-4.4,0Z" fill="#0d1b3e"/><path d="M270,34.9c-1.1.5-2.3.8-3.4.8-4,0-7-3.1-7-9.6s3.3-9.6,7.2-9.6c.9,0,1.9.3,2.9.8l.8,4h2.2l-.1-4.9c-2.1-1.2-4.2-1.6-6.3-1.6-6.2,0-11.3,4.2-11.3,11.4s4.7,11.4,11.2,11.4c2.5,0,4.8-.6,6.7-1.6l.1-5h-2.2l-.8,3.9Z" fill="#0d1b3e"/><path d="M292,17h4.3l.7,4.2h2.3l-.2-5.9h-18.4l-.2,5.9h2.3l.7-4.2h4.3c.1,2.8.1,5.6.1,8.4v1.4c0,2.8,0,5.5-.1,8.3l-3.1.3v1.5h10.4v-1.5l-3.1-.3c-.1-2.8-.1-5.5-.1-8.3v-1.4c.1-2.9.1-5.7.1-8.4Z" fill="#0d1b3e"/></svg></a>
+      <div class="nav-links">
+        <a href="#">Signal</a><a href="#">Nexus</a><a href="#">Solutions</a><a href="#">Resources</a><a
+          href="#">Training</a><a href="#">Briefings</a>
       </div>
-      <div class="hero-meta reveal">
-        <div><b>SOC 2 Type II</b>Audited</div>
-        <div><b>GDPR</b>Compliant</div>
-        <div><b>Hashed Exchange</b>Privacy-first</div>
+      <div class="nav-cta">
+        <a class="signin" href="#">Sign in</a>
+        <a class="btn" href="#">Schedule a Demo</a>
       </div>
     </div>
-    <div class="rosette-wrap reveal">
-      <!-- Guilloché security-print rosette -->
-      <svg class="rosette" viewBox="0 0 400 400" fill="none" aria-hidden="true">
-        <g stroke="#D6DCE8" stroke-width=".7">
-          <circle cx="200" cy="200" r="196"/><circle cx="200" cy="200" r="178"/><circle cx="200" cy="200" r="150"/><circle cx="200" cy="200" r="118"/>
-        </g>
-        <g stroke="#B0B8CC" stroke-width=".6" id="petals"></g>
-        <g stroke="#1A56DB" stroke-width=".8" opacity=".75" id="thread"></g>
-      </svg>
-      <div class="rosette-core">
-        <div class="seal"><svg width="24" height="24" viewBox="0 0 22 22" fill="none"><path d="M11 1.5 20 6.7v8.6L11 20.5 2 15.3V6.7L11 1.5Z" stroke="#1A56DB" stroke-width="1.4"/><path d="M11 6 15.5 8.6v5.2L11 16.4 6.5 13.8V8.6L11 6Z" fill="#1A56DB"/></svg></div>
-        <span class="mono">Verified Intelligence</span>
-        <span class="mono" style="color:#B0B8CC">Operational Advantage</span>
-      </div>
-    </div>
-  </div>
-</header>
+  </nav>
 
-<!-- ============ S2 · CONNECTED INTELLIGENCE ============ -->
-<section class="s2" id="s2">
-  <div class="container">
-    <div class="sec-head reveal">
-      <span class="sec-index">[ Sec 02 ]</span>
-      <h2>Connected intelligence that goes beyond <em>basic risk scoring</em></h2>
+  <!-- ============ LIFECYCLE SPINE ============ -->
+  <aside class="spine" aria-hidden="true">
+    <div class="spine-track">
+      <div class="spine-progress" id="spineProgress"></div>
+      <div class="spine-item" data-spine="hero">Intelligence</div>
+      <div class="spine-item" data-spine="s2">Onboarding</div>
+      <div class="spine-item" data-spine="s3">Monitoring</div>
+      <div class="spine-item" data-spine="s4">Escalation</div>
+      <div class="spine-item" data-spine="s5">Reporting</div>
     </div>
-    <div class="diptych reveal">
-      <a class="product" href="#">
-        <svg class="glyph nexus-lines" width="120" height="120" viewBox="0 0 120 120">
-          <line x1="60" y1="60" x2="18" y2="22"/><line x1="60" y1="60" x2="102" y2="22"/><line x1="60" y1="60" x2="12" y2="78"/><line x1="60" y1="60" x2="108" y2="78"/><line x1="60" y1="60" x2="60" y2="110"/>
-          <circle cx="18" cy="22" r="5"/><circle cx="102" cy="22" r="5"/><circle cx="12" cy="78" r="5"/><circle cx="108" cy="78" r="5"/><circle cx="60" cy="110" r="5"/>
-          <circle class="hub" cx="60" cy="60" r="7"/>
-        </svg>
-        <div class="tag">Operational Coordination</div>
-        <h3>NEXUS</h3>
-        <p>Operational coordination for modern compliance teams. Secure channels between investigative stakeholders.</p>
-        <span class="go">Explore Nexus <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5"/></svg></span>
-      </a>
-      <a class="product" href="#">
-        <svg class="glyph signal-rings" width="120" height="120" viewBox="0 0 120 120">
-          <circle cx="60" cy="60" r="18"/><circle cx="60" cy="60" r="34"/><circle cx="60" cy="60" r="50"/>
-          <circle class="pulse" cx="60" cy="60" r="50"/>
-          <circle cx="60" cy="60" r="5" fill="#1A56DB" stroke="none"/>
-        </svg>
-        <div class="tag">Intelligence Signals</div>
-        <h3>SIGNAL</h3>
-        <p>Verified intelligence signals beyond risk scoring. Investigative context where analytics stop.</p>
-        <span class="go">Explore Signal <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5"/></svg></span>
-      </a>
-    </div>
-  </div>
-</section>
+  </aside>
 
-<!-- ============ S3 · MORE THAN MONITORING ============ -->
-<section class="s3" id="s3">
-  <div class="container">
-    <div class="sec-head reveal">
-      <span class="sec-index">[ Sec 03 ]</span>
-      <h2>Compliance teams need more than <em>monitoring</em></h2>
-    </div>
-    <div class="s3-grid">
-      <div class="reveal">
-        <p class="lede">Traditional blockchain analytics platforms generate <b>alerts</b>. Deconflict provides <b>investigative context</b>.</p>
-        <p class="lede">By combining verified intelligence signals with secure operational coordination, your team can act with absolute certainty.</p>
-        <div class="contrast">
-          <div class="contrast-row contrast-head">
-            <div class="contrast-cell">Traditional analytics</div>
-            <div class="contrast-cell">Deconflict</div>
-          </div>
-          <div class="contrast-row"><div class="contrast-cell"><s>Probabilistic risk scoring</s></div><div class="contrast-cell">Verified investigative signals</div></div>
-          <div class="contrast-row"><div class="contrast-cell"><s>Generic alerting</s></div><div class="contrast-cell">Intelligence-driven escalation</div></div>
-          <div class="contrast-row"><div class="contrast-cell"><s>Transaction-only analysis</s></div><div class="contrast-cell">Cross-network investigative visibility</div></div>
-        </div>
-      </div>
+  <!-- ============ S1 · HERO ============ -->
+  <header class="hero" id="hero">
+    <div class="container hero-grid">
       <div>
-        <div class="lifecycle">
-          <div class="stage reveal"><span class="num">/ 01</span><div><h4>Onboarding</h4><p>Make informed risk decisions from the first interaction.</p></div></div>
-          <div class="stage reveal"><span class="num">/ 02</span><div><h4>Monitoring</h4><p>See what others can't — visibility beyond standard alerts.</p></div></div>
-          <div class="stage reveal"><span class="num">/ 03</span><div><h4>Escalation</h4><p>Act faster with operational context behind every signal.</p></div></div>
-          <div class="stage reveal"><span class="num">/ 04</span><div><h4>Reporting</h4><p>Stronger reports. Audit ready.</p></div></div>
+        <span class="eyebrow">For Financial Institutions</span>
+        <h1 class="reveal">Investigative <em>Intelligence</em> for Compliance and Risk Teams</h1>
+        <p class="hero-sub reveal">Go beyond standard transaction monitoring with direct, secure access to intelligence
+          sourced straight from credentialed law enforcement.</p>
+        <div class="hero-actions reveal">
+          <a class="btn" href="#">Schedule a Demo <svg class="arrow" width="14" height="14" viewBox="0 0 14 14"
+              fill="none">
+              <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" />
+            </svg></a>
+          <a class="btn btn-ghost" href="#s2">Explore the platform</a>
         </div>
-        <div class="scale-note reveal">
-          <span class="mono">Built for scale</span>
-          <p>Designed specifically for banks, exchanges, fintechs, and regulated institutions managing high-volume digital asset risk.</p>
+        <div class="hero-meta reveal">
+          <div><svg class="ph" viewBox="0 0 256 256" aria-hidden="true">
+              <path
+                d="M208,40H48A16,16,0,0,0,32,56v56c0,52.72,25.52,84.67,46.93,102.19,23.06,18.86,46,25.26,47,25.53a8,8,0,0,0,4.2,0c1-.27,23.91-6.67,47-25.53C198.48,196.67,224,164.72,224,112V56A16,16,0,0,0,208,40Zm0,72c0,37.07-13.66,67.16-40.6,89.42A129.3,129.3,0,0,1,128,223.62a128.25,128.25,0,0,1-38.92-21.81C61.82,179.51,48,149.3,48,112l0-56,160,0ZM82.34,141.66a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32l-56,56a8,8,0,0,1-11.32,0Z" />
+            </svg><b>SOC 2 Type II</b>Audited</div>
+          <div><svg class="ph" viewBox="0 0 256 256" aria-hidden="true">
+              <path
+                d="M128,112a28,28,0,0,0-8,54.83V184a8,8,0,0,0,16,0V166.83A28,28,0,0,0,128,112Zm0,40a12,12,0,1,1,12-12A12,12,0,0,1,128,152Zm80-72H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Z" />
+            </svg><b>GDPR</b>Compliant</div>
+          <div><svg class="ph" viewBox="0 0 256 256" aria-hidden="true">
+              <path
+                d="M72,128a134.63,134.63,0,0,1-14.16,60.47,8,8,0,1,1-14.32-7.12A118.8,118.8,0,0,0,56,128,71.73,71.73,0,0,1,83,71.8,8,8,0,1,1,93,84.29,55.76,55.76,0,0,0,72,128Zm56-8a8,8,0,0,0-8,8,184.12,184.12,0,0,1-23,89.1,8,8,0,0,0,14,7.76A200.19,200.19,0,0,0,136,128,8,8,0,0,0,128,120Zm0-32a40,40,0,0,0-40,40,8,8,0,0,0,16,0,24,24,0,0,1,48,0,214.09,214.09,0,0,1-20.51,92A8,8,0,1,0,146,226.83,230,230,0,0,0,168,128,40,40,0,0,0,128,88Zm0-64A104.11,104.11,0,0,0,24,128a87.76,87.76,0,0,1-5,29.33,8,8,0,0,0,15.09,5.33A103.9,103.9,0,0,0,40,128a88,88,0,0,1,176,0,282.24,282.24,0,0,1-5.29,54.45,8,8,0,0,0,6.3,9.4,8.22,8.22,0,0,0,1.55.15,8,8,0,0,0,7.84-6.45A298.37,298.37,0,0,0,232,128,104.12,104.12,0,0,0,128,24ZM94.4,152.17A8,8,0,0,0,85,158.42a151,151,0,0,1-17.21,45.44,8,8,0,0,0,13.86,8,166.67,166.67,0,0,0,19-50.25A8,8,0,0,0,94.4,152.17ZM128,56a72.85,72.85,0,0,0-9,.56,8,8,0,0,0,2,15.87A56.08,56.08,0,0,1,184,128a252.12,252.12,0,0,1-1.92,31A8,8,0,0,0,189,168a8.39,8.39,0,0,0,1,.06,8,8,0,0,0,7.92-7,266.48,266.48,0,0,0,2-33A72.08,72.08,0,0,0,128,56Zm57.93,128.25a8,8,0,0,0-9.75,5.75c-1.46,5.69-3.15,11.4-5,17a8,8,0,0,0,5,10.13,7.88,7.88,0,0,0,2.55.42,8,8,0,0,0,7.58-5.46c2-5.92,3.79-12,5.35-18.05A8,8,0,0,0,185.94,184.26Z" />
+            </svg><b>Hashed Exchange</b>Privacy-first</div>
+        </div>
+      </div>
+      <div class="logo3d-wrap reveal">
+        <!-- 3D glass rendering of the Deconflict hexagon mark -->
+        <div class="logo3d">
+          <iframe id="glass-logo-embed" title="Deconflict mark — 3D glass" loading="lazy"></iframe>
+        </div>
+        <div class="logo3d-cap">
+          <span class="mono">Verified Intelligence</span>
+          <span class="mono dim">Operational Advantage</span>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </header>
 
-<!-- ============ S4 · VERIFIED INTELLIGENCE ============ -->
-<section class="s4" id="s4">
-  <div class="container">
-    <div class="sec-head reveal">
-      <span class="sec-index">[ Sec 04 ]</span>
-      <h2>Verified intelligence for <em>faster decisions</em></h2>
-    </div>
-    <div class="pillars">
-      <div class="pillar reveal">
-        <span class="mono">A — Source</span>
-        <h3>Law Enforcement Intelligence</h3>
-        <ul>
-          <li>Crypto intelligence sourced straight from law enforcement</li>
-          <li>Protected coordination channels built for safe, direct communication</li>
-        </ul>
+  <!-- ============ S2 · CONNECTED INTELLIGENCE ============ -->
+  <section class="s2" id="s2">
+    <div class="container">
+      <div class="sec-head reveal">
+        <h2>Connected intelligence that goes beyond <em>basic risk scoring</em></h2>
       </div>
-      <div class="pillar reveal">
-        <span class="mono">B — Scrutiny</span>
-        <h3>Examiner-Ready Compliance</h3>
-        <ul>
-          <li>Tamper-evident reporting and examiner-ready compliance documentation</li>
-          <li>Concrete decision support built to withstand strict regulatory scrutiny</li>
-        </ul>
+      <div class="diptych reveal">
+        <a class="product" href="#">
+          <svg class="glyph nexus-lines" width="120" height="120" viewBox="0 0 120 120">
+            <line x1="60" y1="60" x2="18" y2="22" />
+            <line x1="60" y1="60" x2="102" y2="22" />
+            <line x1="60" y1="60" x2="12" y2="78" />
+            <line x1="60" y1="60" x2="108" y2="78" />
+            <line x1="60" y1="60" x2="60" y2="110" />
+            <circle cx="18" cy="22" r="5" />
+            <circle cx="102" cy="22" r="5" />
+            <circle cx="12" cy="78" r="5" />
+            <circle cx="108" cy="78" r="5" />
+            <circle cx="60" cy="110" r="5" />
+            <circle class="hub" cx="60" cy="60" r="7" />
+          </svg>
+          <div class="tag">Operational Coordination</div>
+          <h3>NEXUS</h3>
+          <p>Operational coordination for modern compliance teams. Secure channels between investigative stakeholders.
+          </p>
+          <span class="go">Explore Nexus <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" />
+            </svg></span>
+        </a>
+        <a class="product" href="#">
+          <svg class="glyph signal-rings" width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="18" />
+            <circle cx="60" cy="60" r="34" />
+            <circle cx="60" cy="60" r="50" />
+            <circle class="pulse" cx="60" cy="60" r="50" />
+            <circle class="dot" cx="60" cy="60" r="5" />
+          </svg>
+          <div class="tag">Intelligence Signals</div>
+          <h3>SIGNAL</h3>
+          <p>Verified intelligence signals beyond risk scoring. Investigative context where analytics stop.</p>
+          <span class="go">Explore Signal <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" />
+            </svg></span>
+        </a>
       </div>
-      <div class="pillar reveal">
-        <span class="mono">C — Speed</span>
-        <h3>Seamless Integration &amp; Speed</h3>
-        <ul>
-          <li>Drive rapid turnarounds on complex AML and fraud investigations</li>
-          <li>Built to plug directly into your existing compliance stack</li>
-        </ul>
+    </div>
+  </section>
+
+  <!-- ============ S3 · MORE THAN MONITORING ============ -->
+  <section class="s3" id="s3">
+    <div class="container">
+      <div class="sec-head reveal">
+        <h2>Compliance teams need more than <em>monitoring</em></h2>
+      </div>
+      <div class="s3-grid">
+        <div class="reveal">
+          <p class="lede">Traditional blockchain analytics platforms generate <b>alerts</b>. Deconflict provides
+            <b>investigative context</b>.
+          </p>
+          <p class="lede">By combining verified intelligence signals with secure operational coordination, your team can
+            act with absolute certainty.</p>
+          <div class="contrast">
+            <div class="contrast-row contrast-head">
+              <div class="contrast-cell">Traditional analytics</div>
+              <div class="contrast-cell">Deconflict</div>
+            </div>
+            <div class="contrast-row">
+              <div class="contrast-cell"><svg class="ph" viewBox="0 0 256 256" aria-hidden="true">
+                  <path
+                    d="M207.06,72.67A111.24,111.24,0,0,0,128,40h-.4C66.07,40.21,16,91,16,153.13V176a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V152A111.25,111.25,0,0,0,207.06,72.67ZM224,176H119.71l54.76-75.3a8,8,0,0,0-12.94-9.42L99.92,176H32V153.13c0-3.08.15-6.12.43-9.13H56a8,8,0,0,0,0-16H35.27c10.32-38.86,44-68.24,84.73-71.66V80a8,8,0,0,0,16,0V56.33A96.14,96.14,0,0,1,221,128H200a8,8,0,0,0,0,16h23.67c.21,2.65.33,5.31.33,8Z" />
+                </svg><s>Probabilistic risk scoring</s></div>
+              <div class="contrast-cell"><svg class="ph" viewBox="0 0 256 256" aria-hidden="true">
+                  <path
+                    d="M225.86,102.82c-3.77-3.94-7.67-8-9.14-11.57-1.36-3.27-1.44-8.69-1.52-13.94-.15-9.76-.31-20.82-8-28.51s-18.75-7.85-28.51-8c-5.25-.08-10.67-.16-13.94-1.52-3.56-1.47-7.63-5.37-11.57-9.14C146.28,23.51,138.44,16,128,16s-18.27,7.51-25.18,14.14c-3.94,3.77-8,7.67-11.57,9.14C88,40.64,82.56,40.72,77.31,40.8c-9.76.15-20.82.31-28.51,8S41,67.55,40.8,77.31c-.08,5.25-.16,10.67-1.52,13.94-1.47,3.56-5.37,7.63-9.14,11.57C23.51,109.72,16,117.56,16,128s7.51,18.27,14.14,25.18c3.77,3.94,7.67,8,9.14,11.57,1.36,3.27,1.44,8.69,1.52,13.94.15,9.76.31,20.82,8,28.51s18.75,7.85,28.51,8c5.25.08,10.67.16,13.94,1.52,3.56,1.47,7.63,5.37,11.57,9.14C109.72,232.49,117.56,240,128,240s18.27-7.51,25.18-14.14c3.94-3.77,8-7.67,11.57-9.14,3.27-1.36,8.69-1.44,13.94-1.52,9.76-.15,20.82-.31,28.51-8s7.85-18.75,8-28.51c.08-5.25.16-10.67,1.52-13.94,1.47-3.56,5.37-7.63,9.14-11.57C232.49,146.28,240,138.44,240,128S232.49,109.73,225.86,102.82Zm-11.55,39.29c-4.79,5-9.75,10.17-12.38,16.52-2.52,6.1-2.63,13.07-2.73,19.82-.1,7-.21,14.33-3.32,17.43s-10.39,3.22-17.43,3.32c-6.75.1-13.72.21-19.82,2.73-6.35,2.63-11.52,7.59-16.52,12.38S132,224,128,224s-9.15-4.92-14.11-9.69-10.17-9.75-16.52-12.38c-6.1-2.52-13.07-2.63-19.82-2.73-7-.1-14.33-.21-17.43-3.32s-3.22-10.39-3.32-17.43c-.1-6.75-.21-13.72-2.73-19.82-2.63-6.35-7.59-11.52-12.38-16.52S32,132,32,128s4.92-9.15,9.69-14.11,9.75-10.17,12.38-16.52c2.52-6.1,2.63-13.07,2.73-19.82.1-7,.21-14.33,3.32-17.43S70.51,56.9,77.55,56.8c6.75-.1,13.72-.21,19.82-2.73,6.35-2.63,11.52-7.59,16.52-12.38S124,32,128,32s9.15,4.92,14.11,9.69,10.17,9.75,16.52,12.38c6.1,2.52,13.07,2.63,19.82,2.73,7,.1,14.33.21,17.43,3.32s3.22,10.39,3.32,17.43c.1,6.75.21,13.72,2.73,19.82,2.63,6.35,7.59,11.52,12.38,16.52S224,124,224,128,219.08,137.15,214.31,142.11ZM173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34Z" />
+                </svg>Verified investigative signals</div>
+            </div>
+            <div class="contrast-row">
+              <div class="contrast-cell"><svg class="ph" viewBox="0 0 256 256" aria-hidden="true">
+                  <path
+                    d="M221.8,175.94C216.25,166.38,208,139.33,208,104a80,80,0,1,0-160,0c0,35.34-8.26,62.38-13.81,71.94A16,16,0,0,0,48,200H88.81a40,40,0,0,0,78.38,0H208a16,16,0,0,0,13.8-24.06ZM128,216a24,24,0,0,1-22.62-16h45.24A24,24,0,0,1,128,216ZM48,184c7.7-13.24,16-43.92,16-80a64,64,0,1,1,128,0c0,36.05,8.28,66.73,16,80Z" />
+                </svg><s>Generic alerting</s></div>
+              <div class="contrast-cell"><svg class="ph" viewBox="0 0 256 256" aria-hidden="true">
+                  <path
+                    d="M248,124a56.11,56.11,0,0,0-32-50.61V72a48,48,0,0,0-88-26.49A48,48,0,0,0,40,72v1.39a56,56,0,0,0,0,101.2V176a48,48,0,0,0,88,26.49A48,48,0,0,0,216,176v-1.41A56.09,56.09,0,0,0,248,124ZM88,208a32,32,0,0,1-31.81-28.56A55.87,55.87,0,0,0,64,180h8a8,8,0,0,0,0-16H64A40,40,0,0,1,50.67,86.27,8,8,0,0,0,56,78.73V72a32,32,0,0,1,64,0v68.26A47.8,47.8,0,0,0,88,128a8,8,0,0,0,0,16,32,32,0,0,1,0,64Zm104-44h-8a8,8,0,0,0,0,16h8a55.87,55.87,0,0,0,7.81-.56A32,32,0,1,1,168,144a8,8,0,0,0,0-16,47.8,47.8,0,0,0-32,12.26V72a32,32,0,0,1,64,0v6.73a8,8,0,0,0,5.33,7.54A40,40,0,0,1,192,164Zm16-52a8,8,0,0,1-8,8h-4a36,36,0,0,1-36-36V80a8,8,0,0,1,16,0v4a20,20,0,0,0,20,20h4A8,8,0,0,1,208,112ZM60,120H56a8,8,0,0,1,0-16h4A20,20,0,0,0,80,84V80a8,8,0,0,1,16,0v4A36,36,0,0,1,60,120Z" />
+                </svg>Intelligence-driven escalation</div>
+            </div>
+            <div class="contrast-row">
+              <div class="contrast-cell"><svg class="ph" viewBox="0 0 256 256" aria-hidden="true">
+                  <path
+                    d="M72,104a8,8,0,0,1,8-8h96a8,8,0,0,1,0,16H80A8,8,0,0,1,72,104Zm8,40h96a8,8,0,0,0,0-16H80a8,8,0,0,0,0,16ZM232,56V208a8,8,0,0,1-11.58,7.15L192,200.94l-28.42,14.21a8,8,0,0,1-7.16,0L128,200.94,99.58,215.15a8,8,0,0,1-7.16,0L64,200.94,35.58,215.15A8,8,0,0,1,24,208V56A16,16,0,0,1,40,40H216A16,16,0,0,1,232,56Zm-16,0H40V195.06l20.42-10.22a8,8,0,0,1,7.16,0L96,199.06l28.42-14.22a8,8,0,0,1,7.16,0L160,199.06l28.42-14.22a8,8,0,0,1,7.16,0L216,195.06Z" />
+                </svg><s>Transaction-only analysis</s></div>
+              <div class="contrast-cell"><svg class="ph" viewBox="0 0 256 256" aria-hidden="true">
+                  <path
+                    d="M176,160a39.89,39.89,0,0,0-28.62,12.09l-46.1-29.63a39.8,39.8,0,0,0,0-28.92l46.1-29.63a40,40,0,1,0-8.66-13.45l-46.1,29.63a40,40,0,1,0,0,55.82l46.1,29.63A40,40,0,1,0,176,160Zm0-128a24,24,0,1,1-24,24A24,24,0,0,1,176,32ZM64,152a24,24,0,1,1,24-24A24,24,0,0,1,64,152Zm112,72a24,24,0,1,1,24-24A24,24,0,0,1,176,224Z" />
+                </svg>Cross-network investigative visibility</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="lifecycle">
+            <div class="stage reveal">
+              <div class="stage-mark"><svg class="ph" viewBox="0 0 256 256" aria-hidden="true">
+                  <path
+                    d="M256,136a8,8,0,0,1-8,8H232v16a8,8,0,0,1-16,0V144H200a8,8,0,0,1,0-16h16V112a8,8,0,0,1,16,0v16h16A8,8,0,0,1,256,136Zm-57.87,58.85a8,8,0,0,1-12.26,10.3C165.75,181.19,138.09,168,108,168s-57.75,13.19-77.87,37.15a8,8,0,0,1-12.25-10.3c14.94-17.78,33.52-30.41,54.17-37.17a68,68,0,1,1,71.9,0C164.6,164.44,183.18,177.07,198.13,194.85ZM108,152a52,52,0,1,0-52-52A52.06,52.06,0,0,0,108,152Z" />
+                </svg><span class="num">/ 01</span></div>
+              <div>
+                <h4>Onboarding</h4>
+                <p>Make informed risk decisions from the first interaction.</p>
+              </div>
+            </div>
+            <div class="stage reveal">
+              <div class="stage-mark"><svg class="ph" viewBox="0 0 256 256" aria-hidden="true">
+                  <path
+                    d="M237.2,151.87v0a47.1,47.1,0,0,0-2.35-5.45L193.26,51.8a7.82,7.82,0,0,0-1.66-2.44,32,32,0,0,0-45.26,0A8,8,0,0,0,144,55V80H112V55a8,8,0,0,0-2.34-5.66,32,32,0,0,0-45.26,0,7.82,7.82,0,0,0-1.66,2.44L21.15,146.4a47.1,47.1,0,0,0-2.35,5.45v0A48,48,0,1,0,112,168V96h32v72a48,48,0,1,0,93.2-16.13ZM76.71,59.75a16,16,0,0,1,19.29-1v73.51a47.9,47.9,0,0,0-46.79-9.92ZM64,200a32,32,0,1,1,32-32A32,32,0,0,1,64,200ZM160,58.74a16,16,0,0,1,19.29,1l27.5,62.58A47.9,47.9,0,0,0,160,132.25ZM192,200a32,32,0,1,1,32-32A32,32,0,0,1,192,200Z" />
+                </svg><span class="num">/ 02</span></div>
+              <div>
+                <h4>Monitoring</h4>
+                <p>See what others can't — visibility beyond standard alerts.</p>
+              </div>
+            </div>
+            <div class="stage reveal">
+              <div class="stage-mark"><svg class="ph" viewBox="0 0 256 256" aria-hidden="true">
+                  <path
+                    d="M215.79,118.17a8,8,0,0,0-5-5.66L153.18,90.9l14.66-73.33a8,8,0,0,0-13.69-7l-112,120a8,8,0,0,0,3,13l57.63,21.61L88.16,238.43a8,8,0,0,0,13.69,7l112-120A8,8,0,0,0,215.79,118.17ZM109.37,214l10.47-52.38a8,8,0,0,0-5-9.06L62,132.71l84.62-90.66L136.16,94.43a8,8,0,0,0,5,9.06l52.8,19.8Z" />
+                </svg><span class="num">/ 03</span></div>
+              <div>
+                <h4>Escalation</h4>
+                <p>Act faster with operational context behind every signal.</p>
+              </div>
+            </div>
+            <div class="stage reveal">
+              <div class="stage-mark"><svg class="ph" viewBox="0 0 256 256" aria-hidden="true">
+                  <path
+                    d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Zm-32-80a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,136Zm0,32a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,168Z" />
+                </svg><span class="num">/ 04</span></div>
+              <div>
+                <h4>Reporting</h4>
+                <p>Stronger reports. Audit ready.</p>
+              </div>
+            </div>
+          </div>
+          <div class="scale-note reveal">
+            <svg class="ph" viewBox="0 0 256 256" aria-hidden="true">
+              <path
+                d="M240,208H224V96a16,16,0,0,0-16-16H144V32a16,16,0,0,0-24.88-13.32L39.12,72A16,16,0,0,0,32,85.34V208H16a8,8,0,0,0,0,16H240a8,8,0,0,0,0-16ZM208,96V208H144V96ZM48,85.34,128,32V208H48ZM112,112v16a8,8,0,0,1-16,0V112a8,8,0,1,1,16,0Zm-32,0v16a8,8,0,0,1-16,0V112a8,8,0,1,1,16,0Zm0,56v16a8,8,0,0,1-16,0V168a8,8,0,0,1,16,0Zm32,0v16a8,8,0,0,1-16,0V168a8,8,0,0,1,16,0Z" />
+            </svg>
+            <span class="mono">Built for scale</span>
+            <p>Designed specifically for banks, exchanges, fintechs, and regulated institutions managing high-volume
+              digital asset risk.</p>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- ============ S5 · RESOURCES ============ -->
-<section class="s5" id="s5">
-  <div class="container">
-    <div class="sec-head reveal">
-      <span class="sec-index">[ Sec 05 ]</span>
-      <h2>Latest resources &amp; news</h2>
+  <!-- ============ S4 · VERIFIED INTELLIGENCE ============ -->
+  <section class="s4" id="s4">
+    <div class="container">
+      <div class="sec-head reveal">
+        <h2>Verified intelligence for <em>faster decisions</em></h2>
+      </div>
+      <div class="pillars">
+        <div class="pillar reveal">
+          <span class="pillar-icon">
+            <svg class="ph" viewBox="0 0 256 256" aria-hidden="true">
+              <path
+                d="M80.57,117A8,8,0,0,1,91,112.57l29,11.61V96a8,8,0,0,1,16,0v28.18l29-11.61A8,8,0,1,1,171,127.43l-30.31,12.12L158.4,163.2a8,8,0,1,1-12.8,9.6L128,149.33,110.4,172.8a8,8,0,1,1-12.8-9.6l17.74-23.65L85,127.43A8,8,0,0,1,80.57,117ZM224,56v56c0,52.72-25.52,84.67-46.93,102.19-23.06,18.86-46,25.27-47,25.53a8,8,0,0,1-4.2,0c-1-.26-23.91-6.67-47-25.53C57.52,196.67,32,164.72,32,112V56A16,16,0,0,1,48,40H208A16,16,0,0,1,224,56Zm-16,0L48,56l0,56c0,37.3,13.82,67.51,41.07,89.81A128.25,128.25,0,0,0,128,223.62a129.3,129.3,0,0,0,39.41-22.2C194.34,179.16,208,149.07,208,112Z" />
+            </svg>
+          </span>
+          <span class="mono">A — Source</span>
+          <h3>Law Enforcement Intelligence</h3>
+          <ul>
+            <li>Crypto intelligence sourced straight from law enforcement</li>
+            <li>Protected coordination channels built for safe, direct communication</li>
+          </ul>
+        </div>
+        <div class="pillar reveal">
+          <span class="pillar-icon">
+            <svg class="ph" viewBox="0 0 256 256" aria-hidden="true">
+              <path
+                d="M239.43,133l-32-80h0a8,8,0,0,0-9.16-4.84L136,62V40a8,8,0,0,0-16,0V65.58L54.26,80.19A8,8,0,0,0,48.57,85h0v.06L16.57,165a7.92,7.92,0,0,0-.57,3c0,23.31,24.54,32,40,32s40-8.69,40-32a7.92,7.92,0,0,0-.57-3L66.92,93.77,120,82V208H104a8,8,0,0,0,0,16h48a8,8,0,0,0,0-16H136V78.42L187,67.1,160.57,133a7.92,7.92,0,0,0-.57,3c0,23.31,24.54,32,40,32s40-8.69,40-32A7.92,7.92,0,0,0,239.43,133ZM56,184c-7.53,0-22.76-3.61-23.93-14.64L56,109.54l23.93,59.82C78.76,180.39,63.53,184,56,184Zm144-32c-7.53,0-22.76-3.61-23.93-14.64L200,77.54l23.93,59.82C222.76,148.39,207.53,152,200,152Z" />
+            </svg>
+          </span>
+          <span class="mono">B — Scrutiny</span>
+          <h3>Examiner-Ready Compliance</h3>
+          <ul>
+            <li>Tamper-evident reporting and examiner-ready compliance documentation</li>
+            <li>Concrete decision support built to withstand strict regulatory scrutiny</li>
+          </ul>
+        </div>
+        <div class="pillar reveal">
+          <span class="pillar-icon">
+            <svg class="ph" viewBox="0 0 256 256" aria-hidden="true">
+              <path
+                d="M237.66,18.34a8,8,0,0,0-11.32,0l-52.4,52.41-5.37-5.38a32.05,32.05,0,0,0-45.26,0L100,88.69l-6.34-6.35A8,8,0,0,0,82.34,93.66L88.69,100,65.37,123.31a32,32,0,0,0,0,45.26l5.38,5.37-52.41,52.4a8,8,0,0,0,11.32,11.32l52.4-52.41,5.37,5.38a32,32,0,0,0,45.26,0L156,167.31l6.34,6.35a8,8,0,0,0,11.32-11.32L167.31,156l23.32-23.31a32,32,0,0,0,0-45.26l-5.38-5.37,52.41-52.4A8,8,0,0,0,237.66,18.34Zm-116.29,161a16,16,0,0,1-22.62,0L76.69,157.25a16,16,0,0,1,0-22.62L100,111.31,144.69,156Zm57.94-57.94L156,144.69,111.31,100l23.32-23.31a16,16,0,0,1,22.62,0l22.06,22A16,16,0,0,1,179.31,121.37ZM88.57,35A8,8,0,0,1,103.43,29l8,20A8,8,0,0,1,96.57,55ZM24.57,93A8,8,0,0,1,35,88.57l20,8A8,8,0,0,1,49,111.43l-20-8A8,8,0,0,1,24.57,93ZM231.43,163a8,8,0,0,1-10.4,4.46l-20-8A8,8,0,1,1,207,144.57l20,8A8,8,0,0,1,231.43,163Zm-64,58.06A8,8,0,0,1,152.57,227l-8-20A8,8,0,0,1,159.43,201Z" />
+            </svg>
+          </span>
+          <span class="mono">C — Speed</span>
+          <h3>Seamless Integration &amp; Speed</h3>
+          <ul>
+            <li>Drive rapid turnarounds on complex AML and fraud investigations</li>
+            <li>Built to plug directly into your existing compliance stack</li>
+          </ul>
+        </div>
+      </div>
     </div>
-    <div class="res-list reveal">
-      <a class="res-row" href="#"><span class="cat">Briefing · Policy</span><h4>How the New OFAC Sanctions Impact Crypto Compliance Teams</h4><span class="go">Read briefing →</span></a>
-      <a class="res-row" href="#"><span class="cat">Briefing</span><h4>US Seizes $8B in Bitcoin During Global Scam Crackdown</h4><span class="go">Read briefing →</span></a>
-      <a class="res-row" href="#"><span class="cat">Briefing</span><h4>FCA Secures £452k Order Against Ponzi Fraudster Daniel Pugh</h4><span class="go">Read briefing →</span></a>
-      <a class="res-row" href="#"><span class="cat">Briefing · Policy</span><h4>The White House Just Mandated Cybercrime Coordination</h4><span class="go">Read briefing →</span></a>
+  </section>
+
+  <!-- ============ S5 · RESOURCES ============ -->
+  <section class="s5" id="s5">
+    <div class="container">
+      <div class="sec-head reveal">
+        <h2>Latest resources &amp; news</h2>
+      </div>
+      <div class="res-list reveal">
+        <a class="res-row" href="#"><span class="cat">Briefing · Policy</span>
+          <h4>How the New OFAC Sanctions Impact Crypto Compliance Teams</h4><span class="go">Read briefing →</span>
+        </a>
+        <a class="res-row" href="#"><span class="cat">Briefing</span>
+          <h4>US Seizes $8B in Bitcoin During Global Scam Crackdown</h4><span class="go">Read briefing →</span>
+        </a>
+        <a class="res-row" href="#"><span class="cat">Briefing</span>
+          <h4>FCA Secures £452k Order Against Ponzi Fraudster Daniel Pugh</h4><span class="go">Read briefing →</span>
+        </a>
+        <a class="res-row" href="#"><span class="cat">Briefing · Policy</span>
+          <h4>The White House Just Mandated Cybercrime Coordination</h4><span class="go">Read briefing →</span>
+        </a>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- ============ S6 · CLOSE ============ -->
-<section class="s6" id="s6">
-  <svg class="rosette-bg" viewBox="0 0 400 400" fill="none" aria-hidden="true">
-    <g stroke="#fff" stroke-width=".6"><circle cx="200" cy="200" r="196"/><circle cx="200" cy="200" r="160"/><circle cx="200" cy="200" r="120"/><circle cx="200" cy="200" r="80"/></g>
-  </svg>
-  <div class="container">
-    <span class="eyebrow reveal">[ Sec 06 ]</span>
-    <h2 class="reveal">Built for institutions managing <em>digital asset risk</em></h2>
-    <p class="reveal">Deconflict helps compliance and investigative teams operate with greater confidence in fast-moving digital asset environments.</p>
-    <a class="btn reveal" href="#">Schedule a Demo <svg class="arrow" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5"/></svg></a>
-  </div>
-</section>
+  <!-- ============ S6 · CLOSE ============ -->
+  <section class="s6" id="s6">
+    <div class="s6-logo3d" aria-hidden="true">
+      <svg viewBox="0 0 1080 1080" fill="#fff" xmlns="http://www.w3.org/2000/svg">
+        <path d="M980.22,284.83L545.51,21.98c-4.04-2.02-10.11-2.02-14.15,0L100.68,284.83c-4.04,2.02-6.07,6.07-6.07,10.11v491.33c0,4.04,2.02,8.09,6.07,10.11l277,171.86c8.09,6.07,20.22,0,20.22-10.11v-86.94c0-4.04-2.02-8.09-6.07-10.11l-181.97-115.25c-4.04-2.02-6.07-6.07-6.07-10.11l-4.04-374.06c0-4.04,2.02-8.09,6.07-12.13l325.53-202.19c4.04-2.02,10.11-2.02,14.15,0l327.55,202.19c4.04,2.02,6.07,6.07,6.07,12.13l-2.02,370.01c0,4.04-2.02,8.09-6.07,10.11l-181.97,113.23c-4.04,2.02-6.07,6.07-6.07,10.11v86.94c0,10.11,12.13,16.18,20.22,10.11l277-169.84c4.04-2.02,6.07-6.07,6.07-10.11v-487.28c0-4.04-2.02-8.09-6.07-10.11Z"/>
+        <path d="M705.24,729.66l70.77-46.5c4.04-2.02,6.07-6.07,6.07-10.11l-2.02-242.63c0-4.04-2.02-8.09-6.07-10.11l-228.48-141.53c-4.04-2.02-10.11-2.02-14.15,0l-230.5,143.56c-4.04,2.02-6.07,6.07-6.07,10.11v244.65c0,4.04,2.02,8.09,6.07,10.11l72.79,44.48c8.09,6.07,20.22,0,20.22-10.11l4.04-230.5c0-4.04,2.02-8.09,6.07-10.11l129.4-80.88c4.04-2.02,10.11-2.02,14.15,0l129.4,82.9c4.04,2.02,6.07,6.07,6.07,10.11l2.02,226.46c0,8.09,10.11,14.15,20.22,10.11Z"/>
+        <path d="M587.97,547.68l-42.46-24.26c-4.04-2.02-8.09-2.02-12.13,0l-42.46,22.24c-4.04,2.02-6.07,6.07-6.07,12.13v465.04c0,4.04,2.02,10.11,6.07,12.13l40.44,22.24c4.04,2.02,8.09,2.02,12.13,0l42.46-22.24c4.04-2.02,6.07-6.07,6.07-12.13v-463.02c2.02-4.04,0-8.09-4.04-12.13Z"/>
+      </svg>
+    </div>
+    <div class="container">
+      <span class="eyebrow reveal">[ Sec 06 ]</span>
+      <h2 class="reveal">Built for institutions managing <em>digital asset risk</em></h2>
+      <p class="reveal">Deconflict helps compliance and investigative teams operate with greater confidence in
+        fast-moving digital asset environments.</p>
+      <a class="btn reveal" href="#">Schedule a Demo <svg class="arrow" width="14" height="14" viewBox="0 0 14 14"
+          fill="none">
+          <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" />
+        </svg></a>
+    </div>
+  </section>
 
-<footer>
-  <div class="container">
-    <span class="mono">Deconflict, Inc. · United States of America</span>
-    <span>© 2026 Deconflict, Inc. All rights reserved.</span>
-  </div>
-</footer>
+  <footer>
+    <div class="container">
+      <span class="mono">Deconflict, Inc. · United States of America</span>
+      <span>© 2026 Deconflict, Inc. All rights reserved.</span>
+    </div>
+  </footer>
 
-<script>
-// Guilloché generation
-(function(){
-  const petals=document.getElementById('petals'),thread=document.getElementById('thread');
-  let p='',t='';
-  for(let i=0;i<36;i++){
-    const a=(i/36)*Math.PI*2,cx=200+Math.cos(a)*92,cy=200+Math.sin(a)*92;
-    p+=`<ellipse cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="62" ry="20" fill="none" transform="rotate(${(i*10).toFixed(1)} ${cx.toFixed(1)} ${cy.toFixed(1)})"/>`;
-  }
-  // single cobalt rose-curve thread (9 lobes)
-  let d='';
-  for(let i=0;i<=720;i++){
-    const a=(i/720)*Math.PI*2;
-    const r=134+30*Math.sin(9*a);
-    d+=`${i?'L':'M'}${(200+r*Math.cos(a)).toFixed(1)},${(200+r*Math.sin(a)).toFixed(1)} `;
-  }
-  t=`<path d="${d}Z" fill="none"/>`;
-  petals.innerHTML=p;thread.innerHTML=t;
-})();
-// Reveal on scroll
-const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('inview');io.unobserve(e.target)}}),{threshold:.15});
-document.querySelectorAll('.reveal,.stage').forEach(el=>io.observe(el));
-// Spine progress + active state
-const map=[['hero','hero'],['s2','s2'],['s3','s3'],['s4','s4'],['s5','s5']];
-function spine(){
-  const sc=window.scrollY,h=document.body.scrollHeight-innerHeight;
-  document.getElementById('spineProgress').style.height=(sc/h*100)+'%';
-  let active='hero';
-  map.forEach(([id])=>{const el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<innerHeight*.45)active=id});
-  document.querySelectorAll('.spine-item').forEach(it=>it.classList.toggle('active',it.dataset.spine===active));
-}
-addEventListener('scroll',spine,{passive:true});spine();
-</script>
+  <script>
+    // 3D glass logo embed — extrudes the Deconflict logomark.
+    // The mark is inlined as a data: URI so the external 3D service can read it
+    // with no SVG hosting or cross-origin (CORS) setup required.
+    // Source artwork: /deconflict-logomark.svg (1080×1080).
+    (function () {
+      var BASE_URL = 'https://animated-3d-headers.vercel.app/embed.html';
+      var SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080">'
+        + '<path fill="#0d1b3e" d="M980.22,284.83L545.51,21.98c-4.04-2.02-10.11-2.02-14.15,0L100.68,284.83c-4.04,2.02-6.07,6.07-6.07,10.11v491.33c0,4.04,2.02,8.09,6.07,10.11l277,171.86c8.09,6.07,20.22,0,20.22-10.11v-86.94c0-4.04-2.02-8.09-6.07-10.11l-181.97-115.25c-4.04-2.02-6.07-6.07-6.07-10.11l-4.04-374.06c0-4.04,2.02-8.09,6.07-12.13l325.53-202.19c4.04-2.02,10.11-2.02,14.15,0l327.55,202.19c4.04,2.02,6.07,6.07,6.07,12.13l-2.02,370.01c0,4.04-2.02,8.09-6.07,10.11l-181.97,113.23c-4.04,2.02-6.07,6.07-6.07,10.11v86.94c0,10.11,12.13,16.18,20.22,10.11l277-169.84c4.04-2.02,6.07-6.07,6.07-10.11v-487.28c0-4.04-2.02-8.09-6.07-10.11Z"/>'
+        + '<path fill="#1a56db" d="M705.24,729.66l70.77-46.5c4.04-2.02,6.07-6.07,6.07-10.11l-2.02-242.63c0-4.04-2.02-8.09-6.07-10.11l-228.48-141.53c-4.04-2.02-10.11-2.02-14.15,0l-230.5,143.56c-4.04,2.02-6.07,6.07-6.07,10.11v244.65c0,4.04,2.02,8.09,6.07,10.11l72.79,44.48c8.09,6.07,20.22,0,20.22-10.11l4.04-230.5c0-4.04,2.02-8.09,6.07-10.11l129.4-80.88c4.04-2.02,10.11-2.02,14.15,0l129.4,82.9c4.04,2.02,6.07,6.07,6.07,10.11l2.02,226.46c0,8.09,10.11,14.15,20.22,10.11Z"/>'
+        + '<path fill="#1a56db" d="M587.97,547.68l-42.46-24.26c-4.04-2.02-8.09-2.02-12.13,0l-42.46,22.24c-4.04,2.02-6.07,6.07-6.07,12.13v465.04c0,4.04,2.02,10.11,6.07,12.13l40.44,22.24c4.04,2.02,8.09,2.02,12.13,0l42.46-22.24c4.04-2.02,6.07-6.07,6.07-12.13v-463.02c2.02-4.04,0-8.09-4.04-12.13Z"/>'
+        + '</svg>';
+      var SVG_URL = 'data:image/svg+xml,' + encodeURIComponent(SVG);
+      var SVG_SCALE = 0.03;
+      var materialProps = { "samples": 20, "resolution": 1024, "transmission": 1, "roughness": 0.8, "thickness": 37, "ior": 1.5, "chromaticAberration": 0.2, "anisotropy": 0.1, "distortion": 0.1, "distortionScale": 0.1, "temporalDistortion": 0.1, "color": "#1a56db", "bevelSize": 5, "bevelThickness": 5, "bevelSegments": 20 };
+      var breakpoints = [{ "maxWidth": 479, "offsetX": 0, "offsetY": 0, "fov": 50, "count": 4 }, { "maxWidth": 767, "offsetX": 0, "offsetY": 0, "fov": 50, "count": 4 }, { "maxWidth": 991, "offsetX": 0, "offsetY": 0, "fov": 50, "count": 4 }, { "maxWidth": 1439, "offsetX": 0, "offsetY": 0, "fov": 50, "count": 4 }, { "maxWidth": 1919, "offsetX": 0, "offsetY": 0, "fov": 50, "count": 4 }, { "maxWidth": 9999, "offsetX": 0, "offsetY": 0, "fov": 100, "count": 4 }];
+      function getConfig(w) { for (var i = 0; i < breakpoints.length; i++) { if (w <= breakpoints[i].maxWidth) return breakpoints[i]; } return { offsetX: 0, offsetY: 0, fov: 50, count: 4 }; }
+      function getMaterialParams() { return Object.entries(materialProps).map(function (e) { return e[0] + '=' + encodeURIComponent(e[1]); }).join('&'); }
+      function update() {
+        var el = document.getElementById('glass-logo-embed');
+        if (!el) return;
+        var cfg = getConfig(window.innerWidth);
+        el.src = BASE_URL + '?offsetX=' + cfg.offsetX + '&offsetY=' + cfg.offsetY + '&fov=' + cfg.fov + '&count=' + cfg.count
+          + '&svgUrl=' + encodeURIComponent(SVG_URL) + '&svgScale=' + SVG_SCALE + '&' + getMaterialParams();
+      }
+      update();
+      var t;
+      window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(update, 250); });
+    })();
+    // Reveal on scroll
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('inview'); io.unobserve(e.target) } }), { threshold: .15 });
+    document.querySelectorAll('.reveal,.stage').forEach(el => io.observe(el));
+    // Spine progress + active state
+    const map = [['hero', 'hero'], ['s2', 's2'], ['s3', 's3'], ['s4', 's4'], ['s5', 's5']];
+    function spine() {
+      const sc = window.scrollY, h = document.body.scrollHeight - innerHeight;
+      document.getElementById('spineProgress').style.height = (sc / h * 100) + '%';
+      let active = 'hero';
+      map.forEach(([id]) => { const el = document.getElementById(id); if (el && el.getBoundingClientRect().top < innerHeight * .45) active = id });
+      document.querySelectorAll('.spine-item').forEach(it => it.classList.toggle('active', it.dataset.spine === active));
+    }
+    addEventListener('scroll', spine, { passive: true }); spine();
+  </script>
 
-<!-- ===== Prototype nav overlay (Home + concept toggle) ===== -->
-<style>
-#proto-nav{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:2147483000;
-  display:flex;align-items:center;gap:8px;padding:6px;border-radius:999px;
-  background:rgba(255,255,255,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  border:1px solid var(--border,#D6DCE8);box-shadow:0 8px 30px rgba(13,27,62,.16);
-  font-family:var(--body,system-ui,sans-serif)}
-#proto-nav a{text-decoration:none;color:var(--navy,#0D1B3E)}
-#proto-nav .pn-home{display:flex;align-items:center;gap:7px;padding:8px 14px 8px 12px;border-radius:999px;
-  font-size:13px;font-weight:600;letter-spacing:-.01em;transition:background .15s ease}
-#proto-nav .pn-home:hover{background:var(--frost,#F4F6FB)}
-#proto-nav .pn-home svg{width:15px;height:15px;display:block}
-#proto-nav .pn-sep{width:1px;height:22px;background:var(--border,#D6DCE8)}
-#proto-nav .pn-toggle{display:flex;align-items:center;gap:2px;padding:0 2px}
-#proto-nav .pn-toggle a{display:flex;align-items:center;justify-content:center;width:30px;height:30px;
-  border-radius:999px;font-size:12px;font-weight:600;color:var(--muted,#6B7A99);
-  transition:background .15s ease,color .15s ease}
-#proto-nav .pn-toggle a:hover{background:var(--frost,#F4F6FB);color:var(--navy,#0D1B3E)}
-#proto-nav .pn-toggle a.active{background:var(--cobalt,#1A56DB);color:#fff}
-@media print{#proto-nav{display:none}}
-</style>
-<nav id="proto-nav" aria-label="Prototype navigation">
-  <a class="pn-home" href="/" target="_top" title="Back to the proposal">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
-    Home
-  </a>
-  <span class="pn-sep" aria-hidden="true"></span>
-  <div class="pn-toggle" role="group" aria-label="Switch concept">
-    <a class="active" aria-current="page" href="/prototypes/concept-a-dossier/" target="_top" title="Concept A · The Dossier">A</a>
-    <a href="/prototypes/concept-b-signal-path/" target="_top" title="Concept B · Signal Path">B</a>
-    <a href="/prototypes/concept-c-command/" target="_top" title="Concept C · Command">C</a>
-  </div>
-</nav>
+  <!-- ===== Prototype nav overlay (Home + concept toggle) ===== -->
+  <style>
+    #proto-nav {
+      position: fixed;
+      left: 50%;
+      bottom: 20px;
+      transform: translateX(-50%);
+      z-index: 2147483000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--border, #D6DCE8);
+      box-shadow: 0 8px 30px rgba(13, 27, 62, .16);
+      font-family: var(--body, system-ui, sans-serif)
+    }
+
+    #proto-nav a {
+      text-decoration: none;
+      color: var(--navy, #0D1B3E)
+    }
+
+    #proto-nav .pn-home {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 14px 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -.01em;
+      transition: background .15s ease
+    }
+
+    #proto-nav .pn-home:hover {
+      background: var(--frost, #F4F6FB)
+    }
+
+    #proto-nav .pn-home svg {
+      width: 15px;
+      height: 15px;
+      display: block
+    }
+
+    #proto-nav .pn-sep {
+      width: 1px;
+      height: 22px;
+      background: var(--border, #D6DCE8)
+    }
+
+    #proto-nav .pn-toggle {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 0 2px
+    }
+
+    #proto-nav .pn-toggle a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted, #6B7A99);
+      transition: background .15s ease, color .15s ease
+    }
+
+    #proto-nav .pn-toggle a:hover {
+      background: var(--frost, #F4F6FB);
+      color: var(--navy, #0D1B3E)
+    }
+
+    #proto-nav .pn-toggle a.active {
+      background: var(--cobalt, #1A56DB);
+      color: #fff
+    }
+
+    @media print {
+      #proto-nav {
+        display: none
+      }
+    }
+  </style>
+  <nav id="proto-nav" aria-label="Prototype navigation">
+    <a class="pn-home" href="/" target="_top" title="Back to the proposal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+        stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 10.5 12 3l9 7.5" />
+        <path d="M5 9.5V21h14V9.5" />
+      </svg>
+      Home
+    </a>
+    <span class="pn-sep" aria-hidden="true"></span>
+    <div class="pn-toggle" role="group" aria-label="Switch concept">
+      <a class="active" aria-current="page" href="/prototypes/concept-a-dossier/" target="_top"
+        title="Concept A · The Dossier">A</a>
+      <a href="/prototypes/concept-b-signal-path/" target="_top" title="Concept B · Signal Path">B</a>
+      <a href="/prototypes/concept-c-command/" target="_top" title="Concept C · Command">C</a>
+    </div>
+  </nav>
 </body>
+
 </html>
