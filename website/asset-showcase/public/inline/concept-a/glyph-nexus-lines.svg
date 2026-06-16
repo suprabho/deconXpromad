@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="glyph nexus-lines" width="120" height="120" viewBox="0 0 120 120">
+            <line x1="60" y1="60" x2="18" y2="22" />
+            <line x1="60" y1="60" x2="102" y2="22" />
+            <line x1="60" y1="60" x2="12" y2="78" />
+            <line x1="60" y1="60" x2="108" y2="78" />
+            <line x1="60" y1="60" x2="60" y2="110" />
+            <circle cx="18" cy="22" r="5" />
+            <circle cx="102" cy="22" r="5" />
+            <circle cx="12" cy="78" r="5" />
+            <circle cx="108" cy="78" r="5" />
+            <circle cx="60" cy="110" r="5" />
+            <circle class="hub" cx="60" cy="60" r="7" />
+          </svg>
