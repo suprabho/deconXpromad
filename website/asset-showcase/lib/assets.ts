@@ -155,16 +155,13 @@ export const imageAssets: ImageAsset[] = [
   },
 ];
 
-/** Brand marks — static, presentation-ready logo lockups. */
-export const logoAssets: SvgAsset[] = [
-  {
-    option: 'B',
-    name: 'deconflict-blue.svg',
-    src: '/logos/deconflict-blue.svg',
-    usedIn: 'Concept B · nav header',
-    note: 'The compact header lockup used in the Signal Path top bar.',
-  },
-];
+/**
+ * Brand marks are intentionally NOT showcased here — the Deconflict logos
+ * (the `deconflict-blue.svg` wordmark, the per-concept nav lockups, and the
+ * guilloché rosette/seal) are excluded so this library presents only the
+ * supporting illustration, icon, and image set per option.
+ */
+export const logoAssets: SvgAsset[] = [];
 
 /** Capability icons — static line-art glyphs (light-on-dark). */
 export const iconAssets: SvgAsset[] = [
@@ -192,15 +189,14 @@ export const illustrationAssets: SvgAsset[] = [
 
 /**
  * SVGs that were authored inline inside the prototype HTML (not as separate
- * files) — product glyphs, the guilloché rosette, trust marks, the feature /
- * workflow / capability icon sets, signal-card diagrams, resource covers, and
- * the nav lockups. Each was lifted out verbatim into /public/inline/<concept>/.
+ * files) — product glyphs, trust marks, the feature / workflow / capability
+ * icon sets, signal-card diagrams, and resource covers. Brand marks (the nav
+ * lockups and the guilloché rosette) are deliberately omitted. Each was lifted
+ * out verbatim into /public/inline/<concept>/.
  */
 export const inlineSvgAssets: SvgAsset[] = [
-  { option: 'A', name: 'logo-lockup.svg', src: '/inline/concept-a/logo-lockup.svg', usedIn: 'Nav logo lockup', note: 'Extracted from the Concept A prototype HTML.' },
   { option: 'A', name: 'glyph-nexus-lines.svg', src: '/inline/concept-a/glyph-nexus-lines.svg', usedIn: 'Diptych glyph · NEXUS node network', note: 'Extracted from the Concept A prototype HTML.' },
   { option: 'A', name: 'glyph-signal-rings.svg', src: '/inline/concept-a/glyph-signal-rings.svg', usedIn: 'Diptych glyph · SIGNAL pulse rings', note: 'Extracted from the Concept A prototype HTML.' },
-  { option: 'A', name: 'guilloche-rosette.svg', src: '/inline/concept-a/guilloche-rosette.svg', usedIn: 'S6 close · guilloché rosette', note: 'Extracted from the Concept A prototype HTML.', dark: true },
   { option: 'A', name: 'trust-soc2.svg', src: '/inline/concept-a/trust-soc2.svg', usedIn: 'Trust marker · SOC 2 Type II', note: 'Extracted from the Concept A prototype HTML.' },
   { option: 'A', name: 'trust-gdpr.svg', src: '/inline/concept-a/trust-gdpr.svg', usedIn: 'Trust marker · GDPR', note: 'Extracted from the Concept A prototype HTML.' },
   { option: 'A', name: 'trust-hashed-exchange.svg', src: '/inline/concept-a/trust-hashed-exchange.svg', usedIn: 'Trust marker · Hashed exchange', note: 'Extracted from the Concept A prototype HTML.' },
@@ -242,7 +238,6 @@ export const inlineSvgAssets: SvgAsset[] = [
   { option: 'B', name: 'resource-cover-1.svg', src: '/inline/concept-b/resource-cover-1.svg', usedIn: 'Resource cover · Bitcoin seizure', note: 'Extracted from the Concept B prototype HTML.' },
   { option: 'B', name: 'resource-cover-2.svg', src: '/inline/concept-b/resource-cover-2.svg', usedIn: 'Resource cover · FCA order', note: 'Extracted from the Concept B prototype HTML.' },
   { option: 'B', name: 'resource-cover-3.svg', src: '/inline/concept-b/resource-cover-3.svg', usedIn: 'Resource cover · Policy briefing', note: 'Extracted from the Concept B prototype HTML.' },
-  { option: 'C', name: 'logo-lockup.svg', src: '/inline/concept-c/logo-lockup.svg', usedIn: 'Nav logo lockup (Command)', note: 'Extracted from the Concept C prototype HTML.', dark: true },
 ];
 
 /** All assets for a given option, grouped by kind. Empty groups are omitted at render. */
