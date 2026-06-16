@@ -1,287 +1,220 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { concepts, countForOption, usageForOption, sectionBackgrounds } from '@/lib/assets';
-import type { ShowcaseConcept, SvgAsset, UsageBlock } from '@/lib/assets';
+import { optionRows, unifiedRows } from '@/lib/assets';
+import type { ConceptOption, ImageRow, SectionRows } from '@/lib/assets';
 
-/** Lead tab: the Website 2.0 section-background set (not an A/B/C concept). */
-const BG_SLUG = 'section-backgrounds';
+/* ============ VIEWS — unified Website 2.0, then one per option ============ */
 
-/* ============ ASSET CARDS ============ */
+type View = {
+  slug: string;
+  name: string;
+  desc: string;
+  unified: boolean;
+  option?: ConceptOption;
+};
 
-function SvgCard({ asset, animated = false }: { asset: SvgAsset; animated?: boolean }) {
-  const stageClass = [
-    'asset-stage',
-    asset.dark ? 'is-dark' : '',
-    asset.fit === 'wide' ? 'is-wide' : '',
-    animated ? 'is-animated' : '',
-  ]
-    .filter(Boolean)
-    .join(' ');
-  return (
-    <figure className="asset-card">
-      <div className={stageClass}>
+const VIEWS: View[] = [
+  {
+    slug: 'website-2',
+    name: 'Website 2.0',
+    desc: 'Each section background with the Option A and Option B overlays shown together — where the two collide they sit side by side to compare and unify.',
+    unified: true,
+  },
+  {
+    slug: 'concept-a',
+    name: 'Option A · The Dossier',
+    desc: 'The engraving product panels, trust marks, lifecycle, contrast, and pillar imagery.',
+    unified: false,
+    option: 'A',
+  },
+  {
+    slug: 'concept-b',
+    name: 'Option B · Signal Path',
+    desc: 'Platform imagery, capability cards, feature / workflow icons, signal diagrams, and resource covers.',
+    unified: false,
+    option: 'B',
+  },
+  {
+    slug: 'concept-c',
+    name: 'Option C · Command',
+    desc: 'Generated at runtime (canvas + CSS) — ships no exported image, icon, or vector files.',
+    unified: false,
+    option: 'C',
+  },
+];
+
+const rowsForView = (v: View): SectionRows[] =>
+  v.unified ? unifiedRows() : optionRows(v.option as ConceptOption);
+
+/* ============ IMAGE CELL — the actual rendering ============ */
+
+function RowImage({ row }: { row: ImageRow }) {
+  if (row.type === 'BG + SVG') {
+    return (
+      <div className="tbl-stage is-composite" style={{ backgroundImage: `url(${row.bgSrc})` }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={asset.src} alt={asset.name} loading="lazy" />
+        <img src={row.svgSrc} alt={row.name} loading="lazy" />
       </div>
-      <figcaption>
-        <div className="asset-cap-head">
-          <b className="mono">{asset.name}</b>
-          <span className="asset-where">{asset.usedIn}</span>
-        </div>
-        <p>{asset.note}</p>
-      </figcaption>
-    </figure>
-  );
-}
-
-/* ============ USAGE BLOCK — assets grouped by where they're used ============ */
-
-function UsageBlockView({ block }: { block: UsageBlock }) {
-  const { section, aura, images, svgs } = block;
-  const count = aura.length + images.length + svgs.length;
-
+    );
+  }
+  if (row.type === 'Background' || row.type === 'Raster') {
+    return (
+      <div
+        className={`tbl-stage is-cover${row.dark ? ' is-dark' : ''}`}
+        style={{ backgroundImage: `url(${row.bgSrc})` }}
+        role="img"
+        aria-label={row.name}
+      />
+    );
+  }
+  // SVG only
   return (
-    <div className="usage-group">
-      <div className="usage-head">
-        <span className="usage-code mono">{section.id}</span>
-        <h4>{section.title}</h4>
-        <span className="usage-count mono">
-          {count} asset{count === 1 ? '' : 's'}
-        </span>
-      </div>
-      <p className="usage-summary">{section.summary}</p>
-
-      {aura.length > 0 && (
-        <div className="aura-grid">
-          {aura.map((e) => (
-            <figure className="aura-card" key={e.slug}>
-              <div className="aura-stage">
-                <iframe src={e.url} title={e.title} loading="lazy" aria-hidden="true" tabIndex={-1} />
-              </div>
-              <figcaption>
-                <div className="asset-cap-head">
-                  <b>{e.title}</b>
-                  <span className="asset-where">{e.usedIn}</span>
-                </div>
-                <p className="asset-url mono">/embed/{e.slug}</p>
-                <p>{e.note}</p>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      )}
-
-      {images.length > 0 && (
-        <div className="img-grid">
-          {images.map((img) => (
-            <figure className="asset-card" key={img.name}>
-              <div className={`asset-stage img-stage${img.dark ? ' is-dark' : ''}`}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={img.src} alt={img.name} loading="lazy" />
-              </div>
-              <figcaption>
-                <div className="asset-cap-head">
-                  <b className="mono">{img.name}</b>
-                  <span className="asset-tag">
-                    {img.kind} · {img.weight}
-                  </span>
-                </div>
-                <span className="asset-where">{img.usedIn}</span>
-                <p>{img.note}</p>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      )}
-
-      {svgs.length > 0 && (
-        <div className="inline-grid">
-          {svgs.map((a) => (
-            <SvgCard asset={a} animated={a.animated} key={a.name} />
-          ))}
-        </div>
-      )}
+    <div className={`tbl-stage${row.dark ? ' is-dark' : ''}${row.fit === 'wide' ? ' is-wide' : ''}`}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={row.svgSrc} alt={row.name} loading="lazy" />
     </div>
   );
 }
 
-/* ============ SECTION HEADER — editorial, oversized number ============ */
+const typeClass = (t: ImageRow['type']) => `t-${t.replace(/[^A-Za-z]+/g, '')}`;
 
-function SectionHeader({
-  number,
-  concept,
-  count,
-}: {
-  number: string;
-  concept: ShowcaseConcept;
-  count: number;
-}) {
+/* ============ THE TABLE ============ */
+
+function MapTable({ groups, unified }: { groups: SectionRows[]; unified: boolean }) {
   return (
-    <div className="sec-header">
-      <span className="sec-ghost">{number}</span>
-      <h3>
-        <span className="idx mono">Option {concept.option}</span> {concept.name}
-      </h3>
-      <p className="concept-tagline">{concept.tagline}</p>
-      <p className="concept-count mono">
-        {count === 0 ? 'No exported assets' : `${count} asset${count === 1 ? '' : 's'}`}
-      </p>
+    <div className="map-wrap">
+      <table className="map-table">
+        <thead>
+          <tr>
+            <th className="col-sec">Section</th>
+            <th className="col-text">Text</th>
+            <th className="col-cta">CTA</th>
+            <th className="col-img">Image</th>
+            <th className="col-name">{unified ? 'Asset · Concept' : 'Asset'}</th>
+            <th className="col-type">Type</th>
+            <th className="col-path">Path</th>
+          </tr>
+        </thead>
+        <tbody>
+          {groups.map((g) =>
+            g.rows.map((row, i) => (
+              <tr key={row.key} className={i === 0 ? 'sec-start' : ''}>
+                {i === 0 && (
+                  <>
+                    <th scope="rowgroup" rowSpan={g.rows.length} className="cell-sec">
+                      <span className="sec-id mono">{g.section.id}</span>
+                      <span className="sec-title">{g.section.title}</span>
+                    </th>
+                    <td rowSpan={g.rows.length} className="cell-text">
+                      <p className="cell-heading">{g.content.heading}</p>
+                      {g.content.text && <p className="cell-body">{g.content.text}</p>}
+                    </td>
+                    <td rowSpan={g.rows.length} className="cell-cta">
+                      {g.content.cta ? (
+                        <span className="cta-chip">{g.content.cta}</span>
+                      ) : (
+                        <span className="cta-none mono">none</span>
+                      )}
+                    </td>
+                  </>
+                )}
+                <td className="cell-img">
+                  <RowImage row={row} />
+                </td>
+                <td className="cell-name">
+                  {unified && (
+                    <span className={`concept-badge ${row.concept ? `c-${row.concept}` : 'c-bg'}`}>
+                      {row.concept ?? 'BG'}
+                    </span>
+                  )}
+                  <b className="mono">{row.name}</b>
+                  {row.note && <span className="cell-note">{row.note}</span>}
+                </td>
+                <td className="cell-type">
+                  <span className={`type-tag ${typeClass(row.type)}`}>{row.type}</span>
+                </td>
+                <td className="cell-path">
+                  {row.paths.map((p) => (
+                    <code key={p}>{p}</code>
+                  ))}
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
     </div>
-  );
-}
-
-/* ============ CONCEPT (OPTION) SECTION ============ */
-
-function ConceptSection({ concept, number }: { concept: ShowcaseConcept; number: string }) {
-  const blocks = usageForOption(concept.option);
-  const count = countForOption(concept.option);
-
-  return (
-    <section className="concept-sec" id={concept.slug}>
-      <SectionHeader number={number} concept={concept} count={count} />
-
-      {count === 0 && (
-        <p className="concept-empty">
-          Command is fully generated at runtime — the dot-matrix map, scan sweep, and chain-of-custody
-          board are drawn in canvas and CSS, so it ships no exported image, icon, or vector files.
-        </p>
-      )}
-
-      {blocks.map((block) => (
-        <UsageBlockView block={block} key={block.section.id} />
-      ))}
-    </section>
-  );
-}
-
-/* ============ SECTION BACKGROUNDS — one full-bleed render per section ============ */
-
-function SectionBackgroundsView() {
-  return (
-    <section className="concept-sec" id={BG_SLUG}>
-      <div className="sec-header">
-        <span className="sec-ghost">00</span>
-        <h3>
-          <span className="idx mono">Website 2.0</span> Section Backgrounds
-        </h3>
-        <p className="concept-tagline">
-          One full-bleed static render per homepage section — ambient backgrounds that sit behind
-          the copy, replacing the live Aura embeds and the per-item SVG sets.
-        </p>
-        <p className="concept-count mono">{sectionBackgrounds.length} backgrounds</p>
-      </div>
-
-      <div className="bg-bands">
-        {sectionBackgrounds.map((b) => (
-          <figure
-            className={`bg-band ${b.dark ? 'is-dark' : 'is-light'}`}
-            key={b.id}
-            style={{ backgroundImage: `url(${b.src})` }}
-          >
-            <div className="bg-band-copy">
-              <span className="bg-band-id mono">{b.id}</span>
-              <h4>{b.title}</h4>
-              <p>{b.motif}</p>
-              <span className="bg-band-meta mono">
-                {b.src} · {b.meta}
-              </span>
-            </div>
-          </figure>
-        ))}
-      </div>
-    </section>
   );
 }
 
 /* ============ PAGE ============ */
 
-const pad = (i: number) => String(i + 1).padStart(2, '0');
-
 export default function Home() {
-  const [activeSlug, setActiveSlug] = useState<string>(BG_SLUG);
+  const [activeSlug, setActiveSlug] = useState<string>(VIEWS[0].slug);
 
-  // Sync the active tab with the URL hash so the top-bar Option links work and
-  // each tab is deep-linkable / shareable.
+  // Keep the active view in sync with the URL hash so each table is deep-linkable.
   useEffect(() => {
     const apply = () => {
       const slug = window.location.hash.replace('#', '');
-      if (slug === BG_SLUG || concepts.some((c) => c.slug === slug)) setActiveSlug(slug);
+      if (VIEWS.some((v) => v.slug === slug)) setActiveSlug(slug);
     };
     apply();
     window.addEventListener('hashchange', apply);
     return () => window.removeEventListener('hashchange', apply);
   }, []);
 
-  const selectTab = (slug: string) => {
+  const select = (slug: string) => {
     setActiveSlug(slug);
-    if (window.location.hash !== `#${slug}`) {
-      window.history.replaceState(null, '', `#${slug}`);
-    }
+    if (window.location.hash !== `#${slug}`) window.history.replaceState(null, '', `#${slug}`);
   };
 
-  const showBg = activeSlug === BG_SLUG;
-  const activeIndex = Math.max(0, concepts.findIndex((c) => c.slug === activeSlug));
-  const active = concepts[activeIndex];
+  const active = VIEWS.find((v) => v.slug === activeSlug) ?? VIEWS[0];
+  const groups = rowsForView(active);
+  const imageCount = groups.reduce((n, g) => n + g.rows.length, 0);
 
   return (
     <>
       {/* Editorial hero */}
       <header className="show-hero">
         <div className="container">
-          <span className="eyebrow">Asset Library</span>
+          <span className="eyebrow">Homepage · Financial Institutions</span>
           <h1>
-            Assets by <em>Option</em>
+            Section <em>Image</em> Map
           </h1>
           <p className="tagline">
-            Every embed, image, and vector created for the Deconflict homepage exploration. Pick an
-            option below — Option A (The Dossier), Option B (Signal Path), or Option C (Command) —
-            and its assets are laid out by where they appear on the page, banner through close. Brand
-            marks are kept out: this is the supporting illustration, icon, and image set.
+            The Website 2.0 home page as a table — each section&apos;s copy and CTA next to the
+            actual rendered imagery that fills its Image cell. Every image is flagged by how it&apos;s
+            built: a section background, a background-plus-SVG composite, a standalone SVG, or a
+            raster.
           </p>
           <div className="hero-meta mono">
-            <span>{concepts.length} options</span>
+            <span>{VIEWS.length} views</span>
             <span className="sep">—</span>
-            <span>
-              {concepts.reduce((n, c) => n + countForOption(c.option), 0)} assets catalogued
-            </span>
+            <span>Section · Text · CTA · Image</span>
           </div>
         </div>
       </header>
 
-      {/* Tab bar — Section Backgrounds lead tab, then one tab per option */}
+      {/* View switcher */}
       <div className="show-tabs">
-        <div className="container show-tabs-inner" role="tablist" aria-label="Design options">
-          <button
-            role="tab"
-            aria-selected={showBg}
-            onClick={() => selectTab(BG_SLUG)}
-            className={`tab${showBg ? ' is-active' : ''}`}
-          >
-            <span className="tab-num mono">00</span>
-            <span className="tab-body">
-              <span className="tab-name">Section Backgrounds</span>
-              <span className="tab-count mono">{sectionBackgrounds.length} backgrounds</span>
-            </span>
-          </button>
-          {concepts.map((c, i) => {
-            const isActive = activeSlug === c.slug;
-            const count = countForOption(c.option);
+        <div className="container show-tabs-inner" role="tablist" aria-label="Table views">
+          {VIEWS.map((v, i) => {
+            const isActive = v.slug === active.slug;
+            const count = rowsForView(v).reduce((n, g) => n + g.rows.length, 0);
             return (
               <button
-                key={c.slug}
+                key={v.slug}
                 role="tab"
                 aria-selected={isActive}
-                onClick={() => selectTab(c.slug)}
+                onClick={() => select(v.slug)}
                 className={`tab${isActive ? ' is-active' : ''}`}
               >
-                <span className="tab-num mono">{pad(i)}</span>
+                <span className="tab-num mono">{String(i).padStart(2, '0')}</span>
                 <span className="tab-body">
-                  <span className="tab-name">
-                    Option {c.option} · {c.name}
-                  </span>
+                  <span className="tab-name">{v.name}</span>
                   <span className="tab-count mono">
-                    {count === 0 ? 'Runtime-generated' : `${count} asset${count === 1 ? '' : 's'}`}
+                    {count === 0 ? 'No assets' : `${count} image${count === 1 ? '' : 's'}`}
                   </span>
                 </span>
               </button>
@@ -290,12 +223,16 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Active panel */}
+      {/* Active table */}
       <div className="container show-panel" role="tabpanel">
-        {showBg ? (
-          <SectionBackgroundsView />
+        <p className="view-desc">{active.desc}</p>
+        {imageCount === 0 ? (
+          <p className="concept-empty">
+            Option C — Command is generated entirely at runtime (canvas + CSS), so there are no
+            exported image, icon, or vector files to render here.
+          </p>
         ) : (
-          active && <ConceptSection concept={active} number={pad(activeIndex)} key={active.option} />
+          <MapTable groups={groups} unified={active.unified} />
         )}
       </div>
     </>

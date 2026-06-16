@@ -425,6 +425,211 @@ export function usageForOption(option: ConceptOption): UsageBlock[] {
     .filter((b) => b.aura.length + b.images.length + b.svgs.length > 0);
 }
 
+/* -------------------------------------------------------------------------- *
+ * Table view — Section · Text · CTA · Image
+ *
+ * The showcase's primary view is a table that mirrors the home-page table in
+ * the *Deconflict Website 2.0* doc: each homepage section's copy (heading /
+ * body / CTA) alongside the *rendered* imagery that fills its Image cell. Every
+ * image row is classified by how it's built:
+ *   - Background — a full-bleed section render (the base layer).
+ *   - BG + SVG   — a raster plate with an SVG drawn on top (a composite).
+ *   - SVG only   — a standalone vector, no plate behind it.
+ *   - Raster     — a standalone raster image.
+ * -------------------------------------------------------------------------- */
+
+/** The homepage copy per section, from the Website 2.0 content doc. */
+export type HomeSectionContent = { id: SectionId; heading: string; text: string; cta: string };
+
+export const homepageContent: HomeSectionContent[] = [
+  {
+    id: 'S1',
+    heading: 'Investigative Intelligence for Compliance and Risk Teams',
+    text: 'Go beyond standard transaction monitoring with direct, secure access to intelligence sourced straight from credentialed law enforcement.',
+    cta: 'Schedule a Demo',
+  },
+  {
+    id: 'S2',
+    heading: 'Connected intelligence that goes beyond basic risk scoring',
+    text: '',
+    cta: 'Half-image link to respective product pages',
+  },
+  {
+    id: 'S3',
+    heading: 'Compliance Teams Need More Than Monitoring',
+    text: 'Traditional blockchain analytics platforms generate alerts. Deconflict provides investigative context — visibility across the entire compliance lifecycle, from onboarding and monitoring to escalation and reporting. Built for scale: banks, exchanges, fintechs, and regulated institutions managing high-volume digital asset risk.',
+    cta: '',
+  },
+  {
+    id: 'S4',
+    heading: 'Verified Intelligence for Faster Decisions',
+    text: 'Three capability pillars — Law Enforcement Intelligence, Examiner-Ready Compliance, and Seamless Integration & Speed.',
+    cta: '',
+  },
+  {
+    id: 'S5',
+    heading: 'Latest Resources & News',
+    text: 'Pulls from the Blogs / resource section.',
+    cta: '',
+  },
+  {
+    id: 'S6',
+    heading: 'Built for Institutions Managing Digital Asset Risk',
+    text: 'Deconflict helps compliance and investigative teams operate with greater confidence in fast-moving digital asset environments.',
+    cta: 'Schedule a Demo',
+  },
+];
+
+/**
+ * Composites — a raster plate with an SVG drawn on top. These render as the
+ * finished combined image (SVG layered over its background), e.g. the S2
+ * product panels that act as the half-image links to the product pages.
+ */
+export const composites: {
+  section: SectionId;
+  option: ConceptOption;
+  name: string;
+  bgSrc: string;
+  svgSrc: string;
+  note: string;
+}[] = [
+  {
+    section: 'S2',
+    option: 'A',
+    name: 'Signal product panel',
+    bgSrc: '/images/signal-bg.png',
+    svgSrc: '/inline/concept-a/glyph-signal-rings.svg',
+    note: 'Engraving plate + pulse-rings glyph — the left half-image link → Signal product page.',
+  },
+  {
+    section: 'S2',
+    option: 'A',
+    name: 'Nexus product panel',
+    bgSrc: '/images/nexus-bg.png',
+    svgSrc: '/inline/concept-a/glyph-nexus-lines.svg',
+    note: 'Engraving plate + node-network glyph — the right half-image link → Nexus product page.',
+  },
+];
+
+export type ImageRowType = 'Background' | 'BG + SVG' | 'SVG only' | 'Raster';
+
+/** One rendered image row in the table, with everything needed to draw it. */
+export type ImageRow = {
+  key: string;
+  section: SectionId;
+  concept: ConceptOption | null; // null = unified section background
+  name: string;
+  type: ImageRowType;
+  bgSrc?: string; // plate / render / raster
+  svgSrc?: string; // SVG overlay or standalone vector
+  dark?: boolean;
+  fit?: 'contain' | 'wide';
+  paths: string[];
+  note?: string;
+};
+
+/** One section's table block: its copy plus the image rows that fill it. */
+export type SectionRows = { section: PageSection; content: HomeSectionContent; rows: ImageRow[] };
+
+const compositeOverlaySrcs = new Set(composites.map((c) => c.svgSrc));
+const compositeBgSrcs = new Set(composites.map((c) => c.bgSrc));
+
+const contentFor = (id: SectionId): HomeSectionContent =>
+  homepageContent.find((h) => h.id === id) as HomeSectionContent;
+
+const rowFromComposite = (c: (typeof composites)[number]): ImageRow => ({
+  key: `comp-${c.option}-${c.name}`,
+  section: c.section,
+  concept: c.option,
+  name: c.name,
+  type: 'BG + SVG',
+  bgSrc: c.bgSrc,
+  svgSrc: c.svgSrc,
+  dark: true,
+  paths: [c.bgSrc, c.svgSrc],
+  note: c.note,
+});
+
+const rowFromRaster = (a: ImageAsset): ImageRow => ({
+  key: `img-${a.option}-${a.name}`,
+  section: sectionForUsage(a.usedIn),
+  concept: a.option,
+  name: a.name,
+  type: 'Raster',
+  bgSrc: a.src,
+  dark: a.dark,
+  paths: [a.src],
+  note: a.note,
+});
+
+const rowFromSvg = (a: SvgAsset): ImageRow => ({
+  key: `svg-${a.option}-${a.name}`,
+  section: sectionForUsage(a.usedIn),
+  concept: a.option,
+  name: a.name,
+  type: 'SVG only',
+  svgSrc: a.src,
+  dark: a.dark,
+  fit: a.fit,
+  paths: [a.src],
+  note: a.note,
+});
+
+const rowFromBackground = (b: SectionBackground): ImageRow => ({
+  key: `bg-${b.id}`,
+  section: b.id,
+  concept: null,
+  name: `${b.id.toLowerCase()}-bg.png`,
+  type: 'Background',
+  bgSrc: b.src,
+  dark: b.dark,
+  paths: [b.src],
+  note: b.motif,
+});
+
+/** Every image row an option contributes to a section (composites, then rasters, then SVGs). */
+function optionImageRows(option: ConceptOption, id: SectionId): ImageRow[] {
+  const g = assetsForOption(option);
+  const svgsAll: SvgAsset[] = [...g.icons, ...g.illustrations, ...g.inline];
+  return [
+    ...composites.filter((c) => c.option === option && c.section === id).map(rowFromComposite),
+    ...g.images
+      .filter((a) => sectionForUsage(a.usedIn) === id && !compositeBgSrcs.has(a.src))
+      .map(rowFromRaster),
+    ...svgsAll
+      .filter((a) => sectionForUsage(a.usedIn) === id && !compositeOverlaySrcs.has(a.src))
+      .map(rowFromSvg),
+  ];
+}
+
+/** Per-option table: that concept's imagery, grouped by section, one row per image. */
+export function optionRows(option: ConceptOption): SectionRows[] {
+  return pageSections
+    .map((section) => ({
+      section,
+      content: contentFor(section.id),
+      rows: optionImageRows(option, section.id),
+    }))
+    .filter((s) => s.rows.length > 0);
+}
+
+/**
+ * Unified "Website 2.0" table: each section's background render plus the
+ * Option A and Option B overlays for that section, shown together so colliding
+ * variants sit side by side to be compared and unified.
+ */
+export function unifiedRows(): SectionRows[] {
+  return pageSections.map((section) => ({
+    section,
+    content: contentFor(section.id),
+    rows: [
+      ...sectionBackgrounds.filter((b) => b.id === section.id).map(rowFromBackground),
+      ...optionImageRows('A', section.id),
+      ...optionImageRows('B', section.id),
+    ],
+  }));
+}
+
 /** Total asset count for an option (used for the per-option fact strip). */
 export function countForOption(option: ConceptOption): number {
   const g = assetsForOption(option);
