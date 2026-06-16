@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* The composition stage is laid out in exact pixels and never responsive — it is
+   the single source of truth shared by the editor preview, the /render route, and
+   the screenshot export, so its metrics must be identical everywhere. */
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Chrome-less render route: transparent body, no scrollbars, stage flush to 0,0. */
+body.render-surface {
+  background: transparent;
+  overflow: hidden;
+}

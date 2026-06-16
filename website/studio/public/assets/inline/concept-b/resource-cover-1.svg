@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <g fill="none" stroke="rgba(255,255,255,.18)">
+              <path d="M100 36 L154 67 V129 L100 160 L46 129 V67 Z"/>
+              <path d="M100 58 L135 78 V118 L100 138 L65 118 V78 Z" stroke="rgba(255,255,255,.26)"/>
+            </g>
+            <path d="M100 80 L118 90 V110 L100 120 L82 110 V90 Z" fill="#1A56DB"/>
+          </svg>

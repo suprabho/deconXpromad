@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="sc-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <path class="sc-wire w1" pathLength="1" d="M42 44 L15 16"/>
+          <path class="sc-wire w2" pathLength="1" d="M58 44 L86 23"/>
+          <path class="sc-wire w3" pathLength="1" d="M42 50 L17 83"/>
+          <path class="sc-wire w4" pathLength="1" d="M58 50 L86 78"/>
+          <circle class="sc-wdot" cx="15" cy="16" r="1.1"/>
+          <circle class="sc-wdot" cx="86" cy="23" r="1.1"/>
+          <circle class="sc-wdot" cx="17" cy="83" r="1.1"/>
+          <circle class="sc-wdot" cx="86" cy="78" r="1.1"/>
+        </svg>
