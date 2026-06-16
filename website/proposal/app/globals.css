@@ -64,6 +64,7 @@ h1 em { font-style: italic; font-weight: 400; color: var(--cobalt); }
 .sec { padding: 72px 0; }
 .sec + .sec { border-top: 1px solid var(--border-soft); }
 .sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; margin-bottom: 40px; flex-wrap: wrap; }
+.sec-head-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 .sec-index { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; color: var(--cobalt); }
 h2 { font-family: var(--display); font-weight: 300; font-size: clamp(28px, 3.2vw, 42px); line-height: 1.12; letter-spacing: -0.01em; }
 h2 em { font-style: italic; color: var(--cobalt); }
@@ -251,4 +252,55 @@ h2 em { font-style: italic; color: var(--cobalt); }
   .tokens-grid { grid-template-columns: repeat(2, 1fr); }
   .spec-row { grid-template-columns: 1fr; gap: 12px; }
   .contrast-table { display: block; overflow-x: auto; }
+}
+
+/* ---------- assets: shared card ---------- */
+.asset-card { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: #fff; display: flex; flex-direction: column; }
+.asset-stage { display: flex; align-items: center; justify-content: center; padding: 26px; background: var(--frost); border-bottom: 1px solid var(--border-soft); aspect-ratio: 16 / 10; min-height: 0; }
+.asset-stage img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+.asset-stage.is-dark { background: var(--navy); background-image: radial-gradient(120% 120% at 50% 0%, #16306b 0%, var(--navy) 62%); }
+.asset-stage.is-wide { aspect-ratio: auto; padding: 0; }
+.asset-stage.is-wide img { width: 100%; height: auto; max-height: none; }
+.asset-stage.img-stage { padding: 0; }
+.asset-stage.img-stage img { width: 100%; height: 100%; object-fit: cover; }
+.asset-card figcaption { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 6px; }
+.asset-cap-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.asset-cap-head b { font-size: 13px; font-weight: 600; }
+.asset-cap-head b.mono { font-weight: 500; text-transform: none; letter-spacing: 0.02em; color: var(--navy); }
+.asset-where { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cobalt); }
+.asset-tag { font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; color: var(--subtle); white-space: nowrap; }
+.asset-card figcaption p { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+.asset-card figcaption .asset-url { font-size: 10px; letter-spacing: 0.04em; color: var(--subtle); word-break: break-all; text-transform: none; }
+
+/* ---------- assets: aura embeds ---------- */
+.aura-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.aura-card { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: #fff; display: flex; flex-direction: column; }
+.aura-stage { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: var(--navy); border-bottom: 1px solid var(--border-soft); }
+.aura-stage iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; pointer-events: none; }
+.aura-card figcaption { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 6px; }
+.aura-card figcaption b { font-size: 13.5px; font-weight: 600; }
+.aura-card figcaption p { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+
+/* ---------- assets: grids ---------- */
+.img-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.logo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.icon-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.icon-grid .asset-stage { padding: 20px; }
+.icon-grid .asset-card figcaption { padding: 12px 14px 14px; }
+.icon-grid .asset-cap-head b.mono { font-size: 11.5px; }
+
+/* ---------- assets: animated illustration drift ---------- */
+.asset-stage.is-animated { overflow: hidden; }
+.asset-stage.is-animated img { animation: asset-drift 9s ease-in-out infinite; will-change: transform; }
+@keyframes asset-drift {
+  0%, 100% { transform: translateX(0) scale(1.01); }
+  50% { transform: translateX(-1.5%) scale(1.03); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .asset-stage.is-animated img { animation: none; }
+}
+
+@media (max-width: 920px) {
+  .aura-grid, .img-grid, .logo-grid { grid-template-columns: 1fr; }
+  .icon-grid { grid-template-columns: repeat(2, 1fr); }
 }
