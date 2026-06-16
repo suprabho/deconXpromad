@@ -1,8 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { concepts, countForOption, usageForOption } from '@/lib/assets';
+import { concepts, countForOption, usageForOption, sectionBackgrounds } from '@/lib/assets';
 import type { ShowcaseConcept, SvgAsset, UsageBlock } from '@/lib/assets';
+
+/** Lead tab: the Website 2.0 section-background set (not an A/B/C concept). */
+const BG_SLUG = 'section-backgrounds';
 
 /* ============ ASSET CARDS ============ */
 
@@ -152,19 +155,58 @@ function ConceptSection({ concept, number }: { concept: ShowcaseConcept; number:
   );
 }
 
+/* ============ SECTION BACKGROUNDS — one full-bleed render per section ============ */
+
+function SectionBackgroundsView() {
+  return (
+    <section className="concept-sec" id={BG_SLUG}>
+      <div className="sec-header">
+        <span className="sec-ghost">00</span>
+        <h3>
+          <span className="idx mono">Website 2.0</span> Section Backgrounds
+        </h3>
+        <p className="concept-tagline">
+          One full-bleed static render per homepage section — ambient backgrounds that sit behind
+          the copy, replacing the live Aura embeds and the per-item SVG sets.
+        </p>
+        <p className="concept-count mono">{sectionBackgrounds.length} backgrounds</p>
+      </div>
+
+      <div className="bg-bands">
+        {sectionBackgrounds.map((b) => (
+          <figure
+            className={`bg-band ${b.dark ? 'is-dark' : 'is-light'}`}
+            key={b.id}
+            style={{ backgroundImage: `url(${b.src})` }}
+          >
+            <div className="bg-band-copy">
+              <span className="bg-band-id mono">{b.id}</span>
+              <h4>{b.title}</h4>
+              <p>{b.motif}</p>
+              <span className="bg-band-meta mono">
+                {b.src} · {b.meta}
+              </span>
+            </div>
+          </figure>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 /* ============ PAGE ============ */
 
 const pad = (i: number) => String(i + 1).padStart(2, '0');
 
 export default function Home() {
-  const [activeSlug, setActiveSlug] = useState(concepts[0]?.slug ?? '');
+  const [activeSlug, setActiveSlug] = useState<string>(BG_SLUG);
 
   // Sync the active tab with the URL hash so the top-bar Option links work and
   // each tab is deep-linkable / shareable.
   useEffect(() => {
     const apply = () => {
       const slug = window.location.hash.replace('#', '');
-      if (concepts.some((c) => c.slug === slug)) setActiveSlug(slug);
+      if (slug === BG_SLUG || concepts.some((c) => c.slug === slug)) setActiveSlug(slug);
     };
     apply();
     window.addEventListener('hashchange', apply);
@@ -178,6 +220,7 @@ export default function Home() {
     }
   };
 
+  const showBg = activeSlug === BG_SLUG;
   const activeIndex = Math.max(0, concepts.findIndex((c) => c.slug === activeSlug));
   const active = concepts[activeIndex];
 
@@ -206,9 +249,21 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Tab bar — one tab per option */}
+      {/* Tab bar — Section Backgrounds lead tab, then one tab per option */}
       <div className="show-tabs">
         <div className="container show-tabs-inner" role="tablist" aria-label="Design options">
+          <button
+            role="tab"
+            aria-selected={showBg}
+            onClick={() => selectTab(BG_SLUG)}
+            className={`tab${showBg ? ' is-active' : ''}`}
+          >
+            <span className="tab-num mono">00</span>
+            <span className="tab-body">
+              <span className="tab-name">Section Backgrounds</span>
+              <span className="tab-count mono">{sectionBackgrounds.length} backgrounds</span>
+            </span>
+          </button>
           {concepts.map((c, i) => {
             const isActive = activeSlug === c.slug;
             const count = countForOption(c.option);
@@ -235,9 +290,13 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Active option panel */}
+      {/* Active panel */}
       <div className="container show-panel" role="tabpanel">
-        {active && <ConceptSection concept={active} number={pad(activeIndex)} key={active.option} />}
+        {showBg ? (
+          <SectionBackgroundsView />
+        ) : (
+          active && <ConceptSection concept={active} number={pad(activeIndex)} key={active.option} />
+        )}
       </div>
     </>
   );

@@ -304,6 +304,82 @@ export const pageSections: PageSection[] = [
   },
 ];
 
+/* -------------------------------------------------------------------------- *
+ * Section backgrounds — Website 2.0 direction
+ *
+ * One full-bleed static raster render per homepage section. These are ambient
+ * BACKGROUNDS meant to sit *behind* the section copy — the static replacement
+ * for the live Aura iframes and the scattered per-item SVG sets. Authored as
+ * SVG and rasterized by scripts/render-section-backgrounds.mjs (seeded, so the
+ * renders are reproducible).
+ * -------------------------------------------------------------------------- */
+
+export type SectionBackground = {
+  id: SectionId;
+  title: string;
+  src: string;
+  meta: string; // file kind · dimensions
+  motif: string; // what sits behind the copy
+  dark: boolean; // true = light copy over a dark render
+};
+
+export const sectionBackgrounds: SectionBackground[] = [
+  {
+    id: 'S1',
+    title: 'Banner',
+    src: '/images/sections/s1-bg.png',
+    meta: 'PNG · 2400×1350',
+    motif:
+      'Ethereal cobalt colour blends drifting over deep navy — the static stand-in for the Aura hero wash.',
+    dark: true,
+  },
+  {
+    id: 'S2',
+    title: 'Connected Intelligence',
+    src: '/images/sections/s2-bg.png',
+    meta: 'PNG · 2400×1350',
+    motif:
+      'Signal concentric rings (left) meet a Nexus node mesh (right), joined by a luminous centre seam — the two-product split as one backdrop.',
+    dark: true,
+  },
+  {
+    id: 'S3',
+    title: 'Why Deconflict',
+    src: '/images/sections/s3-bg.png',
+    meta: 'PNG · 2400×1350',
+    motif:
+      'Scattered loose alerts converge into a verified hex constellation — visibility across the lifecycle.',
+    dark: true,
+  },
+  {
+    id: 'S4',
+    title: 'Verified Intelligence',
+    src: '/images/sections/s4-bg.png',
+    meta: 'PNG · 2400×1350',
+    motif:
+      'Accelerating signal streaks sweep left→right into a verified ✓ hex node — speed and verification.',
+    dark: true,
+  },
+  {
+    id: 'S5',
+    title: 'Resources & News',
+    src: '/images/sections/s5-bg.png',
+    meta: 'PNG · 2400×1350',
+    motif:
+      'A light frost wash with a fanned stack of cover planes — keeps resource copy legible on top.',
+    dark: false,
+  },
+  {
+    id: 'S6',
+    title: 'Close',
+    src: '/images/sections/s6-bg.png',
+    meta: 'PNG · 2400×1350',
+    motif:
+      'A dimmed soundwave equalizer over navy — the static stand-in for the Aura closer; brackets the page with S1.',
+    dark: true,
+  },
+];
+
 /** Map an asset's `usedIn` placement to the homepage section it appears in. */
 export function sectionForUsage(usedIn: string): SectionId {
   const u = usedIn.toLowerCase();

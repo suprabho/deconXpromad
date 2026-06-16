@@ -127,6 +127,41 @@ h1 em { font-style: italic; font-weight: 400; color: var(--cobalt); }
 .inline-grid .asset-card figcaption { padding: 12px 14px 14px; }
 .inline-grid .asset-cap-head b.mono { font-size: 11px; }
 
+/* ---------- section backgrounds: full-bleed bands ---------- */
+.bg-bands { display: flex; flex-direction: column; gap: 22px; }
+.bg-band {
+  position: relative;
+  min-height: 340px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: flex-end;
+}
+.bg-band::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.bg-band.is-dark::before { background: linear-gradient(to top, rgba(5,11,30,0.82) 0%, rgba(5,11,30,0.25) 42%, rgba(5,11,30,0) 70%); }
+.bg-band.is-light::before { background: linear-gradient(to top, rgba(244,246,251,0.92) 0%, rgba(244,246,251,0.35) 42%, rgba(244,246,251,0) 70%); }
+.bg-band-copy { position: relative; z-index: 1; padding: 30px 34px; max-width: 640px; }
+.bg-band-id { font-size: 11px; letter-spacing: 0.14em; display: block; margin-bottom: 8px; }
+.bg-band h4 { font-family: var(--display); font-weight: 400; font-size: 26px; letter-spacing: -0.01em; }
+.bg-band p { font-size: 13.5px; line-height: 1.6; margin-top: 8px; }
+.bg-band-meta { font-size: 10px; letter-spacing: 0.08em; display: block; margin-top: 12px; opacity: 0.75; word-break: break-all; }
+.bg-band.is-dark .bg-band-id { color: #9fc0ff; }
+.bg-band.is-dark h4 { color: #ffffff; }
+.bg-band.is-dark p { color: #c8d3ea; }
+.bg-band.is-dark .bg-band-meta { color: #8aa0c8; }
+.bg-band.is-light .bg-band-id { color: var(--cobalt); }
+.bg-band.is-light h4 { color: var(--navy); }
+.bg-band.is-light p { color: var(--muted); }
+.bg-band.is-light .bg-band-meta { color: var(--subtle); }
+
 /* ---------- assets: animated illustration drift ---------- */
 .asset-stage.is-animated { overflow: hidden; }
 .asset-stage.is-animated img { animation: asset-drift 9s ease-in-out infinite; will-change: transform; }
