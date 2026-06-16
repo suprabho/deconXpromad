@@ -202,14 +202,6 @@ h1 em { font-style: italic; font-weight: 400; color: var(--cobalt); }
   display: block; width: 100%; padding: 0; margin: 0; border: 0; background: none;
   cursor: pointer; position: relative;
 }
-.img-badge {
-  position: absolute; top: 10px; left: 10px; z-index: 1; font-family: var(--mono);
-  font-size: 10px; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 5px;
-  backdrop-filter: blur(4px);
-}
-.img-badge.c-A { background: rgba(253, 238, 222, 0.92); color: #b5651d; }
-.img-badge.c-B { background: rgba(240, 244, 255, 0.92); color: var(--cobalt); }
-.img-badge.c-bg { background: rgba(234, 237, 244, 0.92); color: var(--muted); }
 .img-btn .tbl-stage { border-radius: 0; border-left: 0; border-right: 0; width: 100%; }
 .img-btn::after {
   content: ''; position: absolute; inset: 0; box-shadow: inset 0 0 0 0 var(--cobalt);
@@ -219,6 +211,12 @@ h1 em { font-style: italic; font-weight: 400; color: var(--cobalt); }
 .img-btn.is-active::after { box-shadow: inset 0 0 0 2px var(--cobalt); }
 .img-btn:focus-visible { outline: none; }
 .img-btn:focus-visible::after { box-shadow: inset 0 0 0 2px var(--cobalt); }
+.img-empty {
+  display: flex; align-items: center; justify-content: center; aspect-ratio: 16 / 10;
+  width: 100%; background: var(--frost);
+  border: 1px dashed var(--border); color: var(--subtle);
+}
+.img-empty .mono { font-size: 10px; color: var(--subtle); }
 .tbl-stage {
   display: flex; align-items: center; justify-content: center; aspect-ratio: 16 / 10;
   background: var(--frost); border: 1px solid var(--border-soft);
@@ -230,11 +228,7 @@ h1 em { font-style: italic; font-weight: 400; color: var(--cobalt); }
 .tbl-stage.is-composite { padding: 20px; background-size: cover; background-position: center; }
 .tbl-stage.is-wide { aspect-ratio: 16 / 7; }
 
-/* badges + type tags (shown in the detail panel) */
-.concept-badge { display: inline-block; font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em; padding: 2px 6px; border-radius: 4px; margin-right: 7px; }
-.concept-badge.c-A { background: #fdeede; color: #b5651d; }
-.concept-badge.c-B { background: var(--cobalt-soft); color: var(--cobalt); }
-.concept-badge.c-bg { background: #eaedf4; color: var(--muted); }
+/* type tag (shown in the detail panel) */
 .type-tag { display: inline-block; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.03em; padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border); color: var(--navy); white-space: nowrap; }
 .type-tag.t-BGSVG { background: #e9f6ee; border-color: #bfe6c9; color: #1f7a3d; }
 .type-tag.t-SVGonly { background: var(--cobalt-soft); border-color: #d3e0ff; color: var(--cobalt); }

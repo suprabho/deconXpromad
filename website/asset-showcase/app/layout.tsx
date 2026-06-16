@@ -24,14 +24,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="topbar-inner">
             <span className="brand">
               <Mark />
-              DECONFLICT <span className="sep">/</span> <span className="ctx">Asset Showcase</span>
+              DECONFLICT <span className="sep">/</span> <span className="ctx">Homepage Image Map</span>
             </span>
-            <div className="topbar-links">
-              <a href="#website-2">Website 2.0</a>
-              <a href="#concept-a">Option A</a>
-              <a href="#concept-b">Option B</a>
-              <a href="#concept-c">Option C</a>
-            </div>
           </div>
         </nav>
         {children}

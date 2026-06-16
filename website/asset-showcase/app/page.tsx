@@ -1,51 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { optionRows, unifiedRows } from '@/lib/assets';
-import type { ConceptOption, ImageRow, SectionRows } from '@/lib/assets';
-
-/* ============ VIEWS — unified Website 2.0, then one per option ============ */
-
-type View = {
-  slug: string;
-  name: string;
-  desc: string;
-  unified: boolean;
-  option?: ConceptOption;
-};
-
-const VIEWS: View[] = [
-  {
-    slug: 'website-2',
-    name: 'Website 2.0',
-    desc: 'Each section background with the Option A and Option B overlays shown together — where the two collide they sit side by side to compare and unify.',
-    unified: true,
-  },
-  {
-    slug: 'concept-a',
-    name: 'Option A · The Dossier',
-    desc: 'The engraving product panels, trust marks, lifecycle, contrast, and pillar imagery.',
-    unified: false,
-    option: 'A',
-  },
-  {
-    slug: 'concept-b',
-    name: 'Option B · Signal Path',
-    desc: 'Platform imagery, capability cards, feature / workflow icons, signal diagrams, and resource covers.',
-    unified: false,
-    option: 'B',
-  },
-  {
-    slug: 'concept-c',
-    name: 'Option C · Command',
-    desc: 'Generated at runtime (canvas + CSS) — ships no exported image, icon, or vector files.',
-    unified: false,
-    option: 'C',
-  },
-];
-
-const rowsForView = (v: View): SectionRows[] =>
-  v.unified ? unifiedRows() : optionRows(v.option as ConceptOption);
+import { homepageRows } from '@/lib/assets';
+import type { ImageRow, SectionRows } from '@/lib/assets';
 
 const typeClass = (t: ImageRow['type']) => `t-${t.replace(/[^A-Za-z]+/g, '')}`;
 
@@ -79,27 +36,24 @@ function RowImage({ row }: { row: ImageRow }) {
   );
 }
 
-/* ============ DETAIL PANEL — opens on the right when an image is clicked ============ */
+/** Empty placeholder shown until a section's Image cell is filled. */
+function EmptyImage() {
+  return (
+    <div className="img-empty">
+      <span className="mono">Add image</span>
+    </div>
+  );
+}
+
+/* ============ DETAIL PANEL — opens when a filled image is clicked ============ */
 
 type Selection = { row: ImageRow; group: SectionRows };
 
-function DetailPanel({
-  selection,
-  unified,
-  onClose,
-}: {
-  selection: Selection | null;
-  unified: boolean;
-  onClose: () => void;
-}) {
+function DetailPanel({ selection, onClose }: { selection: Selection | null; onClose: () => void }) {
   const open = selection !== null;
   return (
     <>
-      <div
-        className={`panel-backdrop${open ? ' is-open' : ''}`}
-        onClick={onClose}
-        aria-hidden="true"
-      />
+      <div className={`panel-backdrop${open ? ' is-open' : ''}`} onClick={onClose} aria-hidden="true" />
       <aside className={`detail-panel${open ? ' is-open' : ''}`} aria-hidden={!open} aria-label="Image detail">
         {selection && (
           <>
@@ -118,13 +72,6 @@ function DetailPanel({
 
             <div className="panel-body">
               <div className="panel-title-row">
-                {unified && (
-                  <span
-                    className={`concept-badge ${selection.row.concept ? `c-${selection.row.concept}` : 'c-bg'}`}
-                  >
-                    {selection.row.concept ?? 'BG'}
-                  </span>
-                )}
                 <h3 className="mono">{selection.row.name}</h3>
               </div>
 
@@ -141,8 +88,6 @@ function DetailPanel({
                     <dd>{selection.group.content.cta}</dd>
                   </>
                 )}
-                <dt>Concept</dt>
-                <dd>{selection.row.concept ? `Option ${selection.row.concept}` : 'Website 2.0 background'}</dd>
                 <dt>Type</dt>
                 <dd>{selection.row.type}</dd>
                 <dt>{selection.row.paths.length > 1 ? 'Files' : 'File'}</dt>
@@ -166,12 +111,10 @@ function DetailPanel({
 
 function MapTable({
   groups,
-  unified,
   onSelect,
   activeKey,
 }: {
   groups: SectionRows[];
-  unified: boolean;
   onSelect: (group: SectionRows, row: ImageRow) => void;
   activeKey?: string;
 }) {
@@ -187,20 +130,21 @@ function MapTable({
           </tr>
         </thead>
         <tbody>
-          {groups.map((g) =>
-            g.rows.map((row, i) => (
-              <tr key={row.key} className={i === 0 ? 'sec-start' : ''}>
+          {groups.map((g) => {
+            const display: (ImageRow | null)[] = g.rows.length ? g.rows : [null];
+            return display.map((row, i) => (
+              <tr key={row ? row.key : g.section.id} className={i === 0 ? 'sec-start' : ''}>
                 {i === 0 && (
                   <>
-                    <th scope="rowgroup" rowSpan={g.rows.length} className="cell-sec">
+                    <th scope="rowgroup" rowSpan={display.length} className="cell-sec">
                       <span className="sec-id mono">{g.section.id}</span>
                       <span className="sec-title">{g.section.title}</span>
                     </th>
-                    <td rowSpan={g.rows.length} className="cell-text">
+                    <td rowSpan={display.length} className="cell-text">
                       <p className="cell-heading">{g.content.heading}</p>
                       {g.content.text && <p className="cell-body">{g.content.text}</p>}
                     </td>
-                    <td rowSpan={g.rows.length} className="cell-cta">
+                    <td rowSpan={display.length} className="cell-cta">
                       {g.content.cta ? (
                         <span className="cta-chip">{g.content.cta}</span>
                       ) : (
@@ -210,23 +154,22 @@ function MapTable({
                   </>
                 )}
                 <td className="cell-img">
-                  <button
-                    type="button"
-                    className={`img-btn${activeKey === row.key ? ' is-active' : ''}`}
-                    onClick={() => onSelect(g, row)}
-                    aria-label={`Open details for ${row.name}`}
-                  >
-                    <RowImage row={row} />
-                    {unified && (
-                      <span className={`img-badge ${row.concept ? `c-${row.concept}` : 'c-bg'}`}>
-                        {row.concept ?? 'BG'}
-                      </span>
-                    )}
-                  </button>
+                  {row ? (
+                    <button
+                      type="button"
+                      className={`img-btn${activeKey === row.key ? ' is-active' : ''}`}
+                      onClick={() => onSelect(g, row)}
+                      aria-label={`Open details for ${row.name}`}
+                    >
+                      <RowImage row={row} />
+                    </button>
+                  ) : (
+                    <EmptyImage />
+                  )}
                 </td>
               </tr>
-            ))
-          )}
+            ));
+          })}
         </tbody>
       </table>
     </div>
@@ -236,21 +179,8 @@ function MapTable({
 /* ============ PAGE ============ */
 
 export default function Home() {
-  const [activeSlug, setActiveSlug] = useState<string>(VIEWS[0].slug);
   const [selection, setSelection] = useState<Selection | null>(null);
-
   const closePanel = useCallback(() => setSelection(null), []);
-
-  // Keep the active view in sync with the URL hash so each table is deep-linkable.
-  useEffect(() => {
-    const apply = () => {
-      const slug = window.location.hash.replace('#', '');
-      if (VIEWS.some((v) => v.slug === slug)) setActiveSlug(slug);
-    };
-    apply();
-    window.addEventListener('hashchange', apply);
-    return () => window.removeEventListener('hashchange', apply);
-  }, []);
 
   // Close the panel on Escape.
   useEffect(() => {
@@ -261,15 +191,7 @@ export default function Home() {
     return () => window.removeEventListener('keydown', onKey);
   }, [closePanel]);
 
-  const select = (slug: string) => {
-    setActiveSlug(slug);
-    setSelection(null);
-    if (window.location.hash !== `#${slug}`) window.history.replaceState(null, '', `#${slug}`);
-  };
-
-  const active = VIEWS.find((v) => v.slug === activeSlug) ?? VIEWS[0];
-  const groups = rowsForView(active);
-  const imageCount = groups.reduce((n, g) => n + g.rows.length, 0);
+  const groups = homepageRows();
 
   return (
     <>
@@ -281,65 +203,28 @@ export default function Home() {
             Section <em>Image</em> Map
           </h1>
           <p className="tagline">
-            The Website 2.0 home page as a table — each section&apos;s copy and CTA next to the
-            actual rendered imagery that fills its Image cell. Click any image to open its full
-            preview and details. Every image is flagged by how it&apos;s built: a section
-            background, a background-plus-SVG composite, a standalone SVG, or a raster.
+            The Website 2.0 home page as a fill-in template — each section&apos;s copy and CTA next to
+            an empty Image slot. Drop in the artwork for each section to build up the page&apos;s
+            imagery; once filled, click any image for a full preview and its details.
           </p>
           <div className="hero-meta mono">
-            <span>{VIEWS.length} views</span>
+            <span>{groups.length} sections</span>
             <span className="sep">—</span>
             <span>Section · Text · CTA · Image</span>
           </div>
         </div>
       </header>
 
-      {/* View switcher */}
-      <div className="show-tabs">
-        <div className="container show-tabs-inner" role="tablist" aria-label="Table views">
-          {VIEWS.map((v, i) => {
-            const isActive = v.slug === active.slug;
-            const count = rowsForView(v).reduce((n, g) => n + g.rows.length, 0);
-            return (
-              <button
-                key={v.slug}
-                role="tab"
-                aria-selected={isActive}
-                onClick={() => select(v.slug)}
-                className={`tab${isActive ? ' is-active' : ''}`}
-              >
-                <span className="tab-num mono">{String(i).padStart(2, '0')}</span>
-                <span className="tab-body">
-                  <span className="tab-name">{v.name}</span>
-                  <span className="tab-count mono">
-                    {count === 0 ? 'No assets' : `${count} image${count === 1 ? '' : 's'}`}
-                  </span>
-                </span>
-              </button>
-            );
-          })}
-        </div>
+      {/* Template table */}
+      <div className="container show-panel" role="region" aria-label="Homepage image map">
+        <MapTable
+          groups={groups}
+          onSelect={(group, row) => setSelection({ group, row })}
+          activeKey={selection?.row.key}
+        />
       </div>
 
-      {/* Active table */}
-      <div className="container show-panel" role="tabpanel">
-        <p className="view-desc">{active.desc}</p>
-        {imageCount === 0 ? (
-          <p className="concept-empty">
-            Option C — Command is generated entirely at runtime (canvas + CSS), so there are no
-            exported image, icon, or vector files to render here.
-          </p>
-        ) : (
-          <MapTable
-            groups={groups}
-            unified={active.unified}
-            onSelect={(group, row) => setSelection({ group, row })}
-            activeKey={selection?.row.key}
-          />
-        )}
-      </div>
-
-      <DetailPanel selection={selection} unified={active.unified} onClose={closePanel} />
+      <DetailPanel selection={selection} onClose={closePanel} />
     </>
   );
 }
