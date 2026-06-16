@@ -1,0 +1,45 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M37.1997 120.803L68.854 120.803" stroke="url(#paint0_linear_20_362)" stroke-width="7.03429"/>
+<path d="M37.1997 152.457L68.854 152.457" stroke="url(#paint1_linear_20_362)" stroke-width="7.03429"/>
+<path d="M19.6138 134.871L68.8538 134.871" stroke="url(#paint2_linear_20_362)" stroke-width="7.03429"/>
+<g clip-path="url(#clip0_20_362)">
+<path d="M108.891 150.732C103.372 141.642 101.347 130.855 103.194 120.382C105.041 109.91 110.634 100.466 118.929 93.8119C127.224 87.1579 137.657 83.7478 148.281 84.2175C158.905 84.6871 168.995 89.0044 176.671 96.3644C184.347 103.724 189.085 113.625 190 124.22C190.916 134.815 187.947 145.381 181.647 153.948C175.347 162.516 166.147 168.5 155.761 170.785C145.375 173.071 134.512 171.501 125.199 166.368L108.275 172.435C107.636 172.663 106.946 172.709 106.283 172.567C105.62 172.425 105.009 172.101 104.52 171.632C104.03 171.162 103.681 170.566 103.512 169.909C103.342 169.253 103.359 168.562 103.56 167.914L108.891 150.732Z" stroke="url(#paint3_radial_20_362)" stroke-width="3.43934" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="5.21899" cy="5.21899" r="5.21899" transform="matrix(-1 1.25219e-09 1.25219e-09 1 173.309 122.899)" fill="#AECFFF"/>
+<circle cx="5.21899" cy="5.21899" r="5.21899" transform="matrix(-1 1.25219e-09 1.25219e-09 1 152.34 123.34)" fill="#D9D9D9"/>
+<circle cx="5.21899" cy="5.21899" r="5.21899" transform="matrix(-1 1.25219e-09 1.25219e-09 1 152.34 123.34)" fill="url(#paint4_linear_20_362)"/>
+<circle cx="5.21899" cy="5.21899" r="5.21899" transform="matrix(-1 1.25219e-09 1.25219e-09 1 131.372 123.78)" fill="#AECFFF"/>
+</g>
+<path d="M199.669 110.365L199.792 110.567C204.751 118.681 204.751 128.888 199.792 137.003L199.669 137.205" stroke="black" stroke-width="2.98219" stroke-linecap="round"/>
+<path d="M199.669 110.365L199.792 110.567C204.751 118.681 204.751 128.888 199.792 137.003L199.669 137.205" stroke="#1A56DB" stroke-width="2.98219" stroke-linecap="round"/>
+<path d="M208.057 101.418L208.242 101.721C215.68 113.893 215.68 129.203 208.242 141.375L208.057 141.678" stroke="black" stroke-width="2.98219" stroke-linecap="round"/>
+<path d="M208.057 101.418L208.242 101.721C215.68 113.893 215.68 129.203 208.242 141.375L208.057 141.678" stroke="#1A56DB" stroke-width="2.98219" stroke-linecap="round"/>
+<path d="M217.002 93.9625L217.249 94.3661C227.166 110.595 227.166 131.009 217.249 147.238L217.002 147.642" stroke="black" stroke-width="2.98219" stroke-linecap="round"/>
+<path d="M217.002 93.9625L217.249 94.3661C227.166 110.595 227.166 131.009 217.249 147.238L217.002 147.642" stroke="#1A56DB" stroke-width="2.98219" stroke-linecap="round"/>
+<defs>
+<linearGradient id="paint0_linear_20_362" x1="31.4093" y1="120.242" x2="60.5179" y2="150.086" gradientUnits="userSpaceOnUse">
+<stop stop-color="#EEEEEF" stop-opacity="0"/>
+<stop offset="1" stop-color="#A6A8AB"/>
+</linearGradient>
+<linearGradient id="paint1_linear_20_362" x1="31.4093" y1="151.896" x2="60.5179" y2="181.74" gradientUnits="userSpaceOnUse">
+<stop stop-color="#EEEEEF" stop-opacity="0"/>
+<stop offset="1" stop-color="#A6A8AB"/>
+</linearGradient>
+<linearGradient id="paint2_linear_20_362" x1="10.6064" y1="134.31" x2="36.8166" y2="176.112" gradientUnits="userSpaceOnUse">
+<stop stop-color="#EEEEEF" stop-opacity="0"/>
+<stop offset="1" stop-color="#A6A8AB"/>
+</linearGradient>
+<radialGradient id="paint3_radial_20_362" cx="0" cy="0" r="1" gradientTransform="matrix(-136.355 14.5296 18.0101 129.376 209.355 105.245)" gradientUnits="userSpaceOnUse">
+<stop stop-color="#EEEEEF"/>
+<stop offset="0.309632" stop-color="#A6A8AB"/>
+<stop offset="0.619011" stop-color="#A6A8AB"/>
+<stop offset="1" stop-color="#EEEEEF" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="paint4_linear_20_362" x1="5.21899" y1="0" x2="5.21899" y2="10.438" gradientUnits="userSpaceOnUse">
+<stop stop-color="#1A56DB"/>
+<stop offset="1" stop-color="#6BA3FF"/>
+</linearGradient>
+<clipPath id="clip0_20_362">
+<rect width="116.846" height="116.846" fill="white" transform="matrix(-0.0210083 -0.999779 -0.999779 0.0210083 205.993 185.183)"/>
+</clipPath>
+</defs>
+</svg>
