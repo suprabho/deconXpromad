@@ -1,17 +1,5 @@
-import {
-  auraEmbeds,
-  iconAssets,
-  illustrationAssets,
-  imageAssets,
-  logoAssets,
-} from '@/lib/assets';
-import type { SvgAsset } from '@/lib/assets';
-
-const totals = {
-  aura: auraEmbeds.length,
-  images: imageAssets.length,
-  svg: logoAssets.length + iconAssets.length + illustrationAssets.length,
-};
+import { assetsForOption, concepts, countForOption } from '@/lib/assets';
+import type { ShowcaseConcept, SvgAsset } from '@/lib/assets';
 
 function SvgCard({ asset, animated = false }: { asset: SvgAsset; animated?: boolean }) {
   const stageClass = [
@@ -39,6 +27,115 @@ function SvgCard({ asset, animated = false }: { asset: SvgAsset; animated?: bool
   );
 }
 
+/** A labelled block of one asset kind inside a concept section. */
+function AssetGroup({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="asset-group">
+      <h4 className="asset-group-head">{label}</h4>
+      {children}
+    </div>
+  );
+}
+
+function ConceptSection({ concept }: { concept: ShowcaseConcept }) {
+  const { aura, images, logos, icons, illustrations } = assetsForOption(concept.option);
+  const count = countForOption(concept.option);
+
+  return (
+    <section className="doc-sec concept-sec" id={concept.slug}>
+      <h3>
+        <span className="idx">Option {concept.option}</span> {concept.name}
+      </h3>
+      <p className="concept-tagline">{concept.tagline}</p>
+      <p className="concept-count mono">
+        {count === 0 ? 'No exported assets' : `${count} asset${count === 1 ? '' : 's'}`}
+      </p>
+
+      {count === 0 && (
+        <p className="concept-empty">
+          Command is fully generated at runtime — the dot-matrix map, scan sweep, and chain-of-custody
+          board are drawn in canvas and CSS, so it ships no exported image, icon, or vector files.
+        </p>
+      )}
+
+      {aura.length > 0 && (
+        <AssetGroup label="Aura ambient embeds">
+          <div className="aura-grid">
+            {aura.map((e) => (
+              <figure className="aura-card" key={e.slug}>
+                <div className="aura-stage">
+                  <iframe src={e.url} title={e.title} loading="lazy" aria-hidden="true" tabIndex={-1} />
+                </div>
+                <figcaption>
+                  <div className="asset-cap-head">
+                    <b>{e.title}</b>
+                    <span className="asset-where">{e.usedIn}</span>
+                  </div>
+                  <p className="asset-url mono">/embed/{e.slug}</p>
+                  <p>{e.note}</p>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </AssetGroup>
+      )}
+
+      {images.length > 0 && (
+        <AssetGroup label="Image files">
+          <div className="img-grid">
+            {images.map((img) => (
+              <figure className="asset-card" key={img.name}>
+                <div className={`asset-stage img-stage${img.dark ? ' is-dark' : ''}`}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={img.src} alt={img.name} loading="lazy" />
+                </div>
+                <figcaption>
+                  <div className="asset-cap-head">
+                    <b className="mono">{img.name}</b>
+                    <span className="asset-tag">
+                      {img.kind} · {img.weight}
+                    </span>
+                  </div>
+                  <span className="asset-where">{img.usedIn}</span>
+                  <p>{img.note}</p>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </AssetGroup>
+      )}
+
+      {logos.length > 0 && (
+        <AssetGroup label="Brand marks — static SVG">
+          <div className="logo-grid">
+            {logos.map((a) => (
+              <SvgCard asset={a} key={a.name} />
+            ))}
+          </div>
+        </AssetGroup>
+      )}
+
+      {icons.length > 0 && (
+        <AssetGroup label="Capability icons — static SVG">
+          <div className="icon-grid">
+            {icons.map((a) => (
+              <SvgCard asset={a} key={a.name} />
+            ))}
+          </div>
+        </AssetGroup>
+      )}
+
+      {illustrations.length > 0 && (
+        <AssetGroup label="Living illustration — animated SVG">
+          {illustrations.map((a) => (
+            <SvgCard asset={a} animated key={a.name} />
+          ))}
+        </AssetGroup>
+      )}
+    </section>
+  );
+}
+
 export default function Home() {
   return (
     <main className="container">
@@ -46,149 +143,33 @@ export default function Home() {
         <div>
           <span className="eyebrow">Asset Library</span>
           <h1>
-            Visual <em>Asset Showcase</em>
+            Assets by <em>Option</em>
           </h1>
           <p className="tagline">
             Every embed, image, and vector created for the Deconflict homepage exploration, gathered
-            on one page — a standalone library, independent of the prototypes that consume them.
-            Ambient Aura backdrops, raster scene plates, brand marks, capability icons, and the
-            living illustration.
+            on one page and sorted by the design option that consumes it — Option A (The Dossier),
+            Option B (Signal Path), and Option C (Command).
           </p>
         </div>
       </header>
 
       <div className="facts">
-        <div className="fact">
-          <span className="label">Aura embeds</span>
-          <b>{totals.aura} ambient backdrops</b>
-          <p>Live iframe fields from aura.promad.design</p>
-        </div>
-        <div className="fact">
-          <span className="label">Image files</span>
-          <b>{totals.images} raster plates</b>
-          <p>PNG / JPG scene and product backgrounds</p>
-        </div>
-        <div className="fact">
-          <span className="label">SVG set</span>
-          <b>{totals.svg} vectors</b>
-          <p>Marks, capability icons, animated illustration</p>
-        </div>
+        {concepts.map((c) => (
+          <div className="fact" key={c.option}>
+            <span className="label">
+              Option {c.option} · {c.name}
+            </span>
+            <b>
+              {countForOption(c.option)} asset{countForOption(c.option) === 1 ? '' : 's'}
+            </b>
+            <p>{c.tagline}</p>
+          </div>
+        ))}
       </div>
 
-      {/* ---------- 01 aura embeds ---------- */}
-      <section className="doc-sec" id="aura">
-        <h3>
-          <span className="idx">01</span> Aura ambient embeds
-        </h3>
-        <p style={{ marginBottom: 28 }}>
-          Three ambient backdrops are embedded live from <span className="mono">aura.promad.design</span>{' '}
-          as <code>&lt;iframe&gt;</code> fields behind Concept B. They render below the foreground
-          canvas and content, are marked <code>aria-hidden</code>, and stay out of the tab order.
-          Previews below load the real embeds.
-        </p>
-        <div className="aura-grid">
-          {auraEmbeds.map((e) => (
-            <figure className="aura-card" key={e.slug}>
-              <div className="aura-stage">
-                <iframe
-                  src={e.url}
-                  title={e.title}
-                  loading="lazy"
-                  aria-hidden="true"
-                  tabIndex={-1}
-                />
-              </div>
-              <figcaption>
-                <div className="asset-cap-head">
-                  <b>{e.title}</b>
-                  <span className="asset-where">{e.usedIn}</span>
-                </div>
-                <p className="asset-url mono">/embed/{e.slug}</p>
-                <p>{e.note}</p>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      </section>
-
-      {/* ---------- 02 images ---------- */}
-      <section className="doc-sec" id="images">
-        <h3>
-          <span className="idx">02</span> Image files
-        </h3>
-        <p style={{ marginBottom: 28 }}>
-          Raster plates from the prototype set — engraving fields and product renders too
-          photographic for vector. Shown here at fit.
-        </p>
-        <div className="img-grid">
-          {imageAssets.map((img) => (
-            <figure className="asset-card" key={img.name}>
-              <div className={`asset-stage img-stage${img.dark ? ' is-dark' : ''}`}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={img.src} alt={img.name} loading="lazy" />
-              </div>
-              <figcaption>
-                <div className="asset-cap-head">
-                  <b className="mono">{img.name}</b>
-                  <span className="asset-tag">
-                    {img.kind} · {img.weight}
-                  </span>
-                </div>
-                <span className="asset-where">{img.usedIn}</span>
-                <p>{img.note}</p>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      </section>
-
-      {/* ---------- 03 logos ---------- */}
-      <section className="doc-sec" id="logos">
-        <h3>
-          <span className="idx">03</span> Brand marks — static SVG
-        </h3>
-        <p style={{ marginBottom: 28 }}>
-          The logomark and wordmark lockups in their colour variants. All resolution-independent
-          vectors; the cream variant sits on a navy mat to show its reversed treatment.
-        </p>
-        <div className="logo-grid">
-          {logoAssets.map((a) => (
-            <SvgCard asset={a} key={a.name} />
-          ))}
-        </div>
-      </section>
-
-      {/* ---------- 04 icons ---------- */}
-      <section className="doc-sec" id="icons">
-        <h3>
-          <span className="idx">04</span> Capability icons — static SVG
-        </h3>
-        <p style={{ marginBottom: 28 }}>
-          Seven line-art glyphs for the capability set, drawn light-on-dark with cobalt gradient
-          accents. Previewed on navy, the way they appear on the platform map.
-        </p>
-        <div className="icon-grid">
-          {iconAssets.map((a) => (
-            <SvgCard asset={a} key={a.name} />
-          ))}
-        </div>
-      </section>
-
-      {/* ---------- 05 illustration ---------- */}
-      <section className="doc-sec" id="illustration">
-        <h3>
-          <span className="idx">05</span> Living illustration — animated SVG
-        </h3>
-        <p style={{ marginBottom: 28 }}>
-          The narrative centrepiece of Concept B. Static here as a vector, but animated in the
-          prototype — a packet travels the alerts→context path and the alert nodes flicker. The
-          preview drifts gently to hint at that motion; it pauses under{' '}
-          <span className="mono">prefers-reduced-motion</span>.
-        </p>
-        {illustrationAssets.map((a) => (
-          <SvgCard asset={a} animated key={a.name} />
-        ))}
-      </section>
+      {concepts.map((c) => (
+        <ConceptSection concept={c} key={c.option} />
+      ))}
     </main>
   );
 }

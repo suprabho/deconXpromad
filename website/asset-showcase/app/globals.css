@@ -64,6 +64,17 @@ h1 em { font-style: italic; font-weight: 400; color: var(--cobalt); }
 .doc-sec h3 .idx { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--cobalt); }
 .doc-sec > p { color: var(--muted); font-size: 15px; line-height: 1.75; max-width: 760px; }
 
+/* ---------- concept (option) sections ---------- */
+.concept-sec { padding-bottom: 64px; border-top: 1px solid var(--border-soft); padding-top: 44px; }
+.concept-sec h3 .idx { color: var(--cobalt); }
+.concept-tagline { color: var(--navy) !important; font-size: 16px !important; font-style: italic; max-width: 680px; margin-top: -8px; }
+.concept-count { color: var(--subtle); margin-top: 12px; }
+.concept-empty { margin-top: 16px; max-width: 680px; color: var(--muted); font-size: 14.5px; line-height: 1.7; padding: 18px 20px; background: var(--frost); border: 1px solid var(--border-soft); border-radius: 6px; }
+
+/* ---------- asset group (one kind inside a concept) ---------- */
+.asset-group { margin-top: 32px; }
+.asset-group-head { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border-soft); }
+
 /* ---------- assets: shared card ---------- */
 .asset-card { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: #fff; display: flex; flex-direction: column; }
 .asset-stage { display: flex; align-items: center; justify-content: center; padding: 26px; background: var(--frost); border-bottom: 1px solid var(--border-soft); aspect-ratio: 16 / 10; min-height: 0; }

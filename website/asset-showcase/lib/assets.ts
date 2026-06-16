@@ -1,13 +1,28 @@
 /**
- * Catalogue of the visual assets added for the Deconflict homepage exploration —
+ * Catalogue of the visual assets created for the Deconflict homepage exploration —
  * the ambient Aura embeds, raster background images, and the static / animated
  * SVG set. Consumed by app/page.tsx to render this standalone showcase.
+ *
+ * Assets are organised by the design *option* (concept) that consumes them:
+ * A — The Dossier, B — Signal Path, C — Command. Every asset carries an
+ * `option` tag so the showcase can be sectioned per concept.
  *
  * This app is fully self-contained: every asset has a local copy under
  * /public/{logos,icons,illustrations,images}/ and is referenced from there.
  */
 
+/** The three design directions presented in the proposal. */
+export type ConceptOption = 'A' | 'B' | 'C';
+
+export type ShowcaseConcept = {
+  option: ConceptOption;
+  slug: string;
+  name: string;
+  tagline: string;
+};
+
 export type AuraEmbed = {
+  option: ConceptOption;
   slug: string;
   title: string;
   url: string;
@@ -16,6 +31,7 @@ export type AuraEmbed = {
 };
 
 export type ImageAsset = {
+  option: ConceptOption;
   name: string;
   src: string;
   kind: string; // PNG / JPG
@@ -26,6 +42,7 @@ export type ImageAsset = {
 };
 
 export type SvgAsset = {
+  option: ConceptOption;
   name: string;
   src: string;
   usedIn: string;
@@ -34,9 +51,32 @@ export type SvgAsset = {
   fit?: 'contain' | 'wide'; // wide = full-bleed illustration
 };
 
+/** The design options, in presentation order. */
+export const concepts: ShowcaseConcept[] = [
+  {
+    option: 'A',
+    slug: 'concept-a',
+    name: 'The Dossier',
+    tagline: 'Investigative gravitas in an editorial, security-print register.',
+  },
+  {
+    option: 'B',
+    slug: 'concept-b',
+    name: 'Signal Path',
+    tagline: 'A living network — modern SaaS warmth with the platform as the diagram.',
+  },
+  {
+    option: 'C',
+    slug: 'concept-c',
+    name: 'Command',
+    tagline: 'A command-center register — condensed, uppercase, operational.',
+  },
+];
+
 /** Ambient iframe backgrounds embedded from aura.promad.design. */
 export const auraEmbeds: AuraEmbed[] = [
   {
+    option: 'B',
     slug: 'blue-background-images-ethereal-color-blends-for-design',
     title: 'Ethereal colour blends',
     url: 'https://aura.promad.design/embed/blue-background-images-ethereal-color-blends-for-design',
@@ -44,6 +84,7 @@ export const auraEmbeds: AuraEmbed[] = [
     note: 'Soft drifting cobalt wash behind the hero network canvas — adds depth without competing with the packet simulation in front of it.',
   },
   {
+    option: 'B',
     slug: 'blue-light-backgrounds-clean-professional-web-backdrops',
     title: 'Clean professional backdrop',
     url: 'https://aura.promad.design/embed/blue-light-backgrounds-clean-professional-web-backdrops',
@@ -51,6 +92,7 @@ export const auraEmbeds: AuraEmbed[] = [
     note: 'Lighter, calmer field behind the hub-and-spoke platform map so the hairline connectors and capability chips stay legible.',
   },
   {
+    option: 'B',
     slug: 'blue-abstract-background-modern-soundwave-visuals',
     title: 'Modern soundwave visuals',
     url: 'https://aura.promad.design/embed/blue-abstract-background-modern-soundwave-visuals',
@@ -62,6 +104,7 @@ export const auraEmbeds: AuraEmbed[] = [
 /** Raster background images shipped with the prototypes. */
 export const imageAssets: ImageAsset[] = [
   {
+    option: 'A',
     name: 'nexus-bg.png',
     src: '/images/nexus-bg.png',
     kind: 'PNG',
@@ -71,6 +114,7 @@ export const imageAssets: ImageAsset[] = [
     dark: true,
   },
   {
+    option: 'A',
     name: 'signal-bg.png',
     src: '/images/signal-bg.png',
     kind: 'PNG',
@@ -80,6 +124,7 @@ export const imageAssets: ImageAsset[] = [
     dark: true,
   },
   {
+    option: 'A',
     name: 's3-bg.jpg',
     src: '/images/s3-bg.jpg',
     kind: 'JPG',
@@ -89,6 +134,7 @@ export const imageAssets: ImageAsset[] = [
     dark: true,
   },
   {
+    option: 'B',
     name: 'nexus.png',
     src: '/images/nexus.png',
     kind: 'PNG',
@@ -98,6 +144,7 @@ export const imageAssets: ImageAsset[] = [
     dark: true,
   },
   {
+    option: 'B',
     name: '1.png',
     src: '/images/1.png',
     kind: 'PNG',
@@ -111,52 +158,29 @@ export const imageAssets: ImageAsset[] = [
 /** Brand marks — static, presentation-ready logo lockups. */
 export const logoAssets: SvgAsset[] = [
   {
-    name: 'logomark.svg',
-    src: '/logos/logomark.svg',
-    usedIn: 'Brand · standalone mark',
-    note: 'The Deconflict hexagonal logomark in navy + cobalt — favicons, app tiles, compact lockups.',
-  },
-  {
-    name: 'wordmark-2color.svg',
-    src: '/logos/wordmark-2color.svg',
-    usedIn: 'Brand · primary wordmark',
-    note: 'Full wordmark in the two-colour navy + cobalt treatment. Primary horizontal lockup.',
-  },
-  {
-    name: 'wordmark-1color.svg',
-    src: '/logos/wordmark-1color.svg',
-    usedIn: 'Brand · mono wordmark',
-    note: 'Single-colour navy wordmark for monochrome contexts and reversed-out usage.',
-  },
-  {
+    option: 'B',
     name: 'deconflict-blue.svg',
     src: '/logos/deconflict-blue.svg',
     usedIn: 'Concept B · nav header',
     note: 'The compact header lockup used in the Signal Path top bar.',
   },
-  {
-    name: 'wordmark-cream.svg',
-    src: '/logos/wordmark-cream.svg',
-    usedIn: 'Brand · wordmark on dark',
-    note: 'Cream (#F9F5EF) wordmark intended for navy and photographic dark surfaces.',
-    dark: true,
-  },
 ];
 
 /** Capability icons — static line-art glyphs (light-on-dark). */
 export const iconAssets: SvgAsset[] = [
-  { name: 'centralized.svg', src: '/icons/centralized.svg', usedIn: 'Capability · Centralised coordination', note: 'Converging-nodes glyph.', dark: true },
-  { name: 'enhanced.svg', src: '/icons/enhanced.svg', usedIn: 'Capability · Enhanced visibility', note: 'Layered-bars glyph.', dark: true },
-  { name: 'faster-escalation.svg', src: '/icons/faster-escalation.svg', usedIn: 'Capability · Faster escalation', note: 'Signal-burst glyph.', dark: true },
-  { name: 'improved-sar.svg', src: '/icons/improved-sar.svg', usedIn: 'Capability · Improved SAR quality', note: 'Report-lines glyph.', dark: true },
-  { name: 'real-time-operational.svg', src: '/icons/real-time-operational.svg', usedIn: 'Capability · Real-time operations', note: 'Live-pulse glyph.', dark: true },
-  { name: 'reduced-investigation.svg', src: '/icons/reduced-investigation.svg', usedIn: 'Capability · Reduced investigation time', note: 'Compressed-timeline glyph.', dark: true },
-  { name: 'secure-coordination.svg', src: '/icons/secure-coordination.svg', usedIn: 'Capability · Secure coordination', note: 'Shielded-orbit glyph.', dark: true },
+  { option: 'B', name: 'centralized.svg', src: '/icons/centralized.svg', usedIn: 'Capability · Centralised coordination', note: 'Converging-nodes glyph.', dark: true },
+  { option: 'B', name: 'enhanced.svg', src: '/icons/enhanced.svg', usedIn: 'Capability · Enhanced visibility', note: 'Layered-bars glyph.', dark: true },
+  { option: 'B', name: 'faster-escalation.svg', src: '/icons/faster-escalation.svg', usedIn: 'Capability · Faster escalation', note: 'Signal-burst glyph.', dark: true },
+  { option: 'B', name: 'improved-sar.svg', src: '/icons/improved-sar.svg', usedIn: 'Capability · Improved SAR quality', note: 'Report-lines glyph.', dark: true },
+  { option: 'B', name: 'real-time-operational.svg', src: '/icons/real-time-operational.svg', usedIn: 'Capability · Real-time operations', note: 'Live-pulse glyph.', dark: true },
+  { option: 'B', name: 'reduced-investigation.svg', src: '/icons/reduced-investigation.svg', usedIn: 'Capability · Reduced investigation time', note: 'Compressed-timeline glyph.', dark: true },
+  { option: 'B', name: 'secure-coordination.svg', src: '/icons/secure-coordination.svg', usedIn: 'Capability · Secure coordination', note: 'Shielded-orbit glyph.', dark: true },
 ];
 
 /** Living illustrations — vector artwork animated in-context inside the prototype. */
 export const illustrationAssets: SvgAsset[] = [
   {
+    option: 'B',
     name: 'alerts-to-context.svg',
     src: '/illustrations/alerts-to-context.svg',
     usedIn: 'Concept B · S3 narrative',
@@ -165,3 +189,20 @@ export const illustrationAssets: SvgAsset[] = [
     fit: 'wide',
   },
 ];
+
+/** All assets for a given option, grouped by kind. Empty groups are omitted at render. */
+export function assetsForOption(option: ConceptOption) {
+  return {
+    aura: auraEmbeds.filter((a) => a.option === option),
+    images: imageAssets.filter((a) => a.option === option),
+    logos: logoAssets.filter((a) => a.option === option),
+    icons: iconAssets.filter((a) => a.option === option),
+    illustrations: illustrationAssets.filter((a) => a.option === option),
+  };
+}
+
+/** Total asset count for an option (used for the per-option fact strip). */
+export function countForOption(option: ConceptOption): number {
+  const g = assetsForOption(option);
+  return g.aura.length + g.images.length + g.logos.length + g.icons.length + g.illustrations.length;
+}

@@ -27,11 +27,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               DECONFLICT <span className="sep">/</span> <span className="ctx">Asset Showcase</span>
             </span>
             <div className="topbar-links">
-              <a href="#aura">Embeds</a>
-              <a href="#images">Images</a>
-              <a href="#logos">Marks</a>
-              <a href="#icons">Icons</a>
-              <a href="#illustration">Illustration</a>
+              <a href="#concept-a">Option A</a>
+              <a href="#concept-b">Option B</a>
+              <a href="#concept-c">Option C</a>
             </div>
           </div>
         </nav>

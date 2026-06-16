@@ -5,6 +5,14 @@ Deconflict homepage exploration — the ambient Aura embeds, the raster backgrou
 images, and the static and animated SVG set. It is fully self-contained and
 independent of the prototype/proposal app.
 
+Assets are grouped by the design **option** (concept) that consumes them:
+
+- **Option A — The Dossier** — the engraving / product-panel raster plates.
+- **Option B — Signal Path** — the Aura embeds, platform imagery, header
+  lockup, capability icons, and the animated alerts→context illustration.
+- **Option C — Command** — fully generated at runtime (canvas + CSS), so it
+  ships no exported asset files.
+
 ## Run it
 
 ```bash
@@ -29,11 +37,11 @@ build command are auto-detected.
 ```
 asset-showcase/
 ├── app/
-│   ├── page.tsx        # The showcase itself (single page, anchored sections)
-│   ├── layout.tsx      # Shell: top bar + anchor nav, footer
+│   ├── page.tsx        # The showcase itself (single page, one section per option)
+│   ├── layout.tsx      # Shell: top bar + per-option anchor nav, footer
 │   └── globals.css     # Self-contained design system (Deconflict tokens)
 ├── lib/
-│   └── assets.ts       # All asset metadata (embeds, images, SVGs)
+│   └── assets.ts       # Asset metadata, each tagged with its option (A/B/C)
 └── public/
     ├── logos/          # Brand marks (static SVG)
     ├── icons/          # Capability icons (static SVG)
