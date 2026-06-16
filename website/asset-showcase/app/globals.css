@@ -197,11 +197,19 @@ h1 em { font-style: italic; font-weight: 400; color: var(--cobalt); }
 .cta-chip { display: inline-block; font-family: var(--mono); font-size: 10px; letter-spacing: 0.05em; color: var(--cobalt); background: var(--cobalt-soft); border: 1px solid #d3e0ff; border-radius: 999px; padding: 6px 11px; line-height: 1.35; }
 .cta-none { color: var(--subtle); font-size: 10px; }
 
-.cell-img { width: 264px; padding: 0; }
+.cell-img { width: 480px; padding: 0; }
 .img-btn {
   display: block; width: 100%; padding: 0; margin: 0; border: 0; background: none;
   cursor: pointer; position: relative;
 }
+.img-badge {
+  position: absolute; top: 10px; left: 10px; z-index: 1; font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 5px;
+  backdrop-filter: blur(4px);
+}
+.img-badge.c-A { background: rgba(253, 238, 222, 0.92); color: #b5651d; }
+.img-badge.c-B { background: rgba(240, 244, 255, 0.92); color: var(--cobalt); }
+.img-badge.c-bg { background: rgba(234, 237, 244, 0.92); color: var(--muted); }
 .img-btn .tbl-stage { border-radius: 0; border-left: 0; border-right: 0; width: 100%; }
 .img-btn::after {
   content: ''; position: absolute; inset: 0; box-shadow: inset 0 0 0 0 var(--cobalt);

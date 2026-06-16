@@ -184,9 +184,6 @@ function MapTable({
             <th className="col-text">Text</th>
             <th className="col-cta">CTA</th>
             <th className="col-img">Image</th>
-            <th className="col-name">{unified ? 'Asset · Concept' : 'Asset'}</th>
-            <th className="col-type">Type</th>
-            <th className="col-path">Path</th>
           </tr>
         </thead>
         <tbody>
@@ -220,24 +217,12 @@ function MapTable({
                     aria-label={`Open details for ${row.name}`}
                   >
                     <RowImage row={row} />
+                    {unified && (
+                      <span className={`img-badge ${row.concept ? `c-${row.concept}` : 'c-bg'}`}>
+                        {row.concept ?? 'BG'}
+                      </span>
+                    )}
                   </button>
-                </td>
-                <td className="cell-name">
-                  {unified && (
-                    <span className={`concept-badge ${row.concept ? `c-${row.concept}` : 'c-bg'}`}>
-                      {row.concept ?? 'BG'}
-                    </span>
-                  )}
-                  <b className="mono">{row.name}</b>
-                  {row.note && <span className="cell-note">{row.note}</span>}
-                </td>
-                <td className="cell-type">
-                  <span className={`type-tag ${typeClass(row.type)}`}>{row.type}</span>
-                </td>
-                <td className="cell-path">
-                  {row.paths.map((p) => (
-                    <code key={p}>{p}</code>
-                  ))}
                 </td>
               </tr>
             ))
