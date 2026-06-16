@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { optionRows, unifiedRows } from '@/lib/assets';
 import type { ConceptOption, ImageRow, SectionRows } from '@/lib/assets';
 
@@ -47,7 +47,9 @@ const VIEWS: View[] = [
 const rowsForView = (v: View): SectionRows[] =>
   v.unified ? unifiedRows() : optionRows(v.option as ConceptOption);
 
-/* ============ IMAGE CELL — the actual rendering ============ */
+const typeClass = (t: ImageRow['type']) => `t-${t.replace(/[^A-Za-z]+/g, '')}`;
+
+/* ============ IMAGE — the actual rendering (reused in cell + panel) ============ */
 
 function RowImage({ row }: { row: ImageRow }) {
   if (row.type === 'BG + SVG') {
@@ -77,11 +79,102 @@ function RowImage({ row }: { row: ImageRow }) {
   );
 }
 
-const typeClass = (t: ImageRow['type']) => `t-${t.replace(/[^A-Za-z]+/g, '')}`;
+/* ============ DETAIL PANEL — opens on the right when an image is clicked ============ */
+
+type Selection = { row: ImageRow; group: SectionRows };
+
+function DetailPanel({
+  selection,
+  unified,
+  onClose,
+}: {
+  selection: Selection | null;
+  unified: boolean;
+  onClose: () => void;
+}) {
+  const open = selection !== null;
+  return (
+    <>
+      <div
+        className={`panel-backdrop${open ? ' is-open' : ''}`}
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <aside className={`detail-panel${open ? ' is-open' : ''}`} aria-hidden={!open} aria-label="Image detail">
+        {selection && (
+          <>
+            <div className="panel-head">
+              <span className="mono">
+                {selection.group.section.id} · {selection.group.section.title}
+              </span>
+              <button className="panel-close" onClick={onClose} aria-label="Close panel">
+                ×
+              </button>
+            </div>
+
+            <div className="panel-figure">
+              <RowImage row={selection.row} />
+            </div>
+
+            <div className="panel-body">
+              <div className="panel-title-row">
+                {unified && (
+                  <span
+                    className={`concept-badge ${selection.row.concept ? `c-${selection.row.concept}` : 'c-bg'}`}
+                  >
+                    {selection.row.concept ?? 'BG'}
+                  </span>
+                )}
+                <h3 className="mono">{selection.row.name}</h3>
+              </div>
+
+              <span className={`type-tag ${typeClass(selection.row.type)}`}>{selection.row.type}</span>
+
+              {selection.row.note && <p className="panel-note">{selection.row.note}</p>}
+
+              <dl className="panel-meta">
+                <dt>Section</dt>
+                <dd>{selection.group.content.heading}</dd>
+                {selection.group.content.cta && (
+                  <>
+                    <dt>CTA</dt>
+                    <dd>{selection.group.content.cta}</dd>
+                  </>
+                )}
+                <dt>Concept</dt>
+                <dd>{selection.row.concept ? `Option ${selection.row.concept}` : 'Website 2.0 background'}</dd>
+                <dt>Type</dt>
+                <dd>{selection.row.type}</dd>
+                <dt>{selection.row.paths.length > 1 ? 'Files' : 'File'}</dt>
+                <dd>
+                  {selection.row.paths.map((p) => (
+                    <a key={p} href={p} target="_blank" rel="noreferrer">
+                      {p}
+                    </a>
+                  ))}
+                </dd>
+              </dl>
+            </div>
+          </>
+        )}
+      </aside>
+    </>
+  );
+}
 
 /* ============ THE TABLE ============ */
 
-function MapTable({ groups, unified }: { groups: SectionRows[]; unified: boolean }) {
+function MapTable({
+  groups,
+  unified,
+  onSelect,
+  activeKey,
+}: {
+  groups: SectionRows[];
+  unified: boolean;
+  onSelect: (group: SectionRows, row: ImageRow) => void;
+  activeKey?: string;
+}) {
   return (
     <div className="map-wrap">
       <table className="map-table">
@@ -120,7 +213,14 @@ function MapTable({ groups, unified }: { groups: SectionRows[]; unified: boolean
                   </>
                 )}
                 <td className="cell-img">
-                  <RowImage row={row} />
+                  <button
+                    type="button"
+                    className={`img-btn${activeKey === row.key ? ' is-active' : ''}`}
+                    onClick={() => onSelect(g, row)}
+                    aria-label={`Open details for ${row.name}`}
+                  >
+                    <RowImage row={row} />
+                  </button>
                 </td>
                 <td className="cell-name">
                   {unified && (
@@ -152,6 +252,9 @@ function MapTable({ groups, unified }: { groups: SectionRows[]; unified: boolean
 
 export default function Home() {
   const [activeSlug, setActiveSlug] = useState<string>(VIEWS[0].slug);
+  const [selection, setSelection] = useState<Selection | null>(null);
+
+  const closePanel = useCallback(() => setSelection(null), []);
 
   // Keep the active view in sync with the URL hash so each table is deep-linkable.
   useEffect(() => {
@@ -164,8 +267,18 @@ export default function Home() {
     return () => window.removeEventListener('hashchange', apply);
   }, []);
 
+  // Close the panel on Escape.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closePanel();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [closePanel]);
+
   const select = (slug: string) => {
     setActiveSlug(slug);
+    setSelection(null);
     if (window.location.hash !== `#${slug}`) window.history.replaceState(null, '', `#${slug}`);
   };
 
@@ -184,9 +297,9 @@ export default function Home() {
           </h1>
           <p className="tagline">
             The Website 2.0 home page as a table — each section&apos;s copy and CTA next to the
-            actual rendered imagery that fills its Image cell. Every image is flagged by how it&apos;s
-            built: a section background, a background-plus-SVG composite, a standalone SVG, or a
-            raster.
+            actual rendered imagery that fills its Image cell. Click any image to open its full
+            preview and details. Every image is flagged by how it&apos;s built: a section
+            background, a background-plus-SVG composite, a standalone SVG, or a raster.
           </p>
           <div className="hero-meta mono">
             <span>{VIEWS.length} views</span>
@@ -232,9 +345,16 @@ export default function Home() {
             exported image, icon, or vector files to render here.
           </p>
         ) : (
-          <MapTable groups={groups} unified={active.unified} />
+          <MapTable
+            groups={groups}
+            unified={active.unified}
+            onSelect={(group, row) => setSelection({ group, row })}
+            activeKey={selection?.row.key}
+          />
         )}
       </div>
+
+      <DetailPanel selection={selection} unified={active.unified} onClose={closePanel} />
     </>
   );
 }
