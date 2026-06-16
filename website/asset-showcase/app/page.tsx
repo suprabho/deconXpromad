@@ -1,303 +1,230 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { concepts, countForOption, usageForOption, sectionBackgrounds } from '@/lib/assets';
-import type { ShowcaseConcept, SvgAsset, UsageBlock } from '@/lib/assets';
+import { useCallback, useEffect, useState } from 'react';
+import { homepageRows } from '@/lib/assets';
+import type { ImageRow, SectionRows } from '@/lib/assets';
 
-/** Lead tab: the Website 2.0 section-background set (not an A/B/C concept). */
-const BG_SLUG = 'section-backgrounds';
+const typeClass = (t: ImageRow['type']) => `t-${t.replace(/[^A-Za-z]+/g, '')}`;
 
-/* ============ ASSET CARDS ============ */
+/* ============ IMAGE — the actual rendering (reused in cell + panel) ============ */
 
-function SvgCard({ asset, animated = false }: { asset: SvgAsset; animated?: boolean }) {
-  const stageClass = [
-    'asset-stage',
-    asset.dark ? 'is-dark' : '',
-    asset.fit === 'wide' ? 'is-wide' : '',
-    animated ? 'is-animated' : '',
-  ]
-    .filter(Boolean)
-    .join(' ');
-  return (
-    <figure className="asset-card">
-      <div className={stageClass}>
+function RowImage({ row }: { row: ImageRow }) {
+  if (row.type === 'BG + SVG') {
+    return (
+      <div className="tbl-stage is-composite" style={{ backgroundImage: `url(${row.bgSrc})` }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={asset.src} alt={asset.name} loading="lazy" />
+        <img src={row.svgSrc} alt={row.name} loading="lazy" />
       </div>
-      <figcaption>
-        <div className="asset-cap-head">
-          <b className="mono">{asset.name}</b>
-          <span className="asset-where">{asset.usedIn}</span>
-        </div>
-        <p>{asset.note}</p>
-      </figcaption>
-    </figure>
-  );
-}
-
-/* ============ USAGE BLOCK — assets grouped by where they're used ============ */
-
-function UsageBlockView({ block }: { block: UsageBlock }) {
-  const { section, aura, images, svgs } = block;
-  const count = aura.length + images.length + svgs.length;
-
+    );
+  }
+  if (row.type === 'Background' || row.type === 'Raster') {
+    return (
+      <div
+        className={`tbl-stage is-cover${row.dark ? ' is-dark' : ''}`}
+        style={{ backgroundImage: `url(${row.bgSrc})` }}
+        role="img"
+        aria-label={row.name}
+      />
+    );
+  }
+  // SVG only
   return (
-    <div className="usage-group">
-      <div className="usage-head">
-        <span className="usage-code mono">{section.id}</span>
-        <h4>{section.title}</h4>
-        <span className="usage-count mono">
-          {count} asset{count === 1 ? '' : 's'}
-        </span>
-      </div>
-      <p className="usage-summary">{section.summary}</p>
-
-      {aura.length > 0 && (
-        <div className="aura-grid">
-          {aura.map((e) => (
-            <figure className="aura-card" key={e.slug}>
-              <div className="aura-stage">
-                <iframe src={e.url} title={e.title} loading="lazy" aria-hidden="true" tabIndex={-1} />
-              </div>
-              <figcaption>
-                <div className="asset-cap-head">
-                  <b>{e.title}</b>
-                  <span className="asset-where">{e.usedIn}</span>
-                </div>
-                <p className="asset-url mono">/embed/{e.slug}</p>
-                <p>{e.note}</p>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      )}
-
-      {images.length > 0 && (
-        <div className="img-grid">
-          {images.map((img) => (
-            <figure className="asset-card" key={img.name}>
-              <div className={`asset-stage img-stage${img.dark ? ' is-dark' : ''}`}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={img.src} alt={img.name} loading="lazy" />
-              </div>
-              <figcaption>
-                <div className="asset-cap-head">
-                  <b className="mono">{img.name}</b>
-                  <span className="asset-tag">
-                    {img.kind} · {img.weight}
-                  </span>
-                </div>
-                <span className="asset-where">{img.usedIn}</span>
-                <p>{img.note}</p>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      )}
-
-      {svgs.length > 0 && (
-        <div className="inline-grid">
-          {svgs.map((a) => (
-            <SvgCard asset={a} animated={a.animated} key={a.name} />
-          ))}
-        </div>
-      )}
+    <div className={`tbl-stage${row.dark ? ' is-dark' : ''}${row.fit === 'wide' ? ' is-wide' : ''}`}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={row.svgSrc} alt={row.name} loading="lazy" />
     </div>
   );
 }
 
-/* ============ SECTION HEADER — editorial, oversized number ============ */
+/** Empty placeholder shown until a section's Image cell is filled. */
+function EmptyImage() {
+  return (
+    <div className="img-empty">
+      <span className="mono">Add image</span>
+    </div>
+  );
+}
 
-function SectionHeader({
-  number,
-  concept,
-  count,
+/* ============ DETAIL PANEL — opens when a filled image is clicked ============ */
+
+type Selection = { row: ImageRow; group: SectionRows };
+
+function DetailPanel({ selection, onClose }: { selection: Selection | null; onClose: () => void }) {
+  const open = selection !== null;
+  return (
+    <>
+      <div className={`panel-backdrop${open ? ' is-open' : ''}`} onClick={onClose} aria-hidden="true" />
+      <aside className={`detail-panel${open ? ' is-open' : ''}`} aria-hidden={!open} aria-label="Image detail">
+        {selection && (
+          <>
+            <div className="panel-head">
+              <span className="mono">
+                {selection.group.section.id} · {selection.group.section.title}
+              </span>
+              <button className="panel-close" onClick={onClose} aria-label="Close panel">
+                ×
+              </button>
+            </div>
+
+            <div className="panel-figure">
+              <RowImage row={selection.row} />
+            </div>
+
+            <div className="panel-body">
+              <div className="panel-title-row">
+                <h3 className="mono">{selection.row.name}</h3>
+              </div>
+
+              <span className={`type-tag ${typeClass(selection.row.type)}`}>{selection.row.type}</span>
+
+              {selection.row.note && <p className="panel-note">{selection.row.note}</p>}
+
+              <dl className="panel-meta">
+                <dt>Section</dt>
+                <dd>{selection.group.content.heading}</dd>
+                {selection.group.content.cta && (
+                  <>
+                    <dt>CTA</dt>
+                    <dd>{selection.group.content.cta}</dd>
+                  </>
+                )}
+                <dt>Type</dt>
+                <dd>{selection.row.type}</dd>
+                <dt>{selection.row.paths.length > 1 ? 'Files' : 'File'}</dt>
+                <dd>
+                  {selection.row.paths.map((p) => (
+                    <a key={p} href={p} target="_blank" rel="noreferrer">
+                      {p}
+                    </a>
+                  ))}
+                </dd>
+              </dl>
+            </div>
+          </>
+        )}
+      </aside>
+    </>
+  );
+}
+
+/* ============ THE TABLE ============ */
+
+function MapTable({
+  groups,
+  onSelect,
+  activeKey,
 }: {
-  number: string;
-  concept: ShowcaseConcept;
-  count: number;
+  groups: SectionRows[];
+  onSelect: (group: SectionRows, row: ImageRow) => void;
+  activeKey?: string;
 }) {
   return (
-    <div className="sec-header">
-      <span className="sec-ghost">{number}</span>
-      <h3>
-        <span className="idx mono">Option {concept.option}</span> {concept.name}
-      </h3>
-      <p className="concept-tagline">{concept.tagline}</p>
-      <p className="concept-count mono">
-        {count === 0 ? 'No exported assets' : `${count} asset${count === 1 ? '' : 's'}`}
-      </p>
+    <div className="map-wrap">
+      <table className="map-table">
+        <thead>
+          <tr>
+            <th className="col-sec">Section</th>
+            <th className="col-text">Text</th>
+            <th className="col-cta">CTA</th>
+            <th className="col-img">Image</th>
+          </tr>
+        </thead>
+        <tbody>
+          {groups.map((g) => {
+            const display: (ImageRow | null)[] = g.rows.length ? g.rows : [null];
+            return display.map((row, i) => (
+              <tr key={row ? row.key : g.section.id} className={i === 0 ? 'sec-start' : ''}>
+                {i === 0 && (
+                  <>
+                    <th scope="rowgroup" rowSpan={display.length} className="cell-sec">
+                      <span className="sec-id mono">{g.section.id}</span>
+                      <span className="sec-title">{g.section.title}</span>
+                    </th>
+                    <td rowSpan={display.length} className="cell-text">
+                      <p className="cell-heading">{g.content.heading}</p>
+                      {g.content.text && <p className="cell-body">{g.content.text}</p>}
+                    </td>
+                    <td rowSpan={display.length} className="cell-cta">
+                      {g.content.cta ? (
+                        <span className="cta-chip">{g.content.cta}</span>
+                      ) : (
+                        <span className="cta-none mono">none</span>
+                      )}
+                    </td>
+                  </>
+                )}
+                <td className="cell-img">
+                  {row ? (
+                    <button
+                      type="button"
+                      className={`img-btn${activeKey === row.key ? ' is-active' : ''}`}
+                      onClick={() => onSelect(g, row)}
+                      aria-label={`Open details for ${row.name}`}
+                    >
+                      <RowImage row={row} />
+                    </button>
+                  ) : (
+                    <EmptyImage />
+                  )}
+                </td>
+              </tr>
+            ));
+          })}
+        </tbody>
+      </table>
     </div>
-  );
-}
-
-/* ============ CONCEPT (OPTION) SECTION ============ */
-
-function ConceptSection({ concept, number }: { concept: ShowcaseConcept; number: string }) {
-  const blocks = usageForOption(concept.option);
-  const count = countForOption(concept.option);
-
-  return (
-    <section className="concept-sec" id={concept.slug}>
-      <SectionHeader number={number} concept={concept} count={count} />
-
-      {count === 0 && (
-        <p className="concept-empty">
-          Command is fully generated at runtime — the dot-matrix map, scan sweep, and chain-of-custody
-          board are drawn in canvas and CSS, so it ships no exported image, icon, or vector files.
-        </p>
-      )}
-
-      {blocks.map((block) => (
-        <UsageBlockView block={block} key={block.section.id} />
-      ))}
-    </section>
-  );
-}
-
-/* ============ SECTION BACKGROUNDS — one full-bleed render per section ============ */
-
-function SectionBackgroundsView() {
-  return (
-    <section className="concept-sec" id={BG_SLUG}>
-      <div className="sec-header">
-        <span className="sec-ghost">00</span>
-        <h3>
-          <span className="idx mono">Website 2.0</span> Section Backgrounds
-        </h3>
-        <p className="concept-tagline">
-          One full-bleed static render per homepage section — ambient backgrounds that sit behind
-          the copy, replacing the live Aura embeds and the per-item SVG sets.
-        </p>
-        <p className="concept-count mono">{sectionBackgrounds.length} backgrounds</p>
-      </div>
-
-      <div className="bg-bands">
-        {sectionBackgrounds.map((b) => (
-          <figure
-            className={`bg-band ${b.dark ? 'is-dark' : 'is-light'}`}
-            key={b.id}
-            style={{ backgroundImage: `url(${b.src})` }}
-          >
-            <div className="bg-band-copy">
-              <span className="bg-band-id mono">{b.id}</span>
-              <h4>{b.title}</h4>
-              <p>{b.motif}</p>
-              <span className="bg-band-meta mono">
-                {b.src} · {b.meta}
-              </span>
-            </div>
-          </figure>
-        ))}
-      </div>
-    </section>
   );
 }
 
 /* ============ PAGE ============ */
 
-const pad = (i: number) => String(i + 1).padStart(2, '0');
-
 export default function Home() {
-  const [activeSlug, setActiveSlug] = useState<string>(BG_SLUG);
+  const [selection, setSelection] = useState<Selection | null>(null);
+  const closePanel = useCallback(() => setSelection(null), []);
 
-  // Sync the active tab with the URL hash so the top-bar Option links work and
-  // each tab is deep-linkable / shareable.
+  // Close the panel on Escape.
   useEffect(() => {
-    const apply = () => {
-      const slug = window.location.hash.replace('#', '');
-      if (slug === BG_SLUG || concepts.some((c) => c.slug === slug)) setActiveSlug(slug);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closePanel();
     };
-    apply();
-    window.addEventListener('hashchange', apply);
-    return () => window.removeEventListener('hashchange', apply);
-  }, []);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [closePanel]);
 
-  const selectTab = (slug: string) => {
-    setActiveSlug(slug);
-    if (window.location.hash !== `#${slug}`) {
-      window.history.replaceState(null, '', `#${slug}`);
-    }
-  };
-
-  const showBg = activeSlug === BG_SLUG;
-  const activeIndex = Math.max(0, concepts.findIndex((c) => c.slug === activeSlug));
-  const active = concepts[activeIndex];
+  const groups = homepageRows();
 
   return (
     <>
       {/* Editorial hero */}
       <header className="show-hero">
         <div className="container">
-          <span className="eyebrow">Asset Library</span>
+          <span className="eyebrow">Homepage · Financial Institutions</span>
           <h1>
-            Assets by <em>Option</em>
+            Section <em>Image</em> Map
           </h1>
           <p className="tagline">
-            Every embed, image, and vector created for the Deconflict homepage exploration. Pick an
-            option below — Option A (The Dossier), Option B (Signal Path), or Option C (Command) —
-            and its assets are laid out by where they appear on the page, banner through close. Brand
-            marks are kept out: this is the supporting illustration, icon, and image set.
+            The Website 2.0 home page as a fill-in template — each section&apos;s copy and CTA next to
+            an empty Image slot. Drop in the artwork for each section to build up the page&apos;s
+            imagery; once filled, click any image for a full preview and its details.
           </p>
           <div className="hero-meta mono">
-            <span>{concepts.length} options</span>
+            <span>{groups.length} sections</span>
             <span className="sep">—</span>
-            <span>
-              {concepts.reduce((n, c) => n + countForOption(c.option), 0)} assets catalogued
-            </span>
+            <span>Section · Text · CTA · Image</span>
           </div>
         </div>
       </header>
 
-      {/* Tab bar — Section Backgrounds lead tab, then one tab per option */}
-      <div className="show-tabs">
-        <div className="container show-tabs-inner" role="tablist" aria-label="Design options">
-          <button
-            role="tab"
-            aria-selected={showBg}
-            onClick={() => selectTab(BG_SLUG)}
-            className={`tab${showBg ? ' is-active' : ''}`}
-          >
-            <span className="tab-num mono">00</span>
-            <span className="tab-body">
-              <span className="tab-name">Section Backgrounds</span>
-              <span className="tab-count mono">{sectionBackgrounds.length} backgrounds</span>
-            </span>
-          </button>
-          {concepts.map((c, i) => {
-            const isActive = activeSlug === c.slug;
-            const count = countForOption(c.option);
-            return (
-              <button
-                key={c.slug}
-                role="tab"
-                aria-selected={isActive}
-                onClick={() => selectTab(c.slug)}
-                className={`tab${isActive ? ' is-active' : ''}`}
-              >
-                <span className="tab-num mono">{pad(i)}</span>
-                <span className="tab-body">
-                  <span className="tab-name">
-                    Option {c.option} · {c.name}
-                  </span>
-                  <span className="tab-count mono">
-                    {count === 0 ? 'Runtime-generated' : `${count} asset${count === 1 ? '' : 's'}`}
-                  </span>
-                </span>
-              </button>
-            );
-          })}
-        </div>
+      {/* Template table */}
+      <div className="container show-panel" role="region" aria-label="Homepage image map">
+        <MapTable
+          groups={groups}
+          onSelect={(group, row) => setSelection({ group, row })}
+          activeKey={selection?.row.key}
+        />
       </div>
 
-      {/* Active panel */}
-      <div className="container show-panel" role="tabpanel">
-        {showBg ? (
-          <SectionBackgroundsView />
-        ) : (
-          active && <ConceptSection concept={active} number={pad(activeIndex)} key={active.option} />
-        )}
-      </div>
+      <DetailPanel selection={selection} onClose={closePanel} />
     </>
   );
 }
