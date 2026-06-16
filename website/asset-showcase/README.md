@@ -1,15 +1,23 @@
 # Deconflict — Visual Asset Showcase
 
-A standalone Next.js app that catalogues every visual asset created for the
+A standalone Next.js app that catalogues the visual asset set created for the
 Deconflict homepage exploration — the ambient Aura embeds, the raster background
 images, and the static and animated SVG set. It is fully self-contained and
-independent of the prototype/proposal app.
+independent of the prototype/proposal app. Presented in an editorial layout: a
+typographic hero, a sticky numbered sidebar that tracks the active option, and
+oversized section numbers per option.
+
+> Brand marks are intentionally **not** showcased — the `deconflict-blue.svg`
+> wordmark, the per-concept nav lockups, and the guilloché rosette/seal are
+> excluded so the library presents only the supporting illustration, icon, and
+> image set.
 
 Assets are grouped by the design **option** (concept) that consumes them:
 
-- **Option A — The Dossier** — the engraving / product-panel raster plates.
-- **Option B — Signal Path** — the Aura embeds, platform imagery, header
-  lockup, capability icons, and the animated alerts→context illustration.
+- **Option A — The Dossier** — the engraving / product-panel raster plates and
+  the in-prototype product glyphs, trust marks, lifecycle, and pillar icons.
+- **Option B — Signal Path** — the Aura embeds, platform imagery, capability
+  icons, and the animated alerts→context illustration.
 - **Option C — Command** — fully generated at runtime (canvas + CSS), so it
   ships no exported asset files.
 

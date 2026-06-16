@@ -1,5 +1,10 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
 import { assetsForOption, concepts, countForOption } from '@/lib/assets';
 import type { ShowcaseConcept, SvgAsset } from '@/lib/assets';
+
+/* ============ ASSET CARDS ============ */
 
 function SvgCard({ asset, animated = false }: { asset: SvgAsset; animated?: boolean }) {
   const stageClass = [
@@ -37,19 +42,40 @@ function AssetGroup({ label, children }: { label: string; children: React.ReactN
   );
 }
 
-function ConceptSection({ concept }: { concept: ShowcaseConcept }) {
-  const { aura, images, logos, icons, illustrations, inline } = assetsForOption(concept.option);
-  const count = countForOption(concept.option);
+/* ============ SECTION HEADER — editorial, oversized number ============ */
 
+function SectionHeader({
+  number,
+  concept,
+  count,
+}: {
+  number: string;
+  concept: ShowcaseConcept;
+  count: number;
+}) {
   return (
-    <section className="doc-sec concept-sec" id={concept.slug}>
+    <div className="sec-header">
+      <span className="sec-ghost">{number}</span>
       <h3>
-        <span className="idx">Option {concept.option}</span> {concept.name}
+        <span className="idx mono">Option {concept.option}</span> {concept.name}
       </h3>
       <p className="concept-tagline">{concept.tagline}</p>
       <p className="concept-count mono">
         {count === 0 ? 'No exported assets' : `${count} asset${count === 1 ? '' : 's'}`}
       </p>
+    </div>
+  );
+}
+
+/* ============ CONCEPT (OPTION) SECTION ============ */
+
+function ConceptSection({ concept, number }: { concept: ShowcaseConcept; number: string }) {
+  const { aura, images, icons, illustrations, inline } = assetsForOption(concept.option);
+  const count = countForOption(concept.option);
+
+  return (
+    <section className="concept-sec" id={concept.slug}>
+      <SectionHeader number={number} concept={concept} count={count} />
 
       {count === 0 && (
         <p className="concept-empty">
@@ -105,16 +131,6 @@ function ConceptSection({ concept }: { concept: ShowcaseConcept }) {
         </AssetGroup>
       )}
 
-      {logos.length > 0 && (
-        <AssetGroup label="Brand marks — static SVG">
-          <div className="logo-grid">
-            {logos.map((a) => (
-              <SvgCard asset={a} key={a.name} />
-            ))}
-          </div>
-        </AssetGroup>
-      )}
-
       {icons.length > 0 && (
         <AssetGroup label="Capability icons — static SVG">
           <div className="icon-grid">
@@ -146,11 +162,39 @@ function ConceptSection({ concept }: { concept: ShowcaseConcept }) {
   );
 }
 
+/* ============ PAGE ============ */
+
+const pad = (i: number) => String(i + 1).padStart(2, '0');
+
 export default function Home() {
+  const [activeSlug, setActiveSlug] = useState(concepts[0]?.slug ?? '');
+  const observerRef = useRef<IntersectionObserver | null>(null);
+
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) setActiveSlug(entry.target.id);
+        }
+      },
+      { rootMargin: '-40% 0px -55% 0px' }
+    );
+    concepts.forEach((c) => {
+      const el = document.getElementById(c.slug);
+      if (el) observerRef.current?.observe(el);
+    });
+    return () => observerRef.current?.disconnect();
+  }, []);
+
+  const scrollTo = (slug: string) => {
+    document.getElementById(slug)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
-    <main className="container">
-      <header className="detail-head">
-        <div>
+    <>
+      {/* Editorial hero */}
+      <header className="show-hero">
+        <div className="container">
           <span className="eyebrow">Asset Library</span>
           <h1>
             Assets by <em>Option</em>
@@ -158,28 +202,53 @@ export default function Home() {
           <p className="tagline">
             Every embed, image, and vector created for the Deconflict homepage exploration, gathered
             on one page and sorted by the design option that consumes it — Option A (The Dossier),
-            Option B (Signal Path), and Option C (Command).
+            Option B (Signal Path), and Option C (Command). Brand marks are kept out: this is the
+            supporting illustration, icon, and image set.
           </p>
+          <div className="hero-meta mono">
+            <span>{concepts.length} options</span>
+            <span className="sep">—</span>
+            <span>
+              {concepts.reduce((n, c) => n + countForOption(c.option), 0)} assets catalogued
+            </span>
+          </div>
         </div>
       </header>
 
-      <div className="facts">
-        {concepts.map((c) => (
-          <div className="fact" key={c.option}>
-            <span className="label">
-              Option {c.option} · {c.name}
-            </span>
-            <b>
-              {countForOption(c.option)} asset{countForOption(c.option) === 1 ? '' : 's'}
-            </b>
-            <p>{c.tagline}</p>
-          </div>
-        ))}
-      </div>
+      {/* Two-column editorial body */}
+      <div className="container show-body">
+        {/* Numbered sidebar TOC */}
+        <aside className="show-toc">
+          <nav>
+            {concepts.map((c, i) => {
+              const isActive = activeSlug === c.slug;
+              const count = countForOption(c.option);
+              return (
+                <button
+                  key={c.slug}
+                  onClick={() => scrollTo(c.slug)}
+                  className={`toc-item${isActive ? ' is-active' : ''}`}
+                >
+                  <span className="toc-num">{pad(i)}</span>
+                  <span className="toc-name">
+                    Option {c.option} · {c.name}
+                  </span>
+                  <span className="toc-count mono">
+                    {count === 0 ? 'Runtime-generated' : `${count} asset${count === 1 ? '' : 's'}`}
+                  </span>
+                </button>
+              );
+            })}
+          </nav>
+        </aside>
 
-      {concepts.map((c) => (
-        <ConceptSection concept={c} key={c.option} />
-      ))}
-    </main>
+        {/* Sections */}
+        <main className="show-main">
+          {concepts.map((c, i) => (
+            <ConceptSection concept={c} number={pad(i)} key={c.option} />
+          ))}
+        </main>
+      </div>
+    </>
   );
 }
