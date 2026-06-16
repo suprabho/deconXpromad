@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import {
   auraEmbeds,
   iconAssets,
@@ -7,12 +6,6 @@ import {
   logoAssets,
 } from '@/lib/assets';
 import type { SvgAsset } from '@/lib/assets';
-
-export const metadata = {
-  title: 'Visual Assets — Deconflict Design Proposal',
-  description:
-    'A single-page reference for every visual asset added to the Deconflict proposal: the Aura ambient embeds, raster background images, and the static and animated SVG set.',
-};
 
 const totals = {
   aura: auraEmbeds.length,
@@ -46,23 +39,20 @@ function SvgCard({ asset, animated = false }: { asset: SvgAsset; animated?: bool
   );
 }
 
-export default function AssetsPage() {
+export default function Home() {
   return (
     <main className="container">
-      <div className="crumbs">
-        <Link href="/">Proposal</Link> <span>/</span> <span>Visual Assets</span>
-      </div>
-
       <header className="detail-head">
         <div>
           <span className="eyebrow">Asset Library</span>
           <h1>
-            Visual <em>Assets</em>
+            Visual <em>Asset Showcase</em>
           </h1>
           <p className="tagline">
-            Every embed, image, and vector added to the proposal, gathered on one page — separate
-            from the prototypes that consume them. Ambient Aura backdrops, raster scene plates, brand
-            marks, capability icons, and the living illustration.
+            Every embed, image, and vector created for the Deconflict homepage exploration, gathered
+            on one page — a standalone library, independent of the prototypes that consume them.
+            Ambient Aura backdrops, raster scene plates, brand marks, capability icons, and the
+            living illustration.
           </p>
         </div>
       </header>
@@ -86,7 +76,7 @@ export default function AssetsPage() {
       </div>
 
       {/* ---------- 01 aura embeds ---------- */}
-      <section className="doc-sec">
+      <section className="doc-sec" id="aura">
         <h3>
           <span className="idx">01</span> Aura ambient embeds
         </h3>
@@ -122,14 +112,13 @@ export default function AssetsPage() {
       </section>
 
       {/* ---------- 02 images ---------- */}
-      <section className="doc-sec">
+      <section className="doc-sec" id="images">
         <h3>
           <span className="idx">02</span> Image files
         </h3>
         <p style={{ marginBottom: 28 }}>
-          Raster plates that ship inside the prototype folders — engraving fields and product renders
-          too photographic for vector. Shown here at fit; each is referenced in place rather than
-          duplicated.
+          Raster plates from the prototype set — engraving fields and product renders too
+          photographic for vector. Shown here at fit.
         </p>
         <div className="img-grid">
           {imageAssets.map((img) => (
@@ -154,7 +143,7 @@ export default function AssetsPage() {
       </section>
 
       {/* ---------- 03 logos ---------- */}
-      <section className="doc-sec">
+      <section className="doc-sec" id="logos">
         <h3>
           <span className="idx">03</span> Brand marks — static SVG
         </h3>
@@ -170,7 +159,7 @@ export default function AssetsPage() {
       </section>
 
       {/* ---------- 04 icons ---------- */}
-      <section className="doc-sec">
+      <section className="doc-sec" id="icons">
         <h3>
           <span className="idx">04</span> Capability icons — static SVG
         </h3>
@@ -186,7 +175,7 @@ export default function AssetsPage() {
       </section>
 
       {/* ---------- 05 illustration ---------- */}
-      <section className="doc-sec">
+      <section className="doc-sec" id="illustration">
         <h3>
           <span className="idx">05</span> Living illustration — animated SVG
         </h3>
@@ -200,17 +189,6 @@ export default function AssetsPage() {
           <SvgCard asset={a} animated key={a.name} />
         ))}
       </section>
-
-      <nav className="pager">
-        <Link href="/foundations/">
-          <span className="dir">← Back</span>
-          <b>Color &amp; Typography</b>
-        </Link>
-        <Link className="next" href="/">
-          <span className="dir">Up →</span>
-          <b>Proposal overview</b>
-        </Link>
-      </nav>
     </main>
   );
 }

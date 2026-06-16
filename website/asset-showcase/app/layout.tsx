@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Deconflict — Homepage Design Proposal',
+  title: 'Deconflict — Visual Asset Showcase',
   description:
-    'Three homepage design directions for Deconflict — The Dossier, Signal Path, and Command — published and documented as an interactive proposal.',
+    'A standalone reference for every visual asset created for the Deconflict homepage exploration: the Aura ambient embeds, raster background images, and the static and animated SVG set.',
 };
 
 function Mark() {
@@ -23,15 +22,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <nav className="topbar">
           <div className="topbar-inner">
-            <Link className="brand" href="/">
+            <span className="brand">
               <Mark />
-              DECONFLICT <span className="sep">/</span> <span className="ctx">Design Proposal</span>
-            </Link>
+              DECONFLICT <span className="sep">/</span> <span className="ctx">Asset Showcase</span>
+            </span>
             <div className="topbar-links">
-              <Link href="/concepts/concept-a-dossier/">A · The Dossier</Link>
-              <Link href="/concepts/concept-b-signal-path/">B · Signal Path</Link>
-              <Link href="/concepts/concept-c-command/">C · Command</Link>
-              <Link href="/foundations/">Color &amp; Type</Link>
+              <a href="#aura">Embeds</a>
+              <a href="#images">Images</a>
+              <a href="#logos">Marks</a>
+              <a href="#icons">Icons</a>
+              <a href="#illustration">Illustration</a>
             </div>
           </div>
         </nav>
@@ -39,7 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <footer className="site-footer">
           <div className="container">
             <span className="mono">Prepared by Promad · June 2026</span>
-            <span>Deconflict homepage — design exploration, three directions</span>
+            <span>Deconflict homepage — visual asset library</span>
           </div>
         </footer>
       </body>

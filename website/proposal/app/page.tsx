@@ -104,14 +104,9 @@ export default function Home() {
             <h2>
               One system underneath <em>all three</em>
             </h2>
-            <div className="sec-head-actions">
-              <Link className="btn btn-ghost" href="/foundations/">
-                Full color &amp; typography docs →
-              </Link>
-              <Link className="btn btn-ghost" href="/assets/">
-                Visual asset library →
-              </Link>
-            </div>
+            <Link className="btn btn-ghost" href="/foundations/">
+              Full color &amp; typography docs →
+            </Link>
           </div>
           <div className="found-grid">
             <div>
