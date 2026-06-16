@@ -163,16 +163,15 @@ export const imageAssets: ImageAsset[] = [
  */
 export const logoAssets: SvgAsset[] = [];
 
-/** Capability icons — static line-art glyphs (light-on-dark). */
-export const iconAssets: SvgAsset[] = [
-  { option: 'B', name: 'centralized.svg', src: '/icons/centralized.svg', usedIn: 'Capability · Centralised coordination', note: 'Converging-nodes glyph.', dark: true },
-  { option: 'B', name: 'enhanced.svg', src: '/icons/enhanced.svg', usedIn: 'Capability · Enhanced visibility', note: 'Layered-bars glyph.', dark: true },
-  { option: 'B', name: 'faster-escalation.svg', src: '/icons/faster-escalation.svg', usedIn: 'Capability · Faster escalation', note: 'Signal-burst glyph.', dark: true },
-  { option: 'B', name: 'improved-sar.svg', src: '/icons/improved-sar.svg', usedIn: 'Capability · Improved SAR quality', note: 'Report-lines glyph.', dark: true },
-  { option: 'B', name: 'real-time-operational.svg', src: '/icons/real-time-operational.svg', usedIn: 'Capability · Real-time operations', note: 'Live-pulse glyph.', dark: true },
-  { option: 'B', name: 'reduced-investigation.svg', src: '/icons/reduced-investigation.svg', usedIn: 'Capability · Reduced investigation time', note: 'Compressed-timeline glyph.', dark: true },
-  { option: 'B', name: 'secure-coordination.svg', src: '/icons/secure-coordination.svg', usedIn: 'Capability · Secure coordination', note: 'Shielded-orbit glyph.', dark: true },
-];
+/**
+ * Capability icons — the standalone `/icons/` glyph set is intentionally NOT
+ * catalogued: it duplicates the seven Option B `feature-*` glyphs (centralized,
+ * enhanced, faster-escalation, improved-sar, real-time-operational,
+ * reduced-investigation, secure-coordination), which carry the prototype's
+ * actual feature-grid usage. Keeping both would show every capability twice, so
+ * the duplicate icon set is dropped from the table.
+ */
+export const iconAssets: SvgAsset[] = [];
 
 /** Living illustrations — vector artwork animated in-context inside the prototype. */
 export const illustrationAssets: SvgAsset[] = [
