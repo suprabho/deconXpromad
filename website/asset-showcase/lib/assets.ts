@@ -252,6 +252,103 @@ export function assetsForOption(option: ConceptOption) {
   };
 }
 
+/* -------------------------------------------------------------------------- *
+ * Usage grouping — "how and where assets are used"
+ *
+ * Instead of grouping by asset *type*, the showcase groups each option's assets
+ * by the homepage section they appear in, mirroring the Website 2.0 content
+ * spec (Banner → Connected Intelligence → Why Deconflict → Verified
+ * Intelligence → Resources → Close).
+ * -------------------------------------------------------------------------- */
+
+export type SectionId = 'S1' | 'S2' | 'S3' | 'S4' | 'S5' | 'S6';
+
+export type PageSection = { id: SectionId; title: string; summary: string };
+
+/** The homepage sections, in page order, from the Website 2.0 content spec. */
+export const pageSections: PageSection[] = [
+  {
+    id: 'S1',
+    title: 'Banner',
+    summary:
+      '“Investigative Intelligence for Compliance and Risk Teams.” The hero — headline, sub-head, primary CTA — and the trust markers and product showcase that frame it.',
+  },
+  {
+    id: 'S2',
+    title: 'Connected Intelligence',
+    summary:
+      '“Connected intelligence that goes beyond basic risk scoring.” The product / platform imagery and the half-image links through to the product pages.',
+  },
+  {
+    id: 'S3',
+    title: 'Why Deconflict',
+    summary:
+      '“Compliance Teams Need More Than Monitoring.” The compliance lifecycle, the legacy-vs-Deconflict contrast, and the built-for-scale proof.',
+  },
+  {
+    id: 'S4',
+    title: 'Verified Intelligence',
+    summary:
+      '“Verified Intelligence for Faster Decisions.” The three capability pillars — Law Enforcement Intelligence, Examiner-Ready Compliance, and Integration & Speed.',
+  },
+  {
+    id: 'S5',
+    title: 'Resources & News',
+    summary: '“Latest Resources & News.” Resource covers pulled from the blog / resource library.',
+  },
+  {
+    id: 'S6',
+    title: 'Close',
+    summary:
+      '“Built for Institutions Managing Digital Asset Risk.” The closing reassurance band and the final Schedule-a-Demo CTA.',
+  },
+];
+
+/** Map an asset's `usedIn` placement to the homepage section it appears in. */
+export function sectionForUsage(usedIn: string): SectionId {
+  const u = usedIn.toLowerCase();
+  if (/resource cover/.test(u)) return 'S5';
+  if (/\bs6\b|close/.test(u)) return 'S6';
+  if (/pillar|capability|feature grid/.test(u)) return 'S4';
+  if (/why deconflict|lifecycle|workflow|contrast table|scale|narrative/.test(u)) return 'S3';
+  if (/platform|product panel|nexus|signal product|diptych|connector/.test(u)) return 'S2';
+  if (/hero|trust marker|signal card|overlap icon|verified icon|matches icon|exact-match|overlap-detection/.test(u))
+    return 'S1';
+  return 'S2';
+}
+
+/** An SVG asset normalised for rendering, carrying whether it animates. */
+export type SvgRender = SvgAsset & { animated?: boolean };
+
+/** One homepage section's worth of an option's assets, ready to render. */
+export type UsageBlock = {
+  section: PageSection;
+  aura: AuraEmbed[];
+  images: ImageAsset[];
+  svgs: SvgRender[];
+};
+
+/**
+ * An option's assets grouped by the homepage section they're used in, in page
+ * order. Sections with no assets for the option are omitted.
+ */
+export function usageForOption(option: ConceptOption): UsageBlock[] {
+  const g = assetsForOption(option);
+  const svgsAll: SvgRender[] = [
+    ...g.icons.map((a) => ({ ...a })),
+    ...g.illustrations.map((a) => ({ ...a, animated: true })),
+    ...g.inline.map((a) => ({ ...a })),
+  ];
+  return pageSections
+    .map((section) => ({
+      section,
+      aura: g.aura.filter((a) => sectionForUsage(a.usedIn) === section.id),
+      images: g.images.filter((a) => sectionForUsage(a.usedIn) === section.id),
+      svgs: svgsAll.filter((a) => sectionForUsage(a.usedIn) === section.id),
+    }))
+    .filter((b) => b.aura.length + b.images.length + b.svgs.length > 0);
+}
+
 /** Total asset count for an option (used for the per-option fact strip). */
 export function countForOption(option: ConceptOption): number {
   const g = assetsForOption(option);

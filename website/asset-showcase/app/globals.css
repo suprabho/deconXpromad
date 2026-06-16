@@ -78,9 +78,14 @@ h1 em { font-style: italic; font-weight: 400; color: var(--cobalt); }
 .concept-count { color: var(--subtle); margin-top: 14px; }
 .concept-empty { margin-top: 16px; max-width: 680px; color: var(--muted); font-size: 14.5px; line-height: 1.7; padding: 18px 20px; background: var(--frost); border: 1px solid var(--border-soft); border-radius: 6px; }
 
-/* ---------- asset group (one kind inside a concept) ---------- */
-.asset-group { margin-top: 32px; }
-.asset-group-head { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border-soft); }
+/* ---------- usage group (one homepage section inside an option) ---------- */
+.usage-group { margin-top: 48px; }
+.usage-group:first-of-type { margin-top: 8px; }
+.usage-head { display: flex; align-items: baseline; gap: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.usage-code { font-size: 11px; letter-spacing: 0.12em; color: var(--cobalt); }
+.usage-head h4 { font-family: var(--display); font-weight: 400; font-size: 21px; line-height: 1.2; }
+.usage-count { margin-left: auto; font-size: 10px; color: var(--subtle); white-space: nowrap; }
+.usage-summary { color: var(--muted); font-size: 13.5px; line-height: 1.65; max-width: 720px; margin: 14px 0 20px; }
 
 /* ---------- assets: shared card ---------- */
 .asset-card { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: #fff; display: flex; flex-direction: column; }

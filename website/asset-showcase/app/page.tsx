@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { assetsForOption, concepts, countForOption } from '@/lib/assets';
-import type { ShowcaseConcept, SvgAsset } from '@/lib/assets';
+import { concepts, countForOption, usageForOption } from '@/lib/assets';
+import type { ShowcaseConcept, SvgAsset, UsageBlock } from '@/lib/assets';
 
 /* ============ ASSET CARDS ============ */
 
@@ -32,12 +32,73 @@ function SvgCard({ asset, animated = false }: { asset: SvgAsset; animated?: bool
   );
 }
 
-/** A labelled block of one asset kind inside a concept section. */
-function AssetGroup({ label, children }: { label: string; children: React.ReactNode }) {
+/* ============ USAGE BLOCK — assets grouped by where they're used ============ */
+
+function UsageBlockView({ block }: { block: UsageBlock }) {
+  const { section, aura, images, svgs } = block;
+  const count = aura.length + images.length + svgs.length;
+
   return (
-    <div className="asset-group">
-      <h4 className="asset-group-head">{label}</h4>
-      {children}
+    <div className="usage-group">
+      <div className="usage-head">
+        <span className="usage-code mono">{section.id}</span>
+        <h4>{section.title}</h4>
+        <span className="usage-count mono">
+          {count} asset{count === 1 ? '' : 's'}
+        </span>
+      </div>
+      <p className="usage-summary">{section.summary}</p>
+
+      {aura.length > 0 && (
+        <div className="aura-grid">
+          {aura.map((e) => (
+            <figure className="aura-card" key={e.slug}>
+              <div className="aura-stage">
+                <iframe src={e.url} title={e.title} loading="lazy" aria-hidden="true" tabIndex={-1} />
+              </div>
+              <figcaption>
+                <div className="asset-cap-head">
+                  <b>{e.title}</b>
+                  <span className="asset-where">{e.usedIn}</span>
+                </div>
+                <p className="asset-url mono">/embed/{e.slug}</p>
+                <p>{e.note}</p>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      )}
+
+      {images.length > 0 && (
+        <div className="img-grid">
+          {images.map((img) => (
+            <figure className="asset-card" key={img.name}>
+              <div className={`asset-stage img-stage${img.dark ? ' is-dark' : ''}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={img.src} alt={img.name} loading="lazy" />
+              </div>
+              <figcaption>
+                <div className="asset-cap-head">
+                  <b className="mono">{img.name}</b>
+                  <span className="asset-tag">
+                    {img.kind} · {img.weight}
+                  </span>
+                </div>
+                <span className="asset-where">{img.usedIn}</span>
+                <p>{img.note}</p>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      )}
+
+      {svgs.length > 0 && (
+        <div className="inline-grid">
+          {svgs.map((a) => (
+            <SvgCard asset={a} animated={a.animated} key={a.name} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -70,7 +131,7 @@ function SectionHeader({
 /* ============ CONCEPT (OPTION) SECTION ============ */
 
 function ConceptSection({ concept, number }: { concept: ShowcaseConcept; number: string }) {
-  const { aura, images, icons, illustrations, inline } = assetsForOption(concept.option);
+  const blocks = usageForOption(concept.option);
   const count = countForOption(concept.option);
 
   return (
@@ -84,80 +145,9 @@ function ConceptSection({ concept, number }: { concept: ShowcaseConcept; number:
         </p>
       )}
 
-      {aura.length > 0 && (
-        <AssetGroup label="Aura ambient embeds">
-          <div className="aura-grid">
-            {aura.map((e) => (
-              <figure className="aura-card" key={e.slug}>
-                <div className="aura-stage">
-                  <iframe src={e.url} title={e.title} loading="lazy" aria-hidden="true" tabIndex={-1} />
-                </div>
-                <figcaption>
-                  <div className="asset-cap-head">
-                    <b>{e.title}</b>
-                    <span className="asset-where">{e.usedIn}</span>
-                  </div>
-                  <p className="asset-url mono">/embed/{e.slug}</p>
-                  <p>{e.note}</p>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        </AssetGroup>
-      )}
-
-      {images.length > 0 && (
-        <AssetGroup label="Image files">
-          <div className="img-grid">
-            {images.map((img) => (
-              <figure className="asset-card" key={img.name}>
-                <div className={`asset-stage img-stage${img.dark ? ' is-dark' : ''}`}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img.src} alt={img.name} loading="lazy" />
-                </div>
-                <figcaption>
-                  <div className="asset-cap-head">
-                    <b className="mono">{img.name}</b>
-                    <span className="asset-tag">
-                      {img.kind} · {img.weight}
-                    </span>
-                  </div>
-                  <span className="asset-where">{img.usedIn}</span>
-                  <p>{img.note}</p>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        </AssetGroup>
-      )}
-
-      {icons.length > 0 && (
-        <AssetGroup label="Capability icons — static SVG">
-          <div className="icon-grid">
-            {icons.map((a) => (
-              <SvgCard asset={a} key={a.name} />
-            ))}
-          </div>
-        </AssetGroup>
-      )}
-
-      {illustrations.length > 0 && (
-        <AssetGroup label="Living illustration — animated SVG">
-          {illustrations.map((a) => (
-            <SvgCard asset={a} animated key={a.name} />
-          ))}
-        </AssetGroup>
-      )}
-
-      {inline.length > 0 && (
-        <AssetGroup label={`In-prototype inline SVG — ${inline.length} extracted`}>
-          <div className="inline-grid">
-            {inline.map((a) => (
-              <SvgCard asset={a} key={a.name} />
-            ))}
-          </div>
-        </AssetGroup>
-      )}
+      {blocks.map((block) => (
+        <UsageBlockView block={block} key={block.section.id} />
+      ))}
     </section>
   );
 }
@@ -201,10 +191,10 @@ export default function Home() {
             Assets by <em>Option</em>
           </h1>
           <p className="tagline">
-            Every embed, image, and vector created for the Deconflict homepage exploration, sorted by
-            the design option that consumes it — Option A (The Dossier), Option B (Signal Path), and
-            Option C (Command). Brand marks are kept out: this is the supporting illustration, icon,
-            and image set.
+            Every embed, image, and vector created for the Deconflict homepage exploration. Pick an
+            option below — Option A (The Dossier), Option B (Signal Path), or Option C (Command) —
+            and its assets are laid out by where they appear on the page, banner through close. Brand
+            marks are kept out: this is the supporting illustration, icon, and image set.
           </p>
           <div className="hero-meta mono">
             <span>{concepts.length} options</span>
