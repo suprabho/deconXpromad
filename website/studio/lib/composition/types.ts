@@ -2,9 +2,11 @@
  * The composition schema — a "structured layers" data model (NOT a freeform
  * canvas). A composition is a fixed stack:
  *
- *   background  →  scrim  →  mid graphics  →  one foreground UI component  →  overlay text
+ *   background  →  scrim  →  mid graphics  →  foreground UI elements  →  overlay text
  *
- * Placement is preset-driven (position + size buckets), never freeform drag/resize.
+ * Background, mid graphics and overlay text are preset-placed (position + size
+ * buckets). The foreground holds 0..n UI elements, each freely placed, scaled
+ * and rotated in 3-D via an absolute Transform (% of canvas, resolution-free).
  *
  * This file is the single contract shared by three surfaces that MUST render
  * identically: the editor preview, the chrome-less /render route, and the
@@ -62,7 +64,7 @@ export const POSITION_PRESETS: PositionPreset[] = [
 export type SizeScale = 'S' | 'M' | 'L' | 'XL';
 export const SIZE_SCALES: SizeScale[] = ['S', 'M', 'L', 'XL'];
 
-/** A SizeScale as a fraction of the canvas width (used by mid + foreground). */
+/** A SizeScale as a fraction of the canvas width (used by mid graphics + overlay text). */
 export const SCALE_FRACTION: Record<SizeScale, number> = {
   S: 0.3,
   M: 0.5,
@@ -102,10 +104,38 @@ export function placementStyle(pos: PositionPreset, gap = 48): CSSProperties {
   }
 }
 
+/** Map a PositionPreset to a CSS `object-position` string (image focal point). */
+export function objectPositionFor(pos: PositionPreset): string {
+  switch (pos) {
+    case 'center':
+      return 'center';
+    case 'top':
+      return 'center top';
+    case 'bottom':
+      return 'center bottom';
+    case 'left':
+      return 'left center';
+    case 'right':
+      return 'right center';
+    case 'top-left':
+      return 'left top';
+    case 'top-right':
+      return 'right top';
+    case 'bottom-left':
+      return 'left bottom';
+    case 'bottom-right':
+      return 'right bottom';
+  }
+}
+
 /* -------------------------------------------------------------------------- *
  * Background layer
  * -------------------------------------------------------------------------- */
 export type BackgroundKind = 'aura' | 'image' | 'solid';
+
+/** How a raster background fills the frame — the CSS `object-fit` set. */
+export type ImageFit = 'cover' | 'contain' | 'fill' | 'none';
+export const IMAGE_FITS: ImageFit[] = ['cover', 'contain', 'fill', 'none'];
 
 export type BackgroundConfig = {
   kind: BackgroundKind;
@@ -113,7 +143,9 @@ export type BackgroundConfig = {
   auraSlug?: string;
   /** Catalogue src ("/images/…", resolve with assetUrl) or absolute/data URL. */
   imageSrc?: string;
-  imageFit?: 'cover' | 'contain';
+  imageFit?: ImageFit;
+  /** Focal point (object-position) for cover/contain/none fits; default centre. */
+  imageFocus?: PositionPreset;
   /** Solid fill, and the <body> fallback colour behind a loading aura. */
   color?: string;
 };
@@ -144,7 +176,7 @@ export type MidGraphic = {
 };
 
 /* -------------------------------------------------------------------------- *
- * Foreground — exactly ONE Deconflict UI component (or none).
+ * Foreground — 0..n Deconflict UI components, each freely transformed.
  * -------------------------------------------------------------------------- */
 export type Reveal = 'masked' | 'partial' | 'revealed';
 export type RiskTier = 'High' | 'Medium' | 'Low';
@@ -173,6 +205,141 @@ export type Tick = { date: string; label: string };
 export type TimelineData = { tracks: Track[]; overlaps: string[]; ticks: Tick[] };
 export type AlertData = { status: string; detail: string; timestamp: string };
 
+/**
+ * FeatureModal content. Icons are stored as string KEYS (not React nodes) so the
+ * whole composition stays JSON-serialisable for save/load and the screenshot
+ * route; ForegroundLayer maps each key to a Phosphor icon via FEATURE_ICONS.
+ */
+export type FeatureIconKey =
+  | 'shield-check'
+  | 'gear'
+  | 'handshake'
+  | 'currency-dollar'
+  | 'lock'
+  | 'fingerprint'
+  | 'link'
+  | 'pulse'
+  | 'eye'
+  | 'lightning'
+  | 'chart';
+
+export const FEATURE_ICON_KEYS: FeatureIconKey[] = [
+  'shield-check',
+  'gear',
+  'handshake',
+  'currency-dollar',
+  'lock',
+  'fingerprint',
+  'link',
+  'pulse',
+  'eye',
+  'lightning',
+  'chart',
+];
+
+export type FeatureTone = 'glass' | 'frost';
+
+export type FeatureItemData = { icon: FeatureIconKey; title: string; description: string };
+
+export type FeatureModalData = {
+  /** "glass" = light icons for a dark/colour bg; "frost" = ink on light. */
+  tone: FeatureTone;
+  /** Show the macOS-style three-dot title bar. */
+  chrome: boolean;
+  eyebrow: string;
+  heading: string;
+  description: string;
+  items: FeatureItemData[];
+};
+
+/* -------------------------------------------------------------------------- *
+ * App-screen foregrounds (from components/app). These plates carry icons and
+ * tone keys as STRINGS so the whole composition stays JSON-serialisable; the
+ * foreground adapters (components/app/foreground) map each key to a node and
+ * pass tones straight through — a drift from the component prop unions would
+ * surface as a type error there, not silently.
+ * -------------------------------------------------------------------------- */
+
+/** Serialisable icon keys shared by the app foreground plates. */
+export type AppIconKey =
+  | 'shield-check'
+  | 'bank'
+  | 'buildings'
+  | 'user'
+  | 'wallet'
+  | 'briefcase'
+  | 'flag'
+  | 'magnifying-glass'
+  | 'graph'
+  | 'chart'
+  | 'currency-dollar'
+  | 'scales'
+  | 'link'
+  | 'binoculars'
+  | 'share';
+
+export const APP_ICON_KEYS: AppIconKey[] = [
+  'shield-check',
+  'bank',
+  'buildings',
+  'user',
+  'wallet',
+  'briefcase',
+  'flag',
+  'magnifying-glass',
+  'graph',
+  'chart',
+  'currency-dollar',
+  'scales',
+  'link',
+  'binoculars',
+  'share',
+];
+
+/** Mirrors StatusDot's StatusTone. */
+export type AppStatusTone = 'ok' | 'info' | 'warn' | 'alert' | 'idle';
+/** Mirrors EntityGraph's GraphTone. */
+export type AppGraphTone = 'hub' | 'active' | 'match' | 'alert' | 'idle';
+
+/** CodeWindow plate — raw source is highlighted at render. */
+export type CodeWindowData = {
+  title: string;
+  language: string;
+  code: string;
+  /** 1-based line numbers to tint. */
+  highlightLines: number[];
+};
+
+export type GraphNodeData = { id: string; ring: 1 | 2; tone: AppGraphTone };
+export type EntityGraphData = { hubLabel: string; nodes: GraphNodeData[] };
+
+export type StatCardData = {
+  label: string;
+  value: string;
+  delta: number;
+  deltaInvert: boolean;
+  tone: 'light' | 'dark';
+  /** Icon key, or 'none' to omit the badge. */
+  icon: AppIconKey | 'none';
+  /** Sparkline series. */
+  spark: number[];
+};
+
+export type KanbanCardData = {
+  title: string;
+  subtitle: string;
+  status: string;
+  statusTone: AppStatusTone;
+  /** Left accent stripe tone, or 'none'. */
+  accent: AppStatusTone | 'none';
+  flagged: boolean;
+  /** Leading icon key, or 'none'. */
+  leading: AppIconKey | 'none';
+};
+
+export type CommandRowData = { icon: AppIconKey; title: string; subtitle: string; meta: string };
+export type CommandPaletteData = { query: string; groupLabel: string; rows: CommandRowData[] };
+
 export type ForegroundType =
   | 'none'
   | 'OverlapAlert'
@@ -180,7 +347,13 @@ export type ForegroundType =
   | 'CaseCard'
   | 'ConnectorNode'
   | 'ActivityTimeline'
-  | 'DeconflictBanner';
+  | 'DeconflictBanner'
+  | 'FeatureModal'
+  | 'CodeWindow'
+  | 'EntityGraph'
+  | 'StatCard'
+  | 'KanbanCard'
+  | 'CommandPalette';
 
 /** Discriminated union of per-component editable content. */
 export type ForegroundContent =
@@ -199,20 +372,74 @@ export type ForegroundContent =
       matches: number;
       alert: AlertData;
       timeline: TimelineData;
-    };
+    }
+  | ({ type: 'FeatureModal' } & FeatureModalData)
+  | ({ type: 'CodeWindow' } & CodeWindowData)
+  | ({ type: 'EntityGraph' } & EntityGraphData)
+  | ({ type: 'StatCard' } & StatCardData)
+  | ({ type: 'KanbanCard' } & KanbanCardData)
+  | ({ type: 'CommandPalette' } & CommandPaletteData);
 
-export type ForegroundConfig = {
+/* -------------------------------------------------------------------------- *
+ * Freeform transform — absolute placement + 3-axis rotation for a foreground
+ * element. Resolution-independent: x/y are % of the canvas and scale is a
+ * fraction of canvas width, so a composition reads identically at any size.
+ * -------------------------------------------------------------------------- */
+export type Transform = {
+  /** Element CENTRE X, as a % of canvas width (0 = left edge, 50 = centre, 100 = right). */
+  x: number;
+  /** Element CENTRE Y, as a % of canvas height. */
+  y: number;
+  /** Element box width as a fraction of canvas width — the size / scale knob. */
+  scale: number;
+  /** Out-of-plane tilt in degrees (needs perspective to read as 3-D). */
+  rotateX: number;
+  rotateY: number;
+  /** In-plane spin in degrees. */
+  rotateZ: number;
+  /** Perspective distance in px for the 3-D tilts; smaller = stronger. */
+  perspective: number;
+};
+
+export const DEFAULT_TRANSFORM: Transform = {
+  x: 50,
+  y: 50,
+  scale: 0.5,
+  rotateX: 0,
+  rotateY: 0,
+  rotateZ: 0,
+  perspective: 1200,
+};
+
+/**
+ * Build the CSS `transform` for a foreground element. `translate(-50%, -50%)`
+ * centres the box on (x, y); `perspective()` precedes the rotates — emitted only
+ * when a 3-D tilt is set — so the tilt reads correctly.
+ */
+export function composeTransform(t: Transform): string {
+  const parts = ['translate(-50%, -50%)'];
+  if (t.perspective > 0 && (t.rotateX !== 0 || t.rotateY !== 0)) {
+    parts.push(`perspective(${t.perspective}px)`);
+  }
+  if (t.rotateX !== 0) parts.push(`rotateX(${t.rotateX}deg)`);
+  if (t.rotateY !== 0) parts.push(`rotateY(${t.rotateY}deg)`);
+  if (t.rotateZ !== 0) parts.push(`rotateZ(${t.rotateZ}deg)`);
+  return parts.join(' ');
+}
+
+/** One freely-placed foreground UI element. Array order is z-order (last = top). */
+export type ForegroundElement = {
+  id: string;
   content: ForegroundContent;
-  position: PositionPreset;
-  size: SizeScale;
-  /** Frosted panel behind the component for legibility over busy backgrounds. */
-  card?: boolean;
+  transform: Transform;
 };
 
 /* -------------------------------------------------------------------------- *
  * Overlay text + theme
  * -------------------------------------------------------------------------- */
 export type OverlayTextConfig = {
+  /** Hide the whole overlay text layer without clearing its content. */
+  hidden?: boolean;
   badge?: string;
   title?: string;
   subtitle?: string;
@@ -232,7 +459,7 @@ export type CompositionConfig = {
   background: BackgroundConfig;
   scrim: ScrimConfig;
   midGraphics: MidGraphic[];
-  foreground: ForegroundConfig;
+  foreground: ForegroundElement[];
   overlay: OverlayTextConfig;
 };
 

@@ -1,7 +1,59 @@
-import type { CompositionConfig } from './types';
+import type {
+  CompositionConfig,
+  ForegroundContent,
+  ForegroundElement,
+  PositionPreset,
+  SizeScale,
+  Transform,
+} from './types';
+import { DEFAULT_TRANSFORM, SCALE_FRACTION } from './types';
 import { DEFAULT_COMPOSITION } from './defaults';
 
 const KEY = 'deconflict-studio:v1';
+
+/** Centre (x%, y%) approximating a legacy PositionPreset, for one-time migration. */
+const PRESET_XY: Record<PositionPreset, { x: number; y: number }> = {
+  center: { x: 50, y: 50 },
+  top: { x: 50, y: 18 },
+  bottom: { x: 50, y: 82 },
+  left: { x: 28, y: 50 },
+  right: { x: 72, y: 50 },
+  'top-left': { x: 28, y: 18 },
+  'top-right': { x: 72, y: 18 },
+  'bottom-left': { x: 28, y: 82 },
+  'bottom-right': { x: 72, y: 82 },
+};
+
+/**
+ * Coerce any saved foreground into the current ForegroundElement[] shape:
+ *  - an array → backfill missing transform fields + ids;
+ *  - a legacy single { content, position, size } → wrap + map preset → transform;
+ *  - anything else → a fresh clone of the default.
+ */
+function migrateForeground(raw: unknown): ForegroundElement[] {
+  if (Array.isArray(raw)) {
+    return raw
+      .filter((el): el is Partial<ForegroundElement> => !!el && typeof el === 'object')
+      .map((el, i) => ({
+        id: typeof el.id === 'string' ? el.id : `fg-${i}`,
+        content: (el.content as ForegroundContent | undefined) ?? { type: 'none' },
+        transform: { ...DEFAULT_TRANSFORM, ...(el.transform as Partial<Transform> | undefined) },
+      }));
+  }
+  if (raw && typeof raw === 'object' && 'content' in raw) {
+    const legacy = raw as { content?: ForegroundContent; position?: PositionPreset; size?: SizeScale };
+    const xy = PRESET_XY[legacy.position ?? 'center'] ?? PRESET_XY.center;
+    const scale = SCALE_FRACTION[legacy.size ?? 'M'] ?? SCALE_FRACTION.M;
+    return [
+      {
+        id: 'fg-migrated',
+        content: legacy.content ?? { type: 'none' },
+        transform: { ...DEFAULT_TRANSFORM, x: xy.x, y: xy.y, scale },
+      },
+    ];
+  }
+  return DEFAULT_COMPOSITION.foreground.map((el) => ({ ...el, transform: { ...el.transform } }));
+}
 
 /** Merge a partial/loaded config over the defaults so new fields always backfill. */
 export function mergeComposition(saved: Partial<CompositionConfig> | null | undefined): CompositionConfig {
@@ -13,7 +65,7 @@ export function mergeComposition(saved: Partial<CompositionConfig> | null | unde
     background: { ...DEFAULT_COMPOSITION.background, ...saved.background },
     scrim: { ...DEFAULT_COMPOSITION.scrim, ...saved.scrim },
     midGraphics: saved.midGraphics ?? DEFAULT_COMPOSITION.midGraphics,
-    foreground: { ...DEFAULT_COMPOSITION.foreground, ...saved.foreground },
+    foreground: migrateForeground(saved.foreground),
     overlay: { ...DEFAULT_COMPOSITION.overlay, ...saved.overlay },
   };
 }

@@ -11,7 +11,7 @@ import { OverlayTextLayer } from './OverlayTextLayer';
  * the editor preview (scaled via CSS transform), the chrome-less /render route,
  * and the Playwright screenshot — are pixel-identical.
  *
- * Layer order (z): background → scrim → mid graphics → foreground → overlay text.
+ * Layer order (z): background → scrim → mid graphics → foreground elements → overlay text.
  */
 export function CompositionStage({ config }: { config: CompositionConfig }) {
   const size = sizeFor(config.sizeId);
@@ -29,7 +29,7 @@ export function CompositionStage({ config }: { config: CompositionConfig }) {
       <BackgroundLayer background={config.background} />
       <ScrimLayer scrim={config.scrim} />
       <MidGraphicsLayer items={config.midGraphics} width={size.width} />
-      <ForegroundLayer foreground={config.foreground} width={size.width} />
+      <ForegroundLayer elements={config.foreground} width={size.width} />
       <OverlayTextLayer overlay={config.overlay} width={size.width} />
     </div>
   );

@@ -2,6 +2,7 @@ import { placementStyle, SCALE_FRACTION, type OverlayTextConfig } from '@/lib/co
 
 /** z-4 — badge / title / subtitle, preset-placed, sized relative to the canvas. */
 export function OverlayTextLayer({ overlay, width }: { overlay: OverlayTextConfig; width: number }) {
+  if (overlay.hidden) return null;
   if (!overlay.badge && !overlay.title && !overlay.subtitle) return null;
 
   const gap = Math.round(width * 0.05);

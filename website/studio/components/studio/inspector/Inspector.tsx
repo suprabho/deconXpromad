@@ -3,14 +3,16 @@
 import type {
   BackgroundKind,
   CompositionConfig,
+  ForegroundElement,
   ForegroundType,
   MidGraphic,
   PositionPreset,
   ScrimDirection,
   SizeScale,
+  Transform,
 } from '@/lib/composition/types';
 import { POSITION_PRESETS, SIZE_PRESETS, SIZE_SCALES } from '@/lib/composition/types';
-import { defaultForegroundContent } from '@/lib/composition/defaults';
+import { defaultForegroundContent, defaultForegroundElement } from '@/lib/composition/defaults';
 import {
   AURA_OPTIONS,
   BACKGROUND_IMAGE_OPTIONS,
@@ -21,6 +23,7 @@ import {
 import {
   ColorField,
   GroupedSelect,
+  ImageUpload,
   Section,
   Segmented,
   SelectField,
@@ -50,6 +53,34 @@ const SCRIM_DIR_OPTS: { value: ScrimDirection; label: string }[] = [
   { value: 'full', label: 'Full' },
 ];
 
+/** Position / scale / 3-D rotation controls for one foreground element. */
+function ElementTransformFields({
+  transform: t,
+  onChange,
+}: {
+  transform: Transform;
+  onChange: (p: Partial<Transform>) => void;
+}) {
+  const has3D = t.rotateX !== 0 || t.rotateY !== 0;
+  return (
+    <div className="space-y-2 rounded-md bg-frost p-2">
+      <div className="grid grid-cols-2 gap-x-3">
+        <Slider label="Pos X" value={t.x} min={-25} max={125} step={0.5} format={(v) => `${Math.round(v)}%`} onChange={(x) => onChange({ x })} />
+        <Slider label="Pos Y" value={t.y} min={-25} max={125} step={0.5} format={(v) => `${Math.round(v)}%`} onChange={(y) => onChange({ y })} />
+      </div>
+      <Slider label="Scale" value={t.scale} min={0.1} max={1.4} step={0.01} format={(v) => `${Math.round(v * 100)}%`} onChange={(scale) => onChange({ scale })} />
+      <div className="grid grid-cols-3 gap-x-3">
+        <Slider label="Rot X" value={t.rotateX} min={-180} max={180} step={1} format={(v) => `${Math.round(v)}°`} onChange={(rotateX) => onChange({ rotateX })} />
+        <Slider label="Rot Y" value={t.rotateY} min={-180} max={180} step={1} format={(v) => `${Math.round(v)}°`} onChange={(rotateY) => onChange({ rotateY })} />
+        <Slider label="Rot Z" value={t.rotateZ} min={-180} max={180} step={1} format={(v) => `${Math.round(v)}°`} onChange={(rotateZ) => onChange({ rotateZ })} />
+      </div>
+      {has3D && (
+        <Slider label="Perspective" value={t.perspective} min={200} max={3000} step={50} format={(v) => `${Math.round(v)}px`} onChange={(perspective) => onChange({ perspective })} />
+      )}
+    </div>
+  );
+}
+
 export function Inspector({
   config,
   onChange,
@@ -61,8 +92,6 @@ export function Inspector({
   const setBackground = (p: Partial<CompositionConfig['background']>) =>
     patch({ background: { ...config.background, ...p } });
   const setScrim = (p: Partial<CompositionConfig['scrim']>) => patch({ scrim: { ...config.scrim, ...p } });
-  const setForeground = (p: Partial<CompositionConfig['foreground']>) =>
-    patch({ foreground: { ...config.foreground, ...p } });
   const setOverlay = (p: Partial<CompositionConfig['overlay']>) =>
     patch({ overlay: { ...config.overlay, ...p } });
 
@@ -89,6 +118,24 @@ export function Inspector({
       ],
     });
   const removeMid = (i: number) => patch({ midGraphics: config.midGraphics.filter((_, j) => j !== i) });
+
+  /* ------------------------ foreground elements ------------------------ */
+  const setElement = (i: number, p: Partial<ForegroundElement>) => {
+    const foreground = config.foreground.slice();
+    foreground[i] = { ...foreground[i], ...p };
+    patch({ foreground });
+  };
+  const setElementTransform = (i: number, p: Partial<Transform>) =>
+    setElement(i, { transform: { ...config.foreground[i].transform, ...p } });
+  const addElement = () => patch({ foreground: [...config.foreground, defaultForegroundElement('CaseCard')] });
+  const removeElement = (i: number) => patch({ foreground: config.foreground.filter((_, j) => j !== i) });
+  const moveElement = (i: number, dir: -1 | 1) => {
+    const j = i + dir;
+    if (j < 0 || j >= config.foreground.length) return;
+    const foreground = config.foreground.slice();
+    [foreground[i], foreground[j]] = [foreground[j], foreground[i]];
+    patch({ foreground });
+  };
 
   return (
     <div className="space-y-4">
@@ -134,6 +181,12 @@ export function Inspector({
               placeholder="— select an image —"
               groups={groupOptions(BACKGROUND_IMAGE_OPTIONS)}
             />
+            <ImageUpload
+              label="Or upload your own"
+              value={bg.imageSrc ?? ''}
+              onChange={(imageSrc) => setBackground({ imageSrc })}
+              hint="PNG, JPG, WebP or SVG. Stored in the composition; large images are downscaled."
+            />
             <Segmented
               label="Fit"
               value={bg.imageFit ?? 'cover'}
@@ -141,8 +194,18 @@ export function Inspector({
               options={[
                 { value: 'cover', label: 'Cover' },
                 { value: 'contain', label: 'Contain' },
+                { value: 'fill', label: 'Fill' },
+                { value: 'none', label: 'None' },
               ]}
             />
+            {(bg.imageFit ?? 'cover') !== 'fill' && (
+              <SelectField
+                label="Focal point"
+                value={bg.imageFocus ?? 'center'}
+                onChange={(imageFocus: PositionPreset) => setBackground({ imageFocus })}
+                options={POSITION_OPTS}
+              />
+            )}
           </>
         )}
 
@@ -184,6 +247,7 @@ export function Inspector({
               </button>
             </div>
             <GroupedSelect label="Asset" value={g.src} onChange={(src) => setMid(i, { src })} groups={groupOptions(MID_GRAPHIC_OPTIONS)} />
+            <ImageUpload label="Or upload your own" value={g.src} onChange={(src) => setMid(i, { src })} hint="SVG keeps its vector crispness; rasters are downscaled." />
             <SelectField label="Position" value={g.position} onChange={(position) => setMid(i, { position })} options={POSITION_OPTS} />
             <Segmented label="Size" value={g.size} onChange={(size) => setMid(i, { size })} options={SCALE_OPTS} />
             <Slider label="Opacity" value={g.opacity} format={(v) => `${Math.round(v * 100)}%`} onChange={(opacity) => setMid(i, { opacity })} />
@@ -194,28 +258,72 @@ export function Inspector({
         </button>
       </Section>
 
-      {/* 4 · Foreground */}
-      <Section title="Foreground component" subtitle="One Deconflict UI component, with editable content.">
-        <SelectField
-          label="Component"
-          value={config.foreground.content.type}
-          onChange={(type: ForegroundType) => setForeground({ content: defaultForegroundContent(type) })}
-          options={FOREGROUND_OPTIONS.map((o) => ({ value: o.type, label: o.label }))}
-        />
-        {config.foreground.content.type !== 'none' && (
-          <>
-            <SelectField label="Position" value={config.foreground.position} onChange={(position: PositionPreset) => setForeground({ position })} options={POSITION_OPTS} />
-            <Segmented label="Size" value={config.foreground.size} onChange={(size: SizeScale) => setForeground({ size })} options={SCALE_OPTS} />
-            <Toggle label="Frosted card behind" checked={!!config.foreground.card} onChange={(card) => setForeground({ card })} />
-            <div className="border-t border-hair pt-3">
-              <ForegroundContentEditor content={config.foreground.content} onChange={(content) => setForeground({ content })} />
+      {/* 4 · Foreground elements */}
+      <Section
+        title="Foreground elements"
+        subtitle="Stack one or more UI components — each freely placed, scaled and rotated in 3-D. Later elements sit on top."
+      >
+        {config.foreground.length === 0 && <p className="text-xs text-muted">No elements yet.</p>}
+        {config.foreground.map((el, i) => (
+          <div key={el.id} className="space-y-3 rounded-md border border-hair p-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-semibold text-ink">Element {i + 1}</span>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => moveElement(i, -1)}
+                  disabled={i === 0}
+                  aria-label="Move up (behind)"
+                  className="rounded border border-hair px-1.5 text-xs text-muted hover:text-ink disabled:opacity-30"
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  onClick={() => moveElement(i, 1)}
+                  disabled={i === config.foreground.length - 1}
+                  aria-label="Move down (in front)"
+                  className="rounded border border-hair px-1.5 text-xs text-muted hover:text-ink disabled:opacity-30"
+                >
+                  ↓
+                </button>
+                <button
+                  type="button"
+                  onClick={() => removeElement(i)}
+                  className="rounded border border-hair px-2 text-xs text-muted hover:text-risk-text"
+                >
+                  Remove
+                </button>
+              </div>
             </div>
-          </>
-        )}
+            <SelectField
+              label="Component"
+              value={el.content.type}
+              onChange={(type: ForegroundType) => setElement(i, { content: defaultForegroundContent(type) })}
+              options={FOREGROUND_OPTIONS.map((o) => ({ value: o.type, label: o.label }))}
+            />
+            {el.content.type !== 'none' && (
+              <>
+                <ElementTransformFields transform={el.transform} onChange={(p) => setElementTransform(i, p)} />
+                <div className="border-t border-hair pt-3">
+                  <ForegroundContentEditor content={el.content} onChange={(content) => setElement(i, { content })} />
+                </div>
+              </>
+            )}
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={addElement}
+          className="w-full rounded-md border border-dashed border-hair py-2 text-xs font-medium text-cobalt hover:bg-cobalt/5"
+        >
+          + Add element
+        </button>
       </Section>
 
       {/* 5 · Overlay text */}
       <Section title="Overlay text">
+        <Toggle label="Hide overlay text" checked={!!config.overlay.hidden} onChange={(hidden) => setOverlay({ hidden })} />
         <TextField label="Badge / eyebrow" value={config.overlay.badge ?? ''} onChange={(badge) => setOverlay({ badge })} />
         <TextArea label="Title" value={config.overlay.title ?? ''} onChange={(title) => setOverlay({ title })} />
         <TextArea label="Subtitle" value={config.overlay.subtitle ?? ''} onChange={(subtitle) => setOverlay({ subtitle })} />

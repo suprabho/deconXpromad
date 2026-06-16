@@ -1,4 +1,4 @@
-import { LinkSimple } from '@phosphor-icons/react/dist/ssr';
+import { LinkSimpleIcon } from '@phosphor-icons/react/dist/ssr';
 
 // yAnchors: fractions (0-1) of the SVG height where the matched rows sit.
 // Hardcoded for the fixed-layout banner (no measurement / refs).
@@ -27,9 +27,9 @@ export function ConnectorNode({ matches }: { matches: number }) {
       {/* the chip */}
       <div
         className="relative z-10 flex h-20 w-20 flex-col items-center justify-center
-                   rounded-full border border-hair bg-white shadow-md"
+                   rounded-full border border-white/60 bg-white/70 shadow-glass backdrop-blur-md"
       >
-        <LinkSimple weight="bold" className="h-5 w-5 text-match" />
+        <LinkSimpleIcon weight="bold" className="h-5 w-5 text-match" />
         <span className="mt-0.5 text-xs font-semibold text-ink">
           {matches} {matches === 1 ? 'Match' : 'Matches'}
         </span>

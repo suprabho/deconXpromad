@@ -1,4 +1,4 @@
-import { auraEmbedUrl, type BackgroundConfig } from '@/lib/composition/types';
+import { auraEmbedUrl, objectPositionFor, type BackgroundConfig } from '@/lib/composition/types';
 import { assetUrl } from '@/lib/assets/catalog';
 
 /**
@@ -27,7 +27,10 @@ export function BackgroundLayer({ background }: { background: BackgroundConfig }
         alt=""
         aria-hidden
         className="absolute inset-0 z-0 h-full w-full"
-        style={{ objectFit: background.imageFit ?? 'cover' }}
+        style={{
+          objectFit: background.imageFit ?? 'cover',
+          objectPosition: objectPositionFor(background.imageFocus ?? 'center'),
+        }}
       />
     );
   }

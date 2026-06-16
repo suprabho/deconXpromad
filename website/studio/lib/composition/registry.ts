@@ -21,6 +21,12 @@ export const FOREGROUND_OPTIONS: { type: ForegroundType; label: string }[] = [
   { type: 'ConnectorNode', label: 'Connector Node' },
   { type: 'ActivityTimeline', label: 'Activity Timeline' },
   { type: 'DeconflictBanner', label: 'Deconflict Banner (full)' },
+  { type: 'FeatureModal', label: 'Feature Modal' },
+  { type: 'CommandPalette', label: 'Command Palette' },
+  { type: 'EntityGraph', label: 'Entity Graph' },
+  { type: 'StatCard', label: 'Stat Card' },
+  { type: 'KanbanCard', label: 'Kanban Card' },
+  { type: 'CodeWindow', label: 'Code Window' },
 ];
 
 export type AssetOption = { src: string; label: string; group: string };

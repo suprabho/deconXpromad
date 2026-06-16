@@ -8,12 +8,16 @@ import type {
   AlertData,
   CaseData,
   CaseReveal,
+  CommandRowData,
   CompositionConfig,
+  FeatureItemData,
   ForegroundContent,
+  ForegroundElement,
   ForegroundType,
+  GraphNodeData,
   TimelineData,
 } from './types';
-import { DEFAULT_SIZE_ID } from './types';
+import { DEFAULT_SIZE_ID, DEFAULT_TRANSFORM } from './types';
 
 export const SAMPLE_LEFT_CASE: CaseData = {
   title: 'LAW ENFORCEMENT CASE',
@@ -79,6 +83,80 @@ export const SAMPLE_TIMELINE: TimelineData = {
   ],
 };
 
+/** The four reference capabilities, as serialisable feature items. */
+export const SAMPLE_FEATURES: FeatureItemData[] = [
+  {
+    icon: 'shield-check',
+    title: 'Verified',
+    description: 'Every match is cryptographically confirmed before it surfaces.',
+  },
+  {
+    icon: 'gear',
+    title: 'Automated',
+    description: 'Overlap detection runs continuously — no manual cross-checks.',
+  },
+  {
+    icon: 'handshake',
+    title: 'Trusted',
+    description: 'Agencies stay in control of what each side can reveal.',
+  },
+  {
+    icon: 'currency-dollar',
+    title: 'Settled',
+    description: 'Financial trails reconcile the moment both records align.',
+  },
+];
+
+/* ---------------------- app-screen foreground samples --------------------- */
+
+export const SAMPLE_CODE = `// api/deconflict.ts — overlap detection endpoint
+import { matchEntities } from "@/lib/match";
+
+export async function POST(req: Request) {
+  const { caseId, entities } = await req.json();
+  const overlaps = await matchEntities(entities, {
+    threshold: 0.82,
+    redact: true,
+  });
+
+  if (overlaps.length === 0) {
+    return Response.json({ status: "clear" });
+  }
+
+  return Response.json({
+    status: "overlap",
+    matches: overlaps.length,
+    confidence: overlaps[0].score,
+  });
+}`;
+
+/** A radial graph: one inner ring (a couple flagged) + a sparse outer ring. */
+export const SAMPLE_GRAPH_NODES: GraphNodeData[] = [
+  { id: 'a', ring: 1, tone: 'match' },
+  { id: 'b', ring: 1, tone: 'idle' },
+  { id: 'c', ring: 1, tone: 'idle' },
+  { id: 'd', ring: 1, tone: 'alert' },
+  { id: 'e', ring: 1, tone: 'idle' },
+  { id: 'f', ring: 1, tone: 'active' },
+  { id: 'g', ring: 1, tone: 'idle' },
+  { id: 'h', ring: 1, tone: 'idle' },
+  { id: 'i', ring: 1, tone: 'match' },
+  { id: 'j', ring: 1, tone: 'idle' },
+  { id: 'r1', ring: 2, tone: 'idle' },
+  { id: 'r2', ring: 2, tone: 'idle' },
+  { id: 'r3', ring: 2, tone: 'idle' },
+  { id: 'r4', ring: 2, tone: 'idle' },
+  { id: 'r5', ring: 2, tone: 'idle' },
+  { id: 'r6', ring: 2, tone: 'idle' },
+];
+
+export const SAMPLE_COMMAND_ROWS: CommandRowData[] = [
+  { icon: 'shield-check', title: 'John Doe — wire fraud', subtitle: 'Subject in active investigation', meta: '15 entries' },
+  { icon: 'buildings', title: 'FBI · Field Office 14', subtitle: 'Originating agency · #LE-2024-08821', meta: '18 entries' },
+  { icon: 'user', title: 'John Doe', subtitle: 'wallet 0x7a3f…c10b · 3 linked accounts', meta: '23 entries' },
+  { icon: 'bank', title: 'Meridian Bank', subtitle: 'Financial institution · AML alert linked', meta: '15 entries' },
+];
+
 /** Default editable content for each foreground component type. */
 export function defaultForegroundContent(type: ForegroundType): ForegroundContent {
   switch (type) {
@@ -105,7 +183,66 @@ export function defaultForegroundContent(type: ForegroundType): ForegroundConten
         alert: { ...SAMPLE_ALERT },
         timeline: structuredClone(SAMPLE_TIMELINE),
       };
+    case 'FeatureModal':
+      return {
+        type: 'FeatureModal',
+        tone: 'glass',
+        chrome: true,
+        eyebrow: 'Why Deconflict',
+        heading: 'One signal, four guarantees',
+        description:
+          'Each case overlap is verified, automated, governed, and reconciled — end to end.',
+        items: structuredClone(SAMPLE_FEATURES),
+      };
+    case 'CodeWindow':
+      return {
+        type: 'CodeWindow',
+        title: 'api/deconflict.ts',
+        language: 'ts',
+        code: SAMPLE_CODE,
+        highlightLines: [11, 12, 13],
+      };
+    case 'EntityGraph':
+      return { type: 'EntityGraph', hubLabel: 'J. Doe', nodes: structuredClone(SAMPLE_GRAPH_NODES) };
+    case 'StatCard':
+      return {
+        type: 'StatCard',
+        label: 'Active matches',
+        value: '312',
+        delta: 8,
+        deltaInvert: false,
+        tone: 'dark',
+        icon: 'share',
+        spark: [4, 6, 5, 9, 7, 12, 14],
+      };
+    case 'KanbanCard':
+      return {
+        type: 'KanbanCard',
+        title: 'Apex Holdings',
+        subtitle: 'Verifying processing',
+        status: 'In review',
+        statusTone: 'warn',
+        accent: 'warn',
+        flagged: true,
+        leading: 'briefcase',
+      };
+    case 'CommandPalette':
+      return {
+        type: 'CommandPalette',
+        query: 'John Doe · wire fraud',
+        groupLabel: 'Cases',
+        rows: structuredClone(SAMPLE_COMMAND_ROWS),
+      };
   }
+}
+
+/** A fresh foreground element (new id, default transform) for the inspector's "add". */
+export function defaultForegroundElement(type: ForegroundType = 'CaseCard'): ForegroundElement {
+  return {
+    id: crypto.randomUUID(),
+    content: defaultForegroundContent(type),
+    transform: { ...DEFAULT_TRANSFORM },
+  };
 }
 
 export const DEFAULT_COMPOSITION: CompositionConfig = {
@@ -119,12 +256,13 @@ export const DEFAULT_COMPOSITION: CompositionConfig = {
   },
   scrim: { amount: 0.4, direction: 'left', color: '#0D1B3E' },
   midGraphics: [],
-  foreground: {
-    content: { type: 'CaseCard', data: { ...SAMPLE_LEFT_CASE }, reveal: { ...SAMPLE_REVEAL } },
-    position: 'right',
-    size: 'M',
-    card: false,
-  },
+  foreground: [
+    {
+      id: 'fg-default-case',
+      content: { type: 'CaseCard', data: { ...SAMPLE_LEFT_CASE }, reveal: { ...SAMPLE_REVEAL } },
+      transform: { ...DEFAULT_TRANSFORM, x: 72, y: 50, scale: 0.5 },
+    },
+  ],
   overlay: {
     badge: 'DECONFLICT',
     title: 'Two cases, one wallet.',

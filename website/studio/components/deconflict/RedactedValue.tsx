@@ -1,3 +1,4 @@
+import { LockSimpleIcon, LockSimpleOpenIcon } from '@phosphor-icons/react/dist/ssr';
 import type { Reveal } from '@/lib/composition/types';
 
 function Dots({ count = 7 }: { count?: number }) {
@@ -34,7 +35,11 @@ export function RedactedValue({
   if (reveal === 'partial') {
     const shown = prefix ?? derivePrefix(value);
     return (
-      <span className="font-mono text-ink" aria-label="partially redacted value">
+      <span
+        className="flex items-center gap-1.5 font-mono text-ink"
+        aria-label="partially redacted value"
+      >
+        <LockSimpleOpenIcon weight="fill" className="h-3.5 w-3.5 text-muted" aria-hidden />
         {shown}
         <Dots count={8} />
       </span>
@@ -44,6 +49,7 @@ export function RedactedValue({
   // masked
   return (
     <span className="flex items-center gap-2" aria-label="redacted value">
+      <LockSimpleIcon weight="fill" className="h-3.5 w-3.5 text-muted" aria-hidden />
       {groups.map((g, i) => (
         <Dots key={i} count={g} />
       ))}

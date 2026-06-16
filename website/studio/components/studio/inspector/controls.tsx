@@ -1,6 +1,8 @@
 'use client';
 
+import { useRef, useState } from 'react';
 import clsx from 'clsx';
+import { fileToImageSrc } from '@/lib/composition/upload';
 
 export const inputCls =
   'w-full rounded-md border border-hair bg-white px-2.5 py-1.5 text-sm text-ink outline-none ' +
@@ -258,6 +260,83 @@ export function ColorField({
         />
       </div>
     </Field>
+  );
+}
+
+/**
+ * Upload your own image. Reads the file to a (downscaled) data URL and hands it
+ * back via `onChange` — a data URL is a drop-in for any catalogue `src`, so it
+ * renders in the preview, survives into the screenshot export, and is saved in
+ * the composition JSON. Not built on `Field`: a hidden file <input> inside a
+ * <label> would be re-triggered by the visible buttons.
+ */
+export function ImageUpload({
+  label,
+  value,
+  onChange,
+  hint,
+}: {
+  label: string;
+  value: string;
+  onChange: (src: string) => void;
+  hint?: string;
+}) {
+  const ref = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const uploaded = value.startsWith('data:');
+
+  const pick = async (file: File | undefined) => {
+    if (!file) return;
+    setBusy(true);
+    setErr(null);
+    try {
+      onChange(await fileToImageSrc(file));
+    } catch {
+      setErr('Could not read that image.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="block">
+      <span className="mb-1 block text-xs font-medium text-muted">{label}</span>
+      <div className="flex items-center gap-2">
+        {uploaded && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={value}
+            alt=""
+            aria-hidden
+            className="h-9 w-9 shrink-0 rounded border border-hair bg-frost object-cover"
+          />
+        )}
+        <button
+          type="button"
+          onClick={() => ref.current?.click()}
+          disabled={busy}
+          className="flex-1 rounded-md border border-dashed border-hair px-2.5 py-1.5 text-xs font-medium text-cobalt transition hover:bg-cobalt/5 disabled:opacity-60"
+        >
+          {busy ? 'Reading…' : uploaded ? 'Replace upload' : 'Upload image…'}
+        </button>
+      </div>
+      {err ? (
+        <span className="mt-1 block text-[11px] text-risk-text">{err}</span>
+      ) : (
+        hint && <span className="mt-1 block text-[11px] text-muted/80">{hint}</span>
+      )}
+      <input
+        ref={ref}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          void pick(e.target.files?.[0]);
+          e.target.value = '';
+        }}
+      />
+    </div>
   );
 }
 

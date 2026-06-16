@@ -1,3 +1,4 @@
+import { ChartLineUpIcon } from '@phosphor-icons/react/dist/ssr';
 import type { TimelineData } from '@/lib/composition/types';
 
 const FALLBACK_START = new Date('2024-04-01').getTime();
@@ -55,8 +56,9 @@ export function ActivityTimeline({ tracks, overlaps, ticks }: TimelineData) {
   const rowY = (i: number) => 30 + i * 34;
 
   return (
-    <div className="rounded-xl border border-hair bg-white p-5">
-      <h4 className="mb-4 text-sm font-bold tracking-wide text-ink">
+    <div className="rounded-xl border border-white/60 bg-white/70 p-5 shadow-glass backdrop-blur-xl">
+      <h4 className="mb-4 flex items-center gap-2 text-sm font-bold tracking-wide text-ink">
+        <ChartLineUpIcon weight="bold" className="h-4 w-4 text-match" />
         CASE ACTIVITY TIMELINE
       </h4>
       <div className="flex gap-6">
@@ -74,10 +76,11 @@ export function ActivityTimeline({ tracks, overlaps, ticks }: TimelineData) {
         </ul>
 
         {/* chart */}
+        <div className="relative flex-1">
         <svg
           viewBox={`0 0 100 ${H}`}
           preserveAspectRatio="none"
-          className="h-32 flex-1"
+          className="h-32 w-full"
           aria-label="case activity timeline"
         >
           {/* overlap markers */}
@@ -119,20 +122,23 @@ export function ActivityTimeline({ tracks, overlaps, ticks }: TimelineData) {
               fill="#E8941F"
             />
           ))}
-          {/* axis ticks */}
+        </svg>
+        {/* axis labels — rendered as HTML, not SVG <text>, so they keep their
+            real font size. The SVG above uses preserveAspectRatio="none", which
+            stretches its coordinate space horizontally to fill the chart; any
+            text drawn inside it gets smeared wide and collides at larger sizes. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-4">
           {ticks.map((tk) => (
-            <text
+            <span
               key={tk.date}
-              x={frac(tk.date) * 100}
-              y={H - 8}
-              fontSize="4"
-              fill="#6B7280"
-              textAnchor="middle"
+              className="absolute -translate-x-1/2 whitespace-nowrap text-[11px] leading-none text-muted"
+              style={{ left: `${frac(tk.date) * 100}%` }}
             >
               {tk.label}
-            </text>
+            </span>
           ))}
-        </svg>
+        </div>
+        </div>
       </div>
     </div>
   );
