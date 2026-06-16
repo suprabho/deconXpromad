@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { assetsForOption, concepts, countForOption } from '@/lib/assets';
 import type { ShowcaseConcept, SvgAsset } from '@/lib/assets';
 
@@ -168,27 +168,28 @@ const pad = (i: number) => String(i + 1).padStart(2, '0');
 
 export default function Home() {
   const [activeSlug, setActiveSlug] = useState(concepts[0]?.slug ?? '');
-  const observerRef = useRef<IntersectionObserver | null>(null);
 
+  // Sync the active tab with the URL hash so the top-bar Option links work and
+  // each tab is deep-linkable / shareable.
   useEffect(() => {
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) setActiveSlug(entry.target.id);
-        }
-      },
-      { rootMargin: '-40% 0px -55% 0px' }
-    );
-    concepts.forEach((c) => {
-      const el = document.getElementById(c.slug);
-      if (el) observerRef.current?.observe(el);
-    });
-    return () => observerRef.current?.disconnect();
+    const apply = () => {
+      const slug = window.location.hash.replace('#', '');
+      if (concepts.some((c) => c.slug === slug)) setActiveSlug(slug);
+    };
+    apply();
+    window.addEventListener('hashchange', apply);
+    return () => window.removeEventListener('hashchange', apply);
   }, []);
 
-  const scrollTo = (slug: string) => {
-    document.getElementById(slug)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const selectTab = (slug: string) => {
+    setActiveSlug(slug);
+    if (window.location.hash !== `#${slug}`) {
+      window.history.replaceState(null, '', `#${slug}`);
+    }
   };
+
+  const activeIndex = Math.max(0, concepts.findIndex((c) => c.slug === activeSlug));
+  const active = concepts[activeIndex];
 
   return (
     <>
@@ -200,10 +201,10 @@ export default function Home() {
             Assets by <em>Option</em>
           </h1>
           <p className="tagline">
-            Every embed, image, and vector created for the Deconflict homepage exploration, gathered
-            on one page and sorted by the design option that consumes it — Option A (The Dossier),
-            Option B (Signal Path), and Option C (Command). Brand marks are kept out: this is the
-            supporting illustration, icon, and image set.
+            Every embed, image, and vector created for the Deconflict homepage exploration, sorted by
+            the design option that consumes it — Option A (The Dossier), Option B (Signal Path), and
+            Option C (Command). Brand marks are kept out: this is the supporting illustration, icon,
+            and image set.
           </p>
           <div className="hero-meta mono">
             <span>{concepts.length} options</span>
@@ -215,39 +216,38 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Two-column editorial body */}
-      <div className="container show-body">
-        {/* Numbered sidebar TOC */}
-        <aside className="show-toc">
-          <nav>
-            {concepts.map((c, i) => {
-              const isActive = activeSlug === c.slug;
-              const count = countForOption(c.option);
-              return (
-                <button
-                  key={c.slug}
-                  onClick={() => scrollTo(c.slug)}
-                  className={`toc-item${isActive ? ' is-active' : ''}`}
-                >
-                  <span className="toc-num">{pad(i)}</span>
-                  <span className="toc-name">
+      {/* Tab bar — one tab per option */}
+      <div className="show-tabs">
+        <div className="container show-tabs-inner" role="tablist" aria-label="Design options">
+          {concepts.map((c, i) => {
+            const isActive = activeSlug === c.slug;
+            const count = countForOption(c.option);
+            return (
+              <button
+                key={c.slug}
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => selectTab(c.slug)}
+                className={`tab${isActive ? ' is-active' : ''}`}
+              >
+                <span className="tab-num mono">{pad(i)}</span>
+                <span className="tab-body">
+                  <span className="tab-name">
                     Option {c.option} · {c.name}
                   </span>
-                  <span className="toc-count mono">
+                  <span className="tab-count mono">
                     {count === 0 ? 'Runtime-generated' : `${count} asset${count === 1 ? '' : 's'}`}
                   </span>
-                </button>
-              );
-            })}
-          </nav>
-        </aside>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
-        {/* Sections */}
-        <main className="show-main">
-          {concepts.map((c, i) => (
-            <ConceptSection concept={c} number={pad(i)} key={c.option} />
-          ))}
-        </main>
+      {/* Active option panel */}
+      <div className="container show-panel" role="tabpanel">
+        {active && <ConceptSection concept={active} number={pad(activeIndex)} key={active.option} />}
       </div>
     </>
   );
