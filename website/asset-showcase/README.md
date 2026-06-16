@@ -46,7 +46,11 @@ asset-showcase/
     ├── logos/          # Brand marks (static SVG)
     ├── icons/          # Capability icons (static SVG)
     ├── illustrations/  # Living illustration (animated-in-context SVG)
-    └── images/         # Raster background plates (PNG / JPG)
+    ├── images/         # Raster background plates (PNG / JPG)
+    └── inline/         # SVGs lifted out of the prototype HTML, per concept
+        ├── concept-a/  #   product glyphs, guilloché rosette, trust & pillar marks…
+        ├── concept-b/  #   feature / workflow / capability icons, signal diagrams…
+        └── concept-c/  #   nav lockup
 ```
 
 The Aura backdrops load live from `aura.promad.design` at runtime (no build-time

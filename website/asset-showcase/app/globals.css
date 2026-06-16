@@ -109,6 +109,11 @@ h1 em { font-style: italic; font-weight: 400; color: var(--cobalt); }
 .icon-grid .asset-stage { padding: 20px; }
 .icon-grid .asset-card figcaption { padding: 12px 14px 14px; }
 .icon-grid .asset-cap-head b.mono { font-size: 11.5px; }
+.inline-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.inline-grid .asset-stage { padding: 20px; aspect-ratio: 1 / 1; }
+.inline-grid .asset-stage.is-wide { aspect-ratio: 16 / 9; padding: 14px; }
+.inline-grid .asset-card figcaption { padding: 12px 14px 14px; }
+.inline-grid .asset-cap-head b.mono { font-size: 11px; }
 
 /* ---------- assets: animated illustration drift ---------- */
 .asset-stage.is-animated { overflow: hidden; }
@@ -132,5 +137,5 @@ h1 em { font-style: italic; font-weight: 400; color: var(--cobalt); }
   .facts { grid-template-columns: 1fr; }
   .fact + .fact { border-left: none; border-top: 1px solid var(--border-soft); }
   .aura-grid, .img-grid, .logo-grid { grid-template-columns: 1fr; }
-  .icon-grid { grid-template-columns: repeat(2, 1fr); }
+  .icon-grid, .inline-grid { grid-template-columns: repeat(2, 1fr); }
 }

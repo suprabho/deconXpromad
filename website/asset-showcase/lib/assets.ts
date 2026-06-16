@@ -190,6 +190,61 @@ export const illustrationAssets: SvgAsset[] = [
   },
 ];
 
+/**
+ * SVGs that were authored inline inside the prototype HTML (not as separate
+ * files) — product glyphs, the guilloché rosette, trust marks, the feature /
+ * workflow / capability icon sets, signal-card diagrams, resource covers, and
+ * the nav lockups. Each was lifted out verbatim into /public/inline/<concept>/.
+ */
+export const inlineSvgAssets: SvgAsset[] = [
+  { option: 'A', name: 'logo-lockup.svg', src: '/inline/concept-a/logo-lockup.svg', usedIn: 'Nav logo lockup', note: 'Extracted from the Concept A prototype HTML.' },
+  { option: 'A', name: 'glyph-nexus-lines.svg', src: '/inline/concept-a/glyph-nexus-lines.svg', usedIn: 'Diptych glyph · NEXUS node network', note: 'Extracted from the Concept A prototype HTML.' },
+  { option: 'A', name: 'glyph-signal-rings.svg', src: '/inline/concept-a/glyph-signal-rings.svg', usedIn: 'Diptych glyph · SIGNAL pulse rings', note: 'Extracted from the Concept A prototype HTML.' },
+  { option: 'A', name: 'guilloche-rosette.svg', src: '/inline/concept-a/guilloche-rosette.svg', usedIn: 'S6 close · guilloché rosette', note: 'Extracted from the Concept A prototype HTML.', dark: true },
+  { option: 'A', name: 'trust-soc2.svg', src: '/inline/concept-a/trust-soc2.svg', usedIn: 'Trust marker · SOC 2 Type II', note: 'Extracted from the Concept A prototype HTML.' },
+  { option: 'A', name: 'trust-gdpr.svg', src: '/inline/concept-a/trust-gdpr.svg', usedIn: 'Trust marker · GDPR', note: 'Extracted from the Concept A prototype HTML.' },
+  { option: 'A', name: 'trust-hashed-exchange.svg', src: '/inline/concept-a/trust-hashed-exchange.svg', usedIn: 'Trust marker · Hashed exchange', note: 'Extracted from the Concept A prototype HTML.' },
+  { option: 'A', name: 'contrast-icon-1.svg', src: '/inline/concept-a/contrast-icon-1.svg', usedIn: 'Contrast table · row 1 legacy', note: 'Extracted from the Concept A prototype HTML.' },
+  { option: 'A', name: 'contrast-icon-2.svg', src: '/inline/concept-a/contrast-icon-2.svg', usedIn: 'Contrast table · row 1 Deconflict', note: 'Extracted from the Concept A prototype HTML.' },
+  { option: 'A', name: 'contrast-icon-3.svg', src: '/inline/concept-a/contrast-icon-3.svg', usedIn: 'Contrast table · row 2 legacy', note: 'Extracted from the Concept A prototype HTML.' },
+  { option: 'A', name: 'contrast-icon-4.svg', src: '/inline/concept-a/contrast-icon-4.svg', usedIn: 'Contrast table · row 2 Deconflict', note: 'Extracted from the Concept A prototype HTML.' },
+  { option: 'A', name: 'contrast-icon-5.svg', src: '/inline/concept-a/contrast-icon-5.svg', usedIn: 'Contrast table · row 3 legacy', note: 'Extracted from the Concept A prototype HTML.' },
+  { option: 'A', name: 'contrast-icon-6.svg', src: '/inline/concept-a/contrast-icon-6.svg', usedIn: 'Contrast table · row 3 Deconflict', note: 'Extracted from the Concept A prototype HTML.' },
+  { option: 'A', name: 'lifecycle-01-onboarding.svg', src: '/inline/concept-a/lifecycle-01-onboarding.svg', usedIn: 'Lifecycle · 01 Onboarding', note: 'Extracted from the Concept A prototype HTML.' },
+  { option: 'A', name: 'lifecycle-02-monitoring.svg', src: '/inline/concept-a/lifecycle-02-monitoring.svg', usedIn: 'Lifecycle · 02 Monitoring', note: 'Extracted from the Concept A prototype HTML.' },
+  { option: 'A', name: 'lifecycle-03-escalation.svg', src: '/inline/concept-a/lifecycle-03-escalation.svg', usedIn: 'Lifecycle · 03 Escalation', note: 'Extracted from the Concept A prototype HTML.' },
+  { option: 'A', name: 'lifecycle-04-reporting.svg', src: '/inline/concept-a/lifecycle-04-reporting.svg', usedIn: 'Lifecycle · 04 Reporting', note: 'Extracted from the Concept A prototype HTML.' },
+  { option: 'A', name: 'scale-note.svg', src: '/inline/concept-a/scale-note.svg', usedIn: 'Built-for-scale note icon', note: 'Extracted from the Concept A prototype HTML.' },
+  { option: 'A', name: 'pillar-a-source.svg', src: '/inline/concept-a/pillar-a-source.svg', usedIn: 'Pillar A · Source', note: 'Extracted from the Concept A prototype HTML.' },
+  { option: 'A', name: 'pillar-b-scrutiny.svg', src: '/inline/concept-a/pillar-b-scrutiny.svg', usedIn: 'Pillar B · Scrutiny', note: 'Extracted from the Concept A prototype HTML.' },
+  { option: 'A', name: 'pillar-c-speed.svg', src: '/inline/concept-a/pillar-c-speed.svg', usedIn: 'Pillar C · Speed', note: 'Extracted from the Concept A prototype HTML.' },
+  { option: 'B', name: 'feature-secure-coordination.svg', src: '/inline/concept-b/feature-secure-coordination.svg', usedIn: 'Feature grid · Secure coordination', note: 'Extracted from the Concept B prototype HTML.' },
+  { option: 'B', name: 'feature-faster-escalation.svg', src: '/inline/concept-b/feature-faster-escalation.svg', usedIn: 'Feature grid · Faster escalation', note: 'Extracted from the Concept B prototype HTML.' },
+  { option: 'B', name: 'feature-improved-sar.svg', src: '/inline/concept-b/feature-improved-sar.svg', usedIn: 'Feature grid · Improved SAR', note: 'Extracted from the Concept B prototype HTML.' },
+  { option: 'B', name: 'feature-real-time-operational.svg', src: '/inline/concept-b/feature-real-time-operational.svg', usedIn: 'Feature grid · Real-time operational', note: 'Extracted from the Concept B prototype HTML.' },
+  { option: 'B', name: 'feature-reduced-investigation.svg', src: '/inline/concept-b/feature-reduced-investigation.svg', usedIn: 'Feature grid · Reduced investigation', note: 'Extracted from the Concept B prototype HTML.' },
+  { option: 'B', name: 'feature-centralized.svg', src: '/inline/concept-b/feature-centralized.svg', usedIn: 'Feature grid · Centralized infrastructure', note: 'Extracted from the Concept B prototype HTML.' },
+  { option: 'B', name: 'feature-enhanced.svg', src: '/inline/concept-b/feature-enhanced.svg', usedIn: 'Feature grid · Enhanced decision-making', note: 'Extracted from the Concept B prototype HTML.' },
+  { option: 'B', name: 'workflow-onboarding.svg', src: '/inline/concept-b/workflow-onboarding.svg', usedIn: 'Workflow · Onboarding', note: 'Extracted from the Concept B prototype HTML.' },
+  { option: 'B', name: 'workflow-monitoring.svg', src: '/inline/concept-b/workflow-monitoring.svg', usedIn: 'Workflow · Monitoring', note: 'Extracted from the Concept B prototype HTML.' },
+  { option: 'B', name: 'workflow-escalation.svg', src: '/inline/concept-b/workflow-escalation.svg', usedIn: 'Workflow · Escalation', note: 'Extracted from the Concept B prototype HTML.', dark: true },
+  { option: 'B', name: 'workflow-reporting.svg', src: '/inline/concept-b/workflow-reporting.svg', usedIn: 'Workflow · Reporting', note: 'Extracted from the Concept B prototype HTML.', dark: true },
+  { option: 'B', name: 'workflow-decision-making.svg', src: '/inline/concept-b/workflow-decision-making.svg', usedIn: 'Workflow · Decision-Making', note: 'Extracted from the Concept B prototype HTML.', dark: true },
+  { option: 'B', name: 'capability-law-enforcement.svg', src: '/inline/concept-b/capability-law-enforcement.svg', usedIn: 'Capability card · Law Enforcement', note: 'Extracted from the Concept B prototype HTML.', dark: true },
+  { option: 'B', name: 'capability-examiner-ready.svg', src: '/inline/concept-b/capability-examiner-ready.svg', usedIn: 'Capability card · Examiner-Ready', note: 'Extracted from the Concept B prototype HTML.', dark: true },
+  { option: 'B', name: 'capability-integration-speed.svg', src: '/inline/concept-b/capability-integration-speed.svg', usedIn: 'Capability card · Integration & Speed', note: 'Extracted from the Concept B prototype HTML.', dark: true },
+  { option: 'B', name: 'overlap-detection-diagram.svg', src: '/inline/concept-b/overlap-detection-diagram.svg', usedIn: 'Signal card · overlap-detection diagram', note: 'Extracted from the Concept B prototype HTML.', fit: 'wide' },
+  { option: 'B', name: 'signal-connector-lines.svg', src: '/inline/concept-b/signal-connector-lines.svg', usedIn: 'Platform map · connector lines', note: 'Extracted from the Concept B prototype HTML.' },
+  { option: 'B', name: 'signal-icon-overlap.svg', src: '/inline/concept-b/signal-icon-overlap.svg', usedIn: 'Signal card · overlap icon', note: 'Extracted from the Concept B prototype HTML.' },
+  { option: 'B', name: 'signal-icon-verified.svg', src: '/inline/concept-b/signal-icon-verified.svg', usedIn: 'Signal card · verified icon', note: 'Extracted from the Concept B prototype HTML.' },
+  { option: 'B', name: 'signal-icon-matches.svg', src: '/inline/concept-b/signal-icon-matches.svg', usedIn: 'Signal card · matches icon', note: 'Extracted from the Concept B prototype HTML.' },
+  { option: 'B', name: 'signal-tag-exact.svg', src: '/inline/concept-b/signal-tag-exact.svg', usedIn: 'Signal card · exact-match tag', note: 'Extracted from the Concept B prototype HTML.' },
+  { option: 'B', name: 'resource-cover-1.svg', src: '/inline/concept-b/resource-cover-1.svg', usedIn: 'Resource cover · Bitcoin seizure', note: 'Extracted from the Concept B prototype HTML.' },
+  { option: 'B', name: 'resource-cover-2.svg', src: '/inline/concept-b/resource-cover-2.svg', usedIn: 'Resource cover · FCA order', note: 'Extracted from the Concept B prototype HTML.' },
+  { option: 'B', name: 'resource-cover-3.svg', src: '/inline/concept-b/resource-cover-3.svg', usedIn: 'Resource cover · Policy briefing', note: 'Extracted from the Concept B prototype HTML.' },
+  { option: 'C', name: 'logo-lockup.svg', src: '/inline/concept-c/logo-lockup.svg', usedIn: 'Nav logo lockup (Command)', note: 'Extracted from the Concept C prototype HTML.', dark: true },
+];
+
 /** All assets for a given option, grouped by kind. Empty groups are omitted at render. */
 export function assetsForOption(option: ConceptOption) {
   return {
@@ -198,11 +253,19 @@ export function assetsForOption(option: ConceptOption) {
     logos: logoAssets.filter((a) => a.option === option),
     icons: iconAssets.filter((a) => a.option === option),
     illustrations: illustrationAssets.filter((a) => a.option === option),
+    inline: inlineSvgAssets.filter((a) => a.option === option),
   };
 }
 
 /** Total asset count for an option (used for the per-option fact strip). */
 export function countForOption(option: ConceptOption): number {
   const g = assetsForOption(option);
-  return g.aura.length + g.images.length + g.logos.length + g.icons.length + g.illustrations.length;
+  return (
+    g.aura.length +
+    g.images.length +
+    g.logos.length +
+    g.icons.length +
+    g.illustrations.length +
+    g.inline.length
+  );
 }

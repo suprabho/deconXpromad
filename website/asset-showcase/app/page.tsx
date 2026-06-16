@@ -38,7 +38,7 @@ function AssetGroup({ label, children }: { label: string; children: React.ReactN
 }
 
 function ConceptSection({ concept }: { concept: ShowcaseConcept }) {
-  const { aura, images, logos, icons, illustrations } = assetsForOption(concept.option);
+  const { aura, images, logos, icons, illustrations, inline } = assetsForOption(concept.option);
   const count = countForOption(concept.option);
 
   return (
@@ -130,6 +130,16 @@ function ConceptSection({ concept }: { concept: ShowcaseConcept }) {
           {illustrations.map((a) => (
             <SvgCard asset={a} animated key={a.name} />
           ))}
+        </AssetGroup>
+      )}
+
+      {inline.length > 0 && (
+        <AssetGroup label={`In-prototype inline SVG — ${inline.length} extracted`}>
+          <div className="inline-grid">
+            {inline.map((a) => (
+              <SvgCard asset={a} key={a.name} />
+            ))}
+          </div>
         </AssetGroup>
       )}
     </section>
