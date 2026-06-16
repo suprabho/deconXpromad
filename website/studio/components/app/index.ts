@@ -8,6 +8,7 @@
  *   analytics/   stat cards, metric panel, data table, charts
  *   board/       kanban board, cards, connectors, page header
  *   code/        dark line-numbered code window + highlighter
+ *   messaging/   secure chat thread, message bubbles, encrypted files
  * -------------------------------------------------------------------------- */
 
 // primitives
@@ -50,6 +51,12 @@ export * from './analytics/StatCard';
 export * from './analytics/KpiTile';
 export * from './analytics/MetricPanel';
 export * from './analytics/DataTable';
+export * from './analytics/DonutChart';
+export * from './analytics/GaugeArc';
+export * from './analytics/DistributionBar';
+export * from './analytics/Heatmap';
+export * from './analytics/RankList';
+export * from './analytics/ActivityFeed';
 
 // board (Screen 4)
 export * from './board/Breadcrumb';
@@ -62,3 +69,8 @@ export * from './board/Board';
 export * from './code/highlight';
 export * from './code/CodeLine';
 export * from './code/CodeWindow';
+
+// messaging (Screen 6)
+export * from './messaging/EncryptedFile';
+export * from './messaging/ChatMessage';
+export * from './messaging/SecureChat';

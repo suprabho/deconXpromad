@@ -146,9 +146,33 @@ export type BackgroundConfig = {
   imageFit?: ImageFit;
   /** Focal point (object-position) for cover/contain/none fits; default centre. */
   imageFocus?: PositionPreset;
+  /** Whole-layer opacity, 0–1 (default 1). Applies to every kind (aura / image / solid). */
+  opacity?: number;
+  /** Whole-layer gaussian blur in px (default 0). Applies to every kind. */
+  blur?: number;
+  /** Image-only · `saturate()` multiplier, 1 = unchanged (default 1). */
+  imageSaturation?: number;
+  /** Image-only · `brightness()` multiplier, 1 = unchanged (default 1). */
+  imageBrightness?: number;
+  /** Image-only · `contrast()` multiplier, 1 = unchanged (default 1). */
+  imageContrast?: number;
   /** Solid fill, and the <body> fallback colour behind a loading aura. */
   color?: string;
 };
+
+/**
+ * The CSS `filter` for an image background, built from the saturation /
+ * brightness / contrast adjustments. Only non-default (≠ 1) terms are emitted,
+ * so an untouched image carries no filter at all. Returns undefined when none
+ * apply. Shared so the editor preview and the screenshot export stay identical.
+ */
+export function backgroundImageFilter(bg: BackgroundConfig): string | undefined {
+  const parts: string[] = [];
+  if (bg.imageSaturation != null && bg.imageSaturation !== 1) parts.push(`saturate(${bg.imageSaturation})`);
+  if (bg.imageBrightness != null && bg.imageBrightness !== 1) parts.push(`brightness(${bg.imageBrightness})`);
+  if (bg.imageContrast != null && bg.imageContrast !== 1) parts.push(`contrast(${bg.imageContrast})`);
+  return parts.length ? parts.join(' ') : undefined;
+}
 
 /* -------------------------------------------------------------------------- *
  * Scrim — legibility wash behind the foreground / overlay text.
@@ -340,6 +364,85 @@ export type KanbanCardData = {
 export type CommandRowData = { icon: AppIconKey; title: string; subtitle: string; meta: string };
 export type CommandPaletteData = { query: string; groupLabel: string; rows: CommandRowData[] };
 
+/** DonutChart plate — a segmented ring; tones are string keys (mirror DonutTone). */
+export type AppDonutTone = 'fi' | 'match' | 'ok' | 'alert' | 'navy' | 'ink' | 'muted';
+export type DonutSegmentData = { label: string; value: number; tone: AppDonutTone };
+export type DonutChartData = {
+  /** Header on the wrapping panel. */
+  title: string;
+  centerValue: string;
+  centerLabel: string;
+  segments: DonutSegmentData[];
+};
+
+/** GaugeArc plate — a single bounded score on a 180° arc (mirror GaugeTone). */
+export type AppGaugeTone = 'fi' | 'match' | 'ok' | 'warn' | 'alert';
+export type GaugeArcData = {
+  title: string;
+  value: number;
+  min: number;
+  max: number;
+  /** Suffix on the figure + end labels (e.g. "%" or ""). */
+  unit: string;
+  label: string;
+  caption: string;
+  /** When true the arc auto-colours from the thresholds; else it uses `tone`. */
+  useThresholds: boolean;
+  thresholdWarn: number; // fraction 0..1 of the range
+  thresholdAlert: number; // fraction 0..1 of the range
+  tone: AppGaugeTone;
+};
+
+/**
+ * SecureChat plate — a threaded secure-messaging panel. Every node-bearing field
+ * (bubble bodies, notice labels, file kinds) is a plain string / string key so
+ * the composition stays JSON; ForegroundLayer maps `status: 'none'` → undefined.
+ * Keys mirror the messaging component unions (a drift surfaces as a type error
+ * in ForegroundLayer's renderContent, where these flow into <SecureChat/>).
+ */
+export type ChatSideKey = 'self' | 'peer';
+export type ChatTrackKey = 'fi' | 'le';
+export type DeliveryKey = 'sent' | 'delivered' | 'read';
+export type ChatFileKind = 'pdf' | 'doc' | 'sheet' | 'image' | 'archive' | 'data';
+export type ChatCipherState = 'encrypted' | 'verifying' | 'decrypted';
+
+export type ChatParticipantData = {
+  id: string;
+  name: string;
+  org: string;
+  side: ChatSideKey;
+  track: ChatTrackKey;
+  online: boolean;
+};
+export type ChatAttachmentData = {
+  id: string;
+  name: string;
+  size: string;
+  kind: ChatFileKind;
+  state: ChatCipherState;
+  meta: string;
+};
+export type ChatItemData =
+  | {
+      kind: 'message';
+      id: string;
+      authorId: string;
+      body: string;
+      time: string;
+      /** Delivery receipt for self-authored turns; 'none' to omit. */
+      status: DeliveryKey | 'none';
+      attachments: ChatAttachmentData[];
+    }
+  | { kind: 'system'; id: string; label: string }
+  | { kind: 'day'; id: string; label: string };
+export type SecureChatData = {
+  title: string;
+  subtitle: string;
+  composer: boolean;
+  participants: ChatParticipantData[];
+  items: ChatItemData[];
+};
+
 export type ForegroundType =
   | 'none'
   | 'OverlapAlert'
@@ -353,7 +456,10 @@ export type ForegroundType =
   | 'EntityGraph'
   | 'StatCard'
   | 'KanbanCard'
-  | 'CommandPalette';
+  | 'CommandPalette'
+  | 'DonutChart'
+  | 'GaugeArc'
+  | 'SecureChat';
 
 /** Discriminated union of per-component editable content. */
 export type ForegroundContent =
@@ -378,19 +484,31 @@ export type ForegroundContent =
   | ({ type: 'EntityGraph' } & EntityGraphData)
   | ({ type: 'StatCard' } & StatCardData)
   | ({ type: 'KanbanCard' } & KanbanCardData)
-  | ({ type: 'CommandPalette' } & CommandPaletteData);
+  | ({ type: 'CommandPalette' } & CommandPaletteData)
+  | ({ type: 'DonutChart' } & DonutChartData)
+  | ({ type: 'GaugeArc' } & GaugeArcData)
+  | ({ type: 'SecureChat' } & SecureChatData);
 
 /* -------------------------------------------------------------------------- *
- * Freeform transform — absolute placement + 3-axis rotation for a foreground
- * element. Resolution-independent: x/y are % of the canvas and scale is a
- * fraction of canvas width, so a composition reads identically at any size.
+ * Freeform transform — absolute placement + sizing + 3-axis rotation for a
+ * foreground element. Resolution-independent: x/y are % of the canvas and width
+ * is a fraction of canvas width, so a composition reads identically at any size.
  * -------------------------------------------------------------------------- */
 export type Transform = {
   /** Element CENTRE X, as a % of canvas width (0 = left edge, 50 = centre, 100 = right). */
   x: number;
   /** Element CENTRE Y, as a % of canvas height. */
   y: number;
-  /** Element box width as a fraction of canvas width — the size / scale knob. */
+  /**
+   * Element box width as a fraction of canvas width. This drives layout: the
+   * element reflows to fit the chosen width (text wraps, content reflows).
+   */
+  width: number;
+  /**
+   * Uniform CSS `scale()` multiplier applied on top of the laid-out box (1 = no
+   * scaling). Unlike `width`, this does NOT reflow content — it scales the whole
+   * element, pixels and all, like zooming.
+   */
   scale: number;
   /** Out-of-plane tilt in degrees (needs perspective to read as 3-D). */
   rotateX: number;
@@ -404,7 +522,8 @@ export type Transform = {
 export const DEFAULT_TRANSFORM: Transform = {
   x: 50,
   y: 50,
-  scale: 0.5,
+  width: 0.5,
+  scale: 1,
   rotateX: 0,
   rotateY: 0,
   rotateZ: 0,
@@ -413,11 +532,13 @@ export const DEFAULT_TRANSFORM: Transform = {
 
 /**
  * Build the CSS `transform` for a foreground element. `translate(-50%, -50%)`
- * centres the box on (x, y); `perspective()` precedes the rotates — emitted only
- * when a 3-D tilt is set — so the tilt reads correctly.
+ * centres the box on (x, y); `scale()` (emitted only when ≠ 1) then zooms the
+ * box about its centre; `perspective()` precedes the rotates — emitted only when
+ * a 3-D tilt is set — so the tilt reads correctly.
  */
 export function composeTransform(t: Transform): string {
   const parts = ['translate(-50%, -50%)'];
+  if (t.scale !== 1) parts.push(`scale(${t.scale})`);
   if (t.perspective > 0 && (t.rotateX !== 0 || t.rotateY !== 0)) {
     parts.push(`perspective(${t.perspective}px)`);
   }
@@ -427,12 +548,99 @@ export function composeTransform(t: Transform): string {
   return parts.join(' ');
 }
 
+/* -------------------------------------------------------------------------- *
+ * Foreground element shadows — 0..n stacked drop-shadows.
+ *
+ * Rendered with CSS `filter: drop-shadow()` (not `box-shadow`) so each shadow
+ * follows the element's actual silhouette — rounded corners, notches and
+ * transparent cut-outs — instead of a rectangle around its bounding box. The
+ * wrapper has no background of its own, so a box-shadow would float a stray
+ * rectangle behind the card; drop-shadow tracks the rendered pixels. drop-shadow
+ * has no spread/inset, which is why those knobs are absent.
+ * -------------------------------------------------------------------------- */
+export type ElementShadow = {
+  /** Horizontal offset in px (positive = right). */
+  x: number;
+  /** Vertical offset in px (positive = down). */
+  y: number;
+  /** Blur radius in px (0 = hard edge). */
+  blur: number;
+  /** Shadow colour as a hex string; `opacity` sets its alpha. */
+  color: string;
+  /** 0–1 alpha applied to `color`. */
+  opacity: number;
+};
+
+export const DEFAULT_SHADOW: ElementShadow = {
+  x: 0,
+  y: 18,
+  blur: 40,
+  color: '#0D1B3E',
+  opacity: 0.35,
+};
+
+/** A hex colour (#rgb or #rrggbb) + 0–1 alpha → an `rgba(...)` string. */
+export function hexToRgba(hex: string, alpha: number): string {
+  const h = hex.replace('#', '').trim();
+  const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h.padEnd(6, '0').slice(0, 6);
+  const n = Number.parseInt(full, 16);
+  const r = (n >> 16) & 255;
+  const g = (n >> 8) & 255;
+  const b = n & 255;
+  const a = Math.max(0, Math.min(1, alpha));
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
+/**
+ * Build the CSS `filter` for a stack of element shadows — one chained
+ * `drop-shadow()` per entry, in array order. Returns undefined when there are
+ * none, so an element with no shadows carries no filter. Shared so the editor
+ * preview and the screenshot export render identical shadows.
+ */
+export function composeDropShadow(shadows: ElementShadow[] | undefined): string | undefined {
+  if (!shadows || shadows.length === 0) return undefined;
+  return shadows
+    .map((s) => `drop-shadow(${s.x}px ${s.y}px ${Math.max(0, s.blur)}px ${hexToRgba(s.color, s.opacity)})`)
+    .join(' ');
+}
+
 /** One freely-placed foreground UI element. Array order is z-order (last = top). */
 export type ForegroundElement = {
   id: string;
   content: ForegroundContent;
   transform: Transform;
+  /**
+   * Glassmorphism overrides for the element's frosted surface. Threaded to the
+   * component as the `--glass-tint` / `--glass-blur` CSS custom properties (see
+   * the `.glass-tint` / `.glass-surface` classes in globals.css); when a field is
+   * undefined the surface keeps its own built-in value.
+   */
+  glass?: GlassConfig;
+  /** 0..n stacked drop-shadows behind the element (default none). */
+  shadows?: ElementShadow[];
 };
+
+/** Per-element glassmorphism overrides for the frosted surface. */
+export type GlassConfig = {
+  /** White-fill alpha of the surface, 0–1 (undefined = the component's own tint). */
+  tint?: number;
+  /** Backdrop blur in px (undefined = the component's own blur). */
+  blur?: number;
+};
+
+/**
+ * The CSS custom properties that carry a GlassConfig down to the frosted
+ * surface. Set on the foreground wrapper and inherited by the component, where
+ * the `.glass-tint` / `.glass-surface` classes consume them (each with a
+ * per-component base fallback). Only defined fields are emitted, so an
+ * untouched element inherits nothing and renders with its built-in glass.
+ */
+export function glassVars(glass: GlassConfig | undefined): Record<string, string> {
+  const vars: Record<string, string> = {};
+  if (glass?.tint != null) vars['--glass-tint'] = String(glass.tint);
+  if (glass?.blur != null) vars['--glass-blur'] = `${glass.blur}px`;
+  return vars;
+}
 
 /* -------------------------------------------------------------------------- *
  * Overlay text + theme

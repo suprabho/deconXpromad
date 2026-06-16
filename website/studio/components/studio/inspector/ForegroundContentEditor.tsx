@@ -2,21 +2,32 @@
 
 import type {
   AlertData,
+  AppDonutTone,
+  AppGaugeTone,
   AppGraphTone,
   AppIconKey,
   AppStatusTone,
   CaseData,
   CaseReveal,
+  ChatCipherState,
+  ChatFileKind,
+  ChatItemData,
+  ChatSideKey,
+  ChatTrackKey,
   CodeWindowData,
   CommandPaletteData,
+  DeliveryKey,
+  DonutChartData,
   EntityGraphData,
   FeatureIconKey,
   FeatureModalData,
   FeatureTone,
   ForegroundContent,
+  GaugeArcData,
   KanbanCardData,
   Reveal,
   RiskTier,
+  SecureChatData,
   Segment,
   StatCardData,
   Tick,
@@ -111,6 +122,54 @@ const GRAPH_TONE_OPTS: { value: AppGraphTone; label: string }[] = [
   { value: 'match', label: 'Match' },
   { value: 'alert', label: 'Alert' },
   { value: 'idle', label: 'Idle' },
+];
+const DONUT_TONE_OPTS: { value: AppDonutTone; label: string }[] = [
+  { value: 'fi', label: 'Blue' },
+  { value: 'ok', label: 'Green' },
+  { value: 'match', label: 'Orange' },
+  { value: 'alert', label: 'Red' },
+  { value: 'navy', label: 'Navy' },
+  { value: 'ink', label: 'Ink' },
+  { value: 'muted', label: 'Grey' },
+];
+const GAUGE_TONE_OPTS: { value: AppGaugeTone; label: string }[] = [
+  { value: 'fi', label: 'Blue' },
+  { value: 'ok', label: 'Green' },
+  { value: 'warn', label: 'Amber' },
+  { value: 'match', label: 'Orange' },
+  { value: 'alert', label: 'Red' },
+];
+const CHAT_SIDE_OPTS: { value: ChatSideKey; label: string }[] = [
+  { value: 'self', label: 'Self · right' },
+  { value: 'peer', label: 'Peer · left' },
+];
+const CHAT_TRACK_OPTS: { value: ChatTrackKey; label: string }[] = [
+  { value: 'fi', label: 'FI · blue' },
+  { value: 'le', label: 'LE · navy' },
+];
+const CHAT_STATUS_OPTS: { value: DeliveryKey | 'none'; label: string }[] = [
+  { value: 'none', label: 'None' },
+  { value: 'sent', label: 'Sent' },
+  { value: 'delivered', label: 'Delivered' },
+  { value: 'read', label: 'Read' },
+];
+const CHAT_KIND_OPTS: { value: ChatItemData['kind']; label: string }[] = [
+  { value: 'message', label: 'Message' },
+  { value: 'system', label: 'System note' },
+  { value: 'day', label: 'Day divider' },
+];
+const FILE_KIND_OPTS: { value: ChatFileKind; label: string }[] = [
+  { value: 'pdf', label: 'PDF' },
+  { value: 'doc', label: 'Doc' },
+  { value: 'sheet', label: 'Sheet' },
+  { value: 'image', label: 'Image' },
+  { value: 'archive', label: 'Archive' },
+  { value: 'data', label: 'Data' },
+];
+const CIPHER_OPTS: { value: ChatCipherState; label: string }[] = [
+  { value: 'encrypted', label: 'Encrypted' },
+  { value: 'verifying', label: 'Decrypting' },
+  { value: 'decrypted', label: 'Verified' },
 ];
 
 /** "4, 6, 5" ↔ number[] for comma-separated numeric inputs. */
@@ -472,6 +531,220 @@ function CommandPaletteFields({ data, onChange }: { data: CommandPaletteData; on
   );
 }
 
+function DonutChartFields({ data, onChange }: { data: DonutChartData; onChange: (d: DonutChartData) => void }) {
+  const setSeg = (i: number, s: DonutChartData['segments'][number]) => {
+    const segments = data.segments.slice();
+    segments[i] = s;
+    onChange({ ...data, segments });
+  };
+  return (
+    <div className="space-y-3">
+      <TextField label="Panel title" value={data.title} onChange={(title) => onChange({ ...data, title })} />
+      <div className="grid grid-cols-2 gap-2">
+        <TextField label="Centre value" value={data.centerValue} onChange={(centerValue) => onChange({ ...data, centerValue })} />
+        <TextField label="Centre label" value={data.centerLabel} onChange={(centerLabel) => onChange({ ...data, centerLabel })} />
+      </div>
+      <ListHeader
+        title="Segments"
+        onAdd={() => onChange({ ...data, segments: [...data.segments, { label: 'New', value: 10, tone: 'fi' }] })}
+      />
+      {data.segments.map((seg, i) => (
+        <div key={i} className="space-y-2 rounded-md border border-hair p-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-ink">Segment {i + 1}</span>
+            <RemoveBtn onClick={() => onChange({ ...data, segments: data.segments.filter((_, j) => j !== i) })} />
+          </div>
+          <TextField label="Label" value={seg.label} onChange={(label) => setSeg(i, { ...seg, label })} />
+          <div className="grid grid-cols-2 gap-2">
+            <NumberField label="Value" value={seg.value} min={0} onChange={(value) => setSeg(i, { ...seg, value })} />
+            <SelectField label="Colour" value={seg.tone} onChange={(tone) => setSeg(i, { ...seg, tone })} options={DONUT_TONE_OPTS} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function GaugeArcFields({ data, onChange }: { data: GaugeArcData; onChange: (d: GaugeArcData) => void }) {
+  return (
+    <div className="space-y-3">
+      <TextField label="Panel title" value={data.title} onChange={(title) => onChange({ ...data, title })} />
+      <NumberField label="Value" value={data.value} onChange={(value) => onChange({ ...data, value })} />
+      <div className="grid grid-cols-2 gap-2">
+        <NumberField label="Min" value={data.min} onChange={(min) => onChange({ ...data, min })} />
+        <NumberField label="Max" value={data.max} onChange={(max) => onChange({ ...data, max })} />
+      </div>
+      <TextField label="Unit suffix" value={data.unit} placeholder="e.g. % (or blank)" onChange={(unit) => onChange({ ...data, unit })} />
+      <TextField label="Dial label" value={data.label} onChange={(label) => onChange({ ...data, label })} />
+      <TextField label="Caption" value={data.caption} onChange={(caption) => onChange({ ...data, caption })} />
+      <Toggle label="Auto-colour by thresholds" checked={data.useThresholds} onChange={(useThresholds) => onChange({ ...data, useThresholds })} />
+      {data.useThresholds ? (
+        <div className="grid grid-cols-2 gap-2">
+          <NumberField label="Warn at (0–1)" value={data.thresholdWarn} min={0} max={1} onChange={(thresholdWarn) => onChange({ ...data, thresholdWarn })} />
+          <NumberField label="Alert at (0–1)" value={data.thresholdAlert} min={0} max={1} onChange={(thresholdAlert) => onChange({ ...data, thresholdAlert })} />
+        </div>
+      ) : (
+        <SelectField label="Arc colour" value={data.tone} onChange={(tone) => onChange({ ...data, tone })} options={GAUGE_TONE_OPTS} />
+      )}
+    </div>
+  );
+}
+
+function SecureChatFields({ data, onChange }: { data: SecureChatData; onChange: (d: SecureChatData) => void }) {
+  const participantOpts = data.participants.map((p) => ({
+    value: p.id,
+    label: `${p.name}${p.side === 'self' ? ' (self)' : ''}`,
+  }));
+  const setParticipant = (i: number, p: SecureChatData['participants'][number]) => {
+    const participants = data.participants.slice();
+    participants[i] = p;
+    onChange({ ...data, participants });
+  };
+  const setItem = (i: number, it: ChatItemData) => {
+    const items = data.items.slice();
+    items[i] = it;
+    onChange({ ...data, items });
+  };
+  return (
+    <div className="space-y-3">
+      <TextField label="Title" value={data.title} onChange={(title) => onChange({ ...data, title })} />
+      <TextField label="Subtitle" value={data.subtitle} onChange={(subtitle) => onChange({ ...data, subtitle })} />
+      <Toggle label="Show composer" checked={data.composer} onChange={(composer) => onChange({ ...data, composer })} />
+
+      <ListHeader
+        title="Participants"
+        onAdd={() =>
+          onChange({
+            ...data,
+            participants: [
+              ...data.participants,
+              { id: crypto.randomUUID().slice(0, 4), name: 'New party', org: '', side: 'peer', track: 'le', online: true },
+            ],
+          })
+        }
+      />
+      {data.participants.map((p, i) => (
+        <div key={p.id} className="space-y-2 rounded-md border border-hair p-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-ink">
+              Party {i + 1} · <code className="text-[11px] text-muted">{p.id}</code>
+            </span>
+            <RemoveBtn onClick={() => onChange({ ...data, participants: data.participants.filter((_, j) => j !== i) })} />
+          </div>
+          <TextField label="Name" value={p.name} onChange={(name) => setParticipant(i, { ...p, name })} />
+          <TextField label="Org line" value={p.org} onChange={(org) => setParticipant(i, { ...p, org })} />
+          <Segmented label="Side" value={p.side} onChange={(side) => setParticipant(i, { ...p, side })} options={CHAT_SIDE_OPTS} />
+          <Segmented label="Track tint" value={p.track} onChange={(track) => setParticipant(i, { ...p, track })} options={CHAT_TRACK_OPTS} />
+          <Toggle label="Online" checked={p.online} onChange={(online) => setParticipant(i, { ...p, online })} />
+        </div>
+      ))}
+
+      <ListHeader
+        title="Thread items"
+        onAdd={() =>
+          onChange({
+            ...data,
+            items: [
+              ...data.items,
+              {
+                kind: 'message',
+                id: crypto.randomUUID().slice(0, 6),
+                authorId: data.participants[0]?.id ?? '',
+                body: 'New message',
+                time: '',
+                status: 'none',
+                attachments: [],
+              },
+            ],
+          })
+        }
+      />
+      {data.items.map((it, i) => (
+        <div key={it.id} className="space-y-2 rounded-md border border-hair p-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-ink">Item {i + 1}</span>
+            <RemoveBtn onClick={() => onChange({ ...data, items: data.items.filter((_, j) => j !== i) })} />
+          </div>
+          <SelectField
+            label="Kind"
+            value={it.kind}
+            onChange={(kind) =>
+              setItem(
+                i,
+                kind === 'message'
+                  ? {
+                      kind: 'message',
+                      id: it.id,
+                      authorId: data.participants[0]?.id ?? '',
+                      body: '',
+                      time: '',
+                      status: 'none',
+                      attachments: [],
+                    }
+                  : { kind, id: it.id, label: kind === 'day' ? 'Today' : 'Secure note' }
+              )
+            }
+            options={CHAT_KIND_OPTS}
+          />
+          {it.kind === 'message' ? (
+            <>
+              <SelectField
+                label="Author"
+                value={it.authorId}
+                onChange={(authorId) => setItem(i, { ...it, authorId })}
+                options={participantOpts.length ? participantOpts : [{ value: '', label: '—' }]}
+              />
+              <TextArea label="Body" value={it.body} onChange={(body) => setItem(i, { ...it, body })} />
+              <div className="grid grid-cols-2 gap-2">
+                <TextField label="Time" value={it.time} placeholder="10:21" onChange={(time) => setItem(i, { ...it, time })} />
+                <SelectField label="Receipt" value={it.status} onChange={(status) => setItem(i, { ...it, status })} options={CHAT_STATUS_OPTS} />
+              </div>
+              <ListHeader
+                title="Attachments"
+                onAdd={() =>
+                  setItem(i, {
+                    ...it,
+                    attachments: [
+                      ...it.attachments,
+                      { id: crypto.randomUUID().slice(0, 6), name: 'file.pdf', size: '1.0 MB', kind: 'pdf', state: 'encrypted', meta: '' },
+                    ],
+                  })
+                }
+              />
+              {it.attachments.map((a, ai) => {
+                const setAtt = (att: typeof a) => {
+                  const attachments = it.attachments.slice();
+                  attachments[ai] = att;
+                  setItem(i, { ...it, attachments });
+                };
+                return (
+                  <div key={a.id} className="space-y-2 rounded-md border border-hair/70 bg-frost/40 p-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-semibold text-muted">File {ai + 1}</span>
+                      <RemoveBtn onClick={() => setItem(i, { ...it, attachments: it.attachments.filter((_, j) => j !== ai) })} />
+                    </div>
+                    <TextField label="Name" value={a.name} onChange={(name) => setAtt({ ...a, name })} />
+                    <div className="grid grid-cols-2 gap-2">
+                      <TextField label="Size" value={a.size} onChange={(size) => setAtt({ ...a, size })} />
+                      <TextField label="Meta" value={a.meta} placeholder="AES-256-GCM" onChange={(meta) => setAtt({ ...a, meta })} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <SelectField label="Kind" value={a.kind} onChange={(kind) => setAtt({ ...a, kind })} options={FILE_KIND_OPTS} />
+                      <SelectField label="State" value={a.state} onChange={(state) => setAtt({ ...a, state })} options={CIPHER_OPTS} />
+                    </div>
+                  </div>
+                );
+              })}
+            </>
+          ) : (
+            <TextField label="Label" value={it.label} onChange={(label) => setItem(i, { ...it, label })} />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* ------------------------------ main switch ------------------------------ */
 
 export function ForegroundContentEditor({
@@ -543,6 +816,15 @@ export function ForegroundContentEditor({
 
     case 'CommandPalette':
       return <CommandPaletteFields data={content} onChange={(d) => onChange({ type: 'CommandPalette', ...d })} />;
+
+    case 'DonutChart':
+      return <DonutChartFields data={content} onChange={(d) => onChange({ type: 'DonutChart', ...d })} />;
+
+    case 'GaugeArc':
+      return <GaugeArcFields data={content} onChange={(d) => onChange({ type: 'GaugeArc', ...d })} />;
+
+    case 'SecureChat':
+      return <SecureChatFields data={content} onChange={(d) => onChange({ type: 'SecureChat', ...d })} />;
 
     case 'DeconflictBanner':
       return (

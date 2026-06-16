@@ -10,11 +10,14 @@ import type {
   CaseReveal,
   CommandRowData,
   CompositionConfig,
+  DonutChartData,
   FeatureItemData,
   ForegroundContent,
   ForegroundElement,
   ForegroundType,
+  GaugeArcData,
   GraphNodeData,
+  SecureChatData,
   TimelineData,
 } from './types';
 import { DEFAULT_SIZE_ID, DEFAULT_TRANSFORM } from './types';
@@ -157,6 +160,86 @@ export const SAMPLE_COMMAND_ROWS: CommandRowData[] = [
   { icon: 'bank', title: 'Meridian Bank', subtitle: 'Financial institution · AML alert linked', meta: '15 entries' },
 ];
 
+export const SAMPLE_DONUT: DonutChartData = {
+  title: 'Case Composition',
+  centerValue: '312',
+  centerLabel: 'cases',
+  segments: [
+    { label: 'Cleared', value: 184, tone: 'ok' },
+    { label: 'Investigating', value: 72, tone: 'fi' },
+    { label: 'Triage', value: 38, tone: 'match' },
+    { label: 'Escalated', value: 18, tone: 'alert' },
+  ],
+};
+
+export const SAMPLE_GAUGE: GaugeArcData = {
+  title: 'Composite Risk',
+  value: 68,
+  min: 0,
+  max: 100,
+  unit: '',
+  label: 'risk index',
+  caption: 'Elevated — 9 cases above threshold',
+  useThresholds: true,
+  thresholdWarn: 0.5,
+  thresholdAlert: 0.75,
+  tone: 'fi',
+};
+
+export const SAMPLE_SECURE_CHAT: SecureChatData = {
+  title: 'Cross-institution coordination',
+  subtitle: 'Meridian Bank  ⇄  FBI · Field Office 14',
+  composer: true,
+  participants: [
+    { id: 'fi', name: 'Dana Okafor', org: 'Meridian Bank · AML', side: 'self', track: 'fi', online: true },
+    { id: 'le', name: 'Agent R. Castillo', org: 'FBI · Field Office 14', side: 'peer', track: 'le', online: true },
+  ],
+  items: [
+    { kind: 'day', id: 'd1', label: 'Today' },
+    { kind: 'system', id: 's1', label: 'Secure channel established · keys verified' },
+    {
+      kind: 'message',
+      id: 'm1',
+      authorId: 'le',
+      body: 'We have an overlap on case LE-08821 — shared wallet with one of your AML alerts.',
+      time: '10:18',
+      status: 'none',
+      attachments: [],
+    },
+    {
+      kind: 'message',
+      id: 'm2',
+      authorId: 'le',
+      body: 'Sending the redacted subject brief for cross-check.',
+      time: '10:18',
+      status: 'none',
+      attachments: [
+        { id: 'f1', name: 'subject-brief.pdf', size: '2.4 MB', kind: 'pdf', state: 'encrypted', meta: 'AES-256-GCM' },
+      ],
+    },
+    {
+      kind: 'message',
+      id: 'm3',
+      authorId: 'fi',
+      body: 'Confirmed match on our side. Decrypting now.',
+      time: '10:21',
+      status: 'read',
+      attachments: [],
+    },
+    {
+      kind: 'message',
+      id: 'm4',
+      authorId: 'fi',
+      body: 'Reconciliation export attached — 312 rows aligned.',
+      time: '10:22',
+      status: 'delivered',
+      attachments: [
+        { id: 'f2', name: 'reconciliation.xlsx', size: '184 KB', kind: 'sheet', state: 'decrypted', meta: '312 rows' },
+      ],
+    },
+  ],
+};
+
 /** Default editable content for each foreground component type. */
 export function defaultForegroundContent(type: ForegroundType): ForegroundContent {
   switch (type) {
@@ -233,6 +316,12 @@ export function defaultForegroundContent(type: ForegroundType): ForegroundConten
         groupLabel: 'Cases',
         rows: structuredClone(SAMPLE_COMMAND_ROWS),
       };
+    case 'DonutChart':
+      return { type: 'DonutChart', ...structuredClone(SAMPLE_DONUT) };
+    case 'GaugeArc':
+      return { type: 'GaugeArc', ...structuredClone(SAMPLE_GAUGE) };
+    case 'SecureChat':
+      return { type: 'SecureChat', ...structuredClone(SAMPLE_SECURE_CHAT) };
   }
 }
 
@@ -260,7 +349,7 @@ export const DEFAULT_COMPOSITION: CompositionConfig = {
     {
       id: 'fg-default-case',
       content: { type: 'CaseCard', data: { ...SAMPLE_LEFT_CASE }, reveal: { ...SAMPLE_REVEAL } },
-      transform: { ...DEFAULT_TRANSFORM, x: 72, y: 50, scale: 0.5 },
+      transform: { ...DEFAULT_TRANSFORM, x: 72, y: 50, width: 0.5 },
     },
   ],
   overlay: {

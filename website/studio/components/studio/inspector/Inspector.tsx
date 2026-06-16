@@ -3,15 +3,17 @@
 import type {
   BackgroundKind,
   CompositionConfig,
+  ElementShadow,
   ForegroundElement,
   ForegroundType,
+  GlassConfig,
   MidGraphic,
   PositionPreset,
   ScrimDirection,
   SizeScale,
   Transform,
 } from '@/lib/composition/types';
-import { POSITION_PRESETS, SIZE_PRESETS, SIZE_SCALES } from '@/lib/composition/types';
+import { DEFAULT_SHADOW, POSITION_PRESETS, SIZE_PRESETS, SIZE_SCALES } from '@/lib/composition/types';
 import { defaultForegroundContent, defaultForegroundElement } from '@/lib/composition/defaults';
 import {
   AURA_OPTIONS,
@@ -68,7 +70,10 @@ function ElementTransformFields({
         <Slider label="Pos X" value={t.x} min={-25} max={125} step={0.5} format={(v) => `${Math.round(v)}%`} onChange={(x) => onChange({ x })} />
         <Slider label="Pos Y" value={t.y} min={-25} max={125} step={0.5} format={(v) => `${Math.round(v)}%`} onChange={(y) => onChange({ y })} />
       </div>
-      <Slider label="Scale" value={t.scale} min={0.1} max={1.4} step={0.01} format={(v) => `${Math.round(v * 100)}%`} onChange={(scale) => onChange({ scale })} />
+      <div className="grid grid-cols-2 gap-x-3">
+        <Slider label="Width" value={t.width} min={0.1} max={1.4} step={0.01} format={(v) => `${Math.round(v * 100)}%`} onChange={(width) => onChange({ width })} />
+        <Slider label="Scale" value={t.scale} min={0.2} max={2} step={0.01} format={(v) => `${Math.round(v * 100)}%`} onChange={(scale) => onChange({ scale })} />
+      </div>
       <div className="grid grid-cols-3 gap-x-3">
         <Slider label="Rot X" value={t.rotateX} min={-180} max={180} step={1} format={(v) => `${Math.round(v)}°`} onChange={(rotateX) => onChange({ rotateX })} />
         <Slider label="Rot Y" value={t.rotateY} min={-180} max={180} step={1} format={(v) => `${Math.round(v)}°`} onChange={(rotateY) => onChange({ rotateY })} />
@@ -77,6 +82,60 @@ function ElementTransformFields({
       {has3D && (
         <Slider label="Perspective" value={t.perspective} min={200} max={3000} step={50} format={(v) => `${Math.round(v)}px`} onChange={(perspective) => onChange({ perspective })} />
       )}
+    </div>
+  );
+}
+
+/** Stacked drop-shadow controls for one foreground element. */
+function ElementShadowFields({
+  shadows,
+  onChange,
+}: {
+  shadows: ElementShadow[] | undefined;
+  onChange: (shadows: ElementShadow[]) => void;
+}) {
+  const list = shadows ?? [];
+  const setShadow = (i: number, p: Partial<ElementShadow>) =>
+    onChange(list.map((s, j) => (j === i ? { ...s, ...p } : s)));
+  const addShadow = () => onChange([...list, { ...DEFAULT_SHADOW }]);
+  const removeShadow = (i: number) => onChange(list.filter((_, j) => j !== i));
+
+  return (
+    <div className="space-y-2 rounded-md bg-frost p-2">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-medium text-muted">Shadows{list.length ? ` · ${list.length}` : ''}</span>
+        <button
+          type="button"
+          onClick={addShadow}
+          className="rounded border border-hair px-2 py-0.5 text-xs font-medium text-cobalt hover:bg-cobalt/5"
+        >
+          + Add shadow
+        </button>
+      </div>
+      {list.length === 0 && (
+        <p className="text-[11px] text-muted/80">No shadow. Add one or more for layered depth.</p>
+      )}
+      {list.map((s, i) => (
+        <div key={i} className="space-y-2 rounded border border-hair bg-white p-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-ink">Shadow {i + 1}</span>
+            <button
+              type="button"
+              onClick={() => removeShadow(i)}
+              className="rounded border border-hair px-1.5 text-xs text-muted hover:text-risk-text"
+            >
+              Remove
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-x-3">
+            <Slider label="Offset X" value={s.x} min={-80} max={80} step={1} format={(v) => `${Math.round(v)}px`} onChange={(x) => setShadow(i, { x })} />
+            <Slider label="Offset Y" value={s.y} min={-80} max={80} step={1} format={(v) => `${Math.round(v)}px`} onChange={(y) => setShadow(i, { y })} />
+          </div>
+          <Slider label="Blur" value={s.blur} min={0} max={120} step={1} format={(v) => `${Math.round(v)}px`} onChange={(blur) => setShadow(i, { blur })} />
+          <Slider label="Opacity" value={s.opacity} min={0} max={1} step={0.05} format={(v) => `${Math.round(v * 100)}%`} onChange={(opacity) => setShadow(i, { opacity })} />
+          <ColorField label="Colour" value={s.color} onChange={(color) => setShadow(i, { color })} />
+        </div>
+      ))}
     </div>
   );
 }
@@ -127,6 +186,10 @@ export function Inspector({
   };
   const setElementTransform = (i: number, p: Partial<Transform>) =>
     setElement(i, { transform: { ...config.foreground[i].transform, ...p } });
+  const setElementShadows = (i: number, shadows: ElementShadow[]) =>
+    setElement(i, { shadows: shadows.length ? shadows : undefined });
+  const setElementGlass = (i: number, p: Partial<GlassConfig>) =>
+    setElement(i, { glass: { ...config.foreground[i].glass, ...p } });
   const addElement = () => patch({ foreground: [...config.foreground, defaultForegroundElement('CaseCard')] });
   const removeElement = (i: number) => patch({ foreground: config.foreground.filter((_, j) => j !== i) });
   const moveElement = (i: number, dir: -1 | 1) => {
@@ -206,12 +269,58 @@ export function Inspector({
                 options={POSITION_OPTS}
               />
             )}
+            <Slider
+              label="Saturation"
+              value={bg.imageSaturation ?? 1}
+              min={0}
+              max={2}
+              step={0.05}
+              format={(v) => `${Math.round(v * 100)}%`}
+              onChange={(imageSaturation) => setBackground({ imageSaturation })}
+            />
+            <Slider
+              label="Brightness"
+              value={bg.imageBrightness ?? 1}
+              min={0}
+              max={2}
+              step={0.05}
+              format={(v) => `${Math.round(v * 100)}%`}
+              onChange={(imageBrightness) => setBackground({ imageBrightness })}
+            />
+            <Slider
+              label="Contrast"
+              value={bg.imageContrast ?? 1}
+              min={0}
+              max={2}
+              step={0.05}
+              format={(v) => `${Math.round(v * 100)}%`}
+              onChange={(imageContrast) => setBackground({ imageContrast })}
+            />
           </>
         )}
 
         {bg.kind === 'solid' && (
           <ColorField label="Fill colour" value={bg.color ?? '#0D1B3E'} onChange={(color) => setBackground({ color })} />
         )}
+
+        <Slider
+          label="Opacity"
+          value={bg.opacity ?? 1}
+          min={0}
+          max={1}
+          step={0.05}
+          format={(v) => `${Math.round(v * 100)}%`}
+          onChange={(opacity) => setBackground({ opacity })}
+        />
+        <Slider
+          label="Blur"
+          value={bg.blur ?? 0}
+          min={0}
+          max={60}
+          step={1}
+          format={(v) => `${Math.round(v)}px`}
+          onChange={(blur) => setBackground({ blur })}
+        />
 
         <Slider
           label="Scrim"
@@ -305,6 +414,11 @@ export function Inspector({
             {el.content.type !== 'none' && (
               <>
                 <ElementTransformFields transform={el.transform} onChange={(p) => setElementTransform(i, p)} />
+                <div className="grid grid-cols-2 gap-x-3 rounded-md bg-frost p-2">
+                  <Slider label="Glass tint" value={el.glass?.tint ?? 0.7} min={0} max={1} step={0.05} format={(v) => `${Math.round(v * 100)}%`} onChange={(tint) => setElementGlass(i, { tint })} />
+                  <Slider label="Glass blur" value={el.glass?.blur ?? 24} min={0} max={60} step={1} format={(v) => `${Math.round(v)}px`} onChange={(blur) => setElementGlass(i, { blur })} />
+                </div>
+                <ElementShadowFields shadows={el.shadows} onChange={(shadows) => setElementShadows(i, shadows)} />
                 <div className="border-t border-hair pt-3">
                   <ForegroundContentEditor content={el.content} onChange={(content) => setElement(i, { content })} />
                 </div>

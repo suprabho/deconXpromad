@@ -59,6 +59,7 @@ import {
   ResultGroup,
   SearchInput,
   SearchResultRow,
+  SecureChat,
   SegmentedControl,
   Sidebar,
   SidebarItem,
@@ -73,6 +74,9 @@ import {
   CodeWindow,
   type Column,
   type GraphNode,
+  type ChatItem,
+  type ChatAttachment,
+  type Participant,
 } from '@/components/app';
 import { RiskPill } from '@/components/deconflict/RiskPill';
 
@@ -177,6 +181,57 @@ export async function POST(req: Request) {
     confidence: overlaps[0].score,
   });
 }`;
+
+const CHAT_PARTICIPANTS: Participant[] = [
+  { id: 'me', name: 'Riley Chen', org: 'Meridian Bank · Financial Crime', side: 'self', track: 'fi' },
+  { id: 'le', name: 'Agent D. Park', org: 'FBI · Field Office 14', side: 'peer', track: 'le', online: true },
+];
+
+const CHAT_ITEMS: ChatItem[] = [
+  { kind: 'system', id: 's1', label: 'Secure channel established · participant keys verified' },
+  { kind: 'day', id: 'd1', label: 'Today' },
+  {
+    id: 'm1',
+    authorId: 'le',
+    body: 'Flagging an overlap on subject J. Doe (case LE-2024-08821). Can you confirm exposure on your side?',
+    time: '09:14',
+  },
+  {
+    id: 'm2',
+    authorId: 'me',
+    body: 'Confirmed — three linked accounts, ~$642k moved in the last 30 days. Sending the SAR and the wire trail now.',
+    time: '09:21',
+    status: 'read',
+  },
+  {
+    id: 'm3',
+    authorId: 'me',
+    attachments: [
+      { id: 'f1', name: 'SAR-2024-0188.pdf', size: '2.4 MB', kind: 'pdf', state: 'encrypted', meta: '12 pages' },
+      { id: 'f2', name: 'wire-trail-q2.xlsx', size: '486 KB', kind: 'sheet', state: 'encrypted', meta: '1,204 rows' },
+    ],
+    time: '09:22',
+    status: 'delivered',
+  },
+  {
+    id: 'm4',
+    authorId: 'le',
+    body: 'Got them — signatures check out. Decrypting the bundle on my end and adding our evidence file.',
+    time: '09:24',
+  },
+  {
+    id: 'm5',
+    authorId: 'le',
+    attachments: [
+      { id: 'f3', name: 'evidence-bundle.zip', size: '18.1 MB', kind: 'archive', state: 'verifying', meta: 'AES-256-GCM' },
+    ],
+    time: '09:25',
+  },
+];
+
+const CHAT_DRAFT: ChatAttachment[] = [
+  { id: 'draft-1', name: 'account-freeze-order.pdf', size: '780 KB', kind: 'pdf', meta: '3 pages' },
+];
 
 /* ------------------------------- page ------------------------------------ */
 
@@ -491,6 +546,20 @@ export default function ComponentGalleryPage() {
         {/* ---------------------------- Screen 5 ---------------------------- */}
         <Section n={5} title="Code Window" caption="CodeWindow · CodeLine · syntax highlighter">
           <CodeWindow code={API_CODE} title="api/deconflict.ts" language="ts" highlightLines={[11, 12, 13, 14, 15]} />
+        </Section>
+
+        {/* ---------------------------- Screen 6 ---------------------------- */}
+        <Section n={6} title="Secure Messaging" caption="SecureChat · ChatMessage · EncryptedFile">
+          <div className="flex justify-center rounded-3xl bg-gradient-to-br from-[#1f2147] via-[#26284f] to-[#0d1b3e] p-10">
+            <SecureChat
+              className="h-[640px] w-full max-w-lg"
+              title="Case LE-2024-08821 · J. Doe"
+              subtitle="Meridian Bank ⟷ FBI · Field Office 14"
+              participants={CHAT_PARTICIPANTS}
+              items={CHAT_ITEMS}
+              draftAttachments={CHAT_DRAFT}
+            />
+          </div>
         </Section>
       </div>
     </main>

@@ -27,6 +27,9 @@ export const FOREGROUND_OPTIONS: { type: ForegroundType; label: string }[] = [
   { type: 'StatCard', label: 'Stat Card' },
   { type: 'KanbanCard', label: 'Kanban Card' },
   { type: 'CodeWindow', label: 'Code Window' },
+  { type: 'DonutChart', label: 'Donut Chart' },
+  { type: 'GaugeArc', label: 'Risk Gauge' },
+  { type: 'SecureChat', label: 'Secure Chat' },
 ];
 
 export type AssetOption = { src: string; label: string; group: string };

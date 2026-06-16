@@ -102,7 +102,7 @@ const TONES: Record<
   { panel: string; rule: string; dot: string; icon: string; title: string; body: string; eyebrow: string; close: string }
 > = {
   glass: {
-    panel: 'border-white/25 bg-white/10 text-white',
+    panel: 'glass-tint [--glass-tint-base:0.1] border-white/25 text-white',
     rule: 'border-white/15',
     dot: 'bg-white/40',
     icon: 'text-sky-100 drop-shadow-[0_0_14px_rgba(186,230,253,0.45)]',
@@ -112,7 +112,7 @@ const TONES: Record<
     close: 'text-white/60 hover:bg-white/15 hover:text-white',
   },
   frost: {
-    panel: 'border-white/60 bg-white/70 text-ink',
+    panel: 'glass-tint [--glass-tint-base:0.7] border-white/60 text-ink',
     rule: 'border-hair/70',
     dot: 'bg-ink/15',
     icon: 'text-cobalt drop-shadow-[0_0_10px_rgba(26,86,219,0.18)]',
@@ -139,7 +139,7 @@ export function FeaturePanel({
   return (
     <div
       className={clsx(
-        'w-full overflow-hidden rounded-2xl border shadow-glass backdrop-blur-2xl',
+        'glass-surface [--glass-blur-base:40px] w-full overflow-hidden rounded-2xl border shadow-glass',
         t.panel,
         className
       )}

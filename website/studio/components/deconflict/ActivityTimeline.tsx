@@ -56,7 +56,7 @@ export function ActivityTimeline({ tracks, overlaps, ticks }: TimelineData) {
   const rowY = (i: number) => 30 + i * 34;
 
   return (
-    <div className="rounded-xl border border-white/60 bg-white/70 p-5 shadow-glass backdrop-blur-xl">
+    <div className="glass-surface glass-tint rounded-xl border border-white/60 p-5 shadow-glass">
       <h4 className="mb-4 flex items-center gap-2 text-sm font-bold tracking-wide text-ink">
         <ChartLineUpIcon weight="bold" className="h-4 w-4 text-match" />
         CASE ACTIVITY TIMELINE

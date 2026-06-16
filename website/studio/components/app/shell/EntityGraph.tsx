@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { WindowChrome } from '../primitives/WindowChrome';
 
 /* -------------------------------------------------------------------------- *
  * EntityGraph — the radial node-link diagram at the centre of Screen 1: one
@@ -8,6 +9,10 @@ import clsx from 'clsx';
  * no refs, no measurement, no client JS.
  *
  * Tones colour both the node fill and let you flag matched / alerting entities.
+ *
+ * Set `frame` to drop the graph inside a macOS-style dialog-box panel (the same
+ * WindowChrome the code window uses), so it reads as a standalone window when
+ * floated on the studio stage.
  * -------------------------------------------------------------------------- */
 
 export type GraphTone = 'hub' | 'active' | 'match' | 'alert' | 'idle';
@@ -45,11 +50,17 @@ export function EntityGraph({
   hubLabel = 'Subject',
   className,
   ariaLabel = 'Entity relationship graph',
+  frame = false,
+  frameTitle = 'Entity Graph',
 }: {
   nodes: GraphNode[];
   hubLabel?: string;
   className?: string;
   ariaLabel?: string;
+  /** Wrap the graph in a macOS-style dialog-box panel. */
+  frame?: boolean;
+  /** Title shown in the frame's chrome (only when `frame`). */
+  frameTitle?: string;
 }) {
   const byRing = {
     1: nodes.filter((n) => (n.ring ?? 1) === 1),
@@ -71,8 +82,8 @@ export function EntityGraph({
     });
   });
 
-  return (
-    <div className={clsx('relative aspect-square w-full', className)}>
+  const graph = (
+    <div className={clsx('relative aspect-square w-full', !frame && className)}>
       <svg viewBox="0 0 100 100" className="h-full w-full" role="img" aria-label={ariaLabel}>
         {/* faint concentric guide rings */}
         {[RING_RADIUS[1], RING_RADIUS[2]].map((r) => (
@@ -118,6 +129,21 @@ export function EntityGraph({
       <span className="pointer-events-none absolute left-1/2 top-[58%] -translate-x-1/2 whitespace-nowrap text-[11px] font-semibold text-ink">
         {hubLabel}
       </span>
+    </div>
+  );
+
+  if (!frame) return graph;
+
+  // Dialog-box frame: a frosted panel with macOS window chrome behind the graph.
+  return (
+    <div
+      className={clsx(
+        'glass-surface glass-tint [--glass-tint-base:0.8] overflow-hidden rounded-2xl border border-hair/70 shadow-glass',
+        className
+      )}
+    >
+      <WindowChrome tone="light" title={frameTitle} />
+      <div className="p-4">{graph}</div>
     </div>
   );
 }

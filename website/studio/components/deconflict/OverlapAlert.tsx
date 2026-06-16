@@ -5,8 +5,8 @@ export function OverlapAlert({ status, detail, timestamp }: AlertData) {
   return (
     <div
       role="status"
-      className="flex items-center gap-3 rounded-xl border border-alert-border/70
-                 bg-alert-bg/80 px-5 py-3.5 text-ink shadow-glass-sm backdrop-blur-md"
+      className="glass-surface [--glass-blur-base:12px] flex items-center gap-3 rounded-xl border border-alert-border/70
+                 bg-alert-bg/80 px-5 py-3.5 text-ink shadow-glass-sm"
     >
       <span
         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full

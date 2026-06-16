@@ -16,3 +16,32 @@ body.render-surface {
   background: transparent;
   overflow: hidden;
 }
+
+/* -------------------------------------------------------------------------- *
+ * Tunable glassmorphism. A frosted surface opts in with `.glass-surface`
+ * (backdrop blur) and/or `.glass-tint` (white fill alpha). Each reads the
+ * `--glass-blur` / `--glass-tint` override the studio threads down from the
+ * foreground element wrapper, falling back to the component's own base
+ * (`--glass-blur-base` / `--glass-tint-base`, set inline when it differs from
+ * the defaults below). With no override set, every surface renders exactly as
+ * before — so these classes are safe everywhere the components are used.
+ * -------------------------------------------------------------------------- */
+@layer components {
+  .glass-surface {
+    -webkit-backdrop-filter: blur(var(--glass-blur, var(--glass-blur-base, 24px)));
+    backdrop-filter: blur(var(--glass-blur, var(--glass-blur-base, 24px)));
+  }
+  .glass-tint {
+    background-color: rgba(255, 255, 255, var(--glass-tint, var(--glass-tint-base, 0.7)));
+  }
+
+  /* Foreground element drop-shadows. Applied to the element's OWN root node (the
+     direct child of the positioned wrapper) rather than the wrapper itself: a
+     `filter` on an ancestor kills a descendant's backdrop-filter, but a filter
+     and a backdrop-filter on the SAME node coexist — so the card keeps its glass
+     blur while casting a silhouette-following shadow. `--fg-shadow` is threaded
+     down from the wrapper; unset → `none` (no-op, no stacking-context cost). */
+  .fg-item > * {
+    filter: var(--fg-shadow, none);
+  }
+}

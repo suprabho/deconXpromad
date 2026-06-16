@@ -66,7 +66,7 @@ export function AlertCard({
         </span>
       )}
 
-      <article className="overflow-hidden rounded-xl border border-white/60 bg-white/70 shadow-glass backdrop-blur-xl">
+      <article className="glass-surface glass-tint overflow-hidden rounded-xl border border-white/60 shadow-glass">
         <header className="flex items-start justify-between gap-3 px-5 pt-5 pb-4">
           <div>
             <h3 className={clsx('text-base font-bold uppercase tracking-wide', accentClassName)}>

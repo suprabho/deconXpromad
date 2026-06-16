@@ -25,6 +25,22 @@ const PRESET_XY: Record<PositionPreset, { x: number; y: number }> = {
 };
 
 /**
+ * Backfill a saved transform into the current shape. `scale` used to be the
+ * box-width fraction (there was no `width`); it has since split into `width`
+ * (layout box) + `scale` (CSS zoom). A transform that predates the split has a
+ * `scale` but no `width`, so the old `scale` IS the width and the CSS scale
+ * resets to 1.
+ */
+function migrateTransform(raw: Partial<Transform> | undefined): Transform {
+  const t = { ...DEFAULT_TRANSFORM, ...raw };
+  if (raw && raw.width === undefined && typeof raw.scale === 'number') {
+    t.width = raw.scale;
+    t.scale = 1;
+  }
+  return t;
+}
+
+/**
  * Coerce any saved foreground into the current ForegroundElement[] shape:
  *  - an array → backfill missing transform fields + ids;
  *  - a legacy single { content, position, size } → wrap + map preset → transform;
@@ -37,18 +53,20 @@ function migrateForeground(raw: unknown): ForegroundElement[] {
       .map((el, i) => ({
         id: typeof el.id === 'string' ? el.id : `fg-${i}`,
         content: (el.content as ForegroundContent | undefined) ?? { type: 'none' },
-        transform: { ...DEFAULT_TRANSFORM, ...(el.transform as Partial<Transform> | undefined) },
+        transform: migrateTransform(el.transform as Partial<Transform> | undefined),
+        ...(el.glass && typeof el.glass === 'object' ? { glass: el.glass } : {}),
+        ...(Array.isArray(el.shadows) ? { shadows: el.shadows } : {}),
       }));
   }
   if (raw && typeof raw === 'object' && 'content' in raw) {
     const legacy = raw as { content?: ForegroundContent; position?: PositionPreset; size?: SizeScale };
     const xy = PRESET_XY[legacy.position ?? 'center'] ?? PRESET_XY.center;
-    const scale = SCALE_FRACTION[legacy.size ?? 'M'] ?? SCALE_FRACTION.M;
+    const width = SCALE_FRACTION[legacy.size ?? 'M'] ?? SCALE_FRACTION.M;
     return [
       {
         id: 'fg-migrated',
         content: legacy.content ?? { type: 'none' },
-        transform: { ...DEFAULT_TRANSFORM, x: xy.x, y: xy.y, scale },
+        transform: { ...DEFAULT_TRANSFORM, x: xy.x, y: xy.y, width },
       },
     ];
   }

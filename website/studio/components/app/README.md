@@ -9,6 +9,7 @@ Tailwind tokens (`ink`, `fi`, `match`, `risk`, `muted`, `hair`, `frost`, `navy`,
 Everything is **server-renderable** unless noted. Import from `@/components/app`.
 
 Live gallery: **`/components`** (all five screens composed end to end).
+Consolidated analytics view: **`/dashboard`** (every analytics widget in one screen).
 
 ```tsx
 import { Sidebar, NavTree, EntityGraph, StatCard, KanbanCard } from '@/components/app';
@@ -21,9 +22,10 @@ import { Sidebar, NavTree, EntityGraph, StatCard, KanbanCard } from '@/component
 | `primitives/` | shared | `StatusDot` · `Avatar` · `Badge` / `CountBadge` · `StatusBadge` · `Button` · `IconButton` · `SearchInput` / `Kbd` · `Select` · `ProgressBar` · `SegmentedControl` · `Tabs` · `PageDots` · `WindowChrome` |
 | `shell/`      | 1 — Workspace | `WorkspaceLayout` · `Sidebar` / `SidebarItem` / `SidebarSection` · `NavTree` · `AppHeader` / `Brand` · `Toolbar` (+ `ToolbarGroup` / `ToolbarDivider` / `ToolbarSpacer`) · `Panel` · `EntityList` / `EntityRow` · `EntityGraph` |
 | `search/`     | 2 — Command palette | `CommandPalettePanel` · `CommandPalette` (dialog, client) · `SearchResultRow` · `ResultGroup` |
-| `analytics/`  | 3 — Dashboard | `StatCard` · `KpiTile` · `MetricPanel` / `MetricFigure` · `DataTable` · `AreaChart` (client) · `BarChart` · `Sparkline` · `Delta` · `geometry` helpers |
+| `analytics/`  | 3 — Dashboard | `StatCard` · `KpiTile` · `MetricPanel` / `MetricFigure` · `DataTable` · `AreaChart` (client) · `BarChart` · `Sparkline` · `Delta` · `DonutChart` · `GaugeArc` · `DistributionBar` · `Heatmap` · `RankList` · `ActivityFeed` · `geometry` helpers |
 | `board/`      | 4 — Workflow board | `Board` / `BoardColumn` · `KanbanCard` · `ConnectorCard` · `Breadcrumb` · `PageHeader` |
 | `code/`       | 5 — Code window | `CodeWindow` · `CodeLine` · `tokenize` / `tokenizeLine` highlighter |
+| `messaging/`  | 6 — Secure chat | `SecureChat` · `ChatMessage` · `EncryptedFile` |
 
 ## Conventions
 
@@ -51,9 +53,12 @@ const columns: Column<Row>[] = [
 
 ## Studio foregrounds
 
-Five of these are registered as composable foreground plates in the visual
+Eight of these are registered as composable foreground plates in the visual
 studio (pick them from the foreground type dropdown in the inspector):
-**Command Palette · Entity Graph · Stat Card · Kanban Card · Code Window**.
+**Command Palette · Entity Graph · Stat Card · Kanban Card · Code Window ·
+Donut Chart · Risk Gauge · Secure Chat**. Icon-free plates (Donut Chart, Risk
+Gauge — wrapped in a `Panel` — and the self-contained Secure Chat) render their
+component directly in `ForegroundLayer`; no adapter needed.
 
 Each one touches five spots — the pattern for adding more:
 

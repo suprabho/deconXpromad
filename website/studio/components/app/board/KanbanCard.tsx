@@ -52,7 +52,7 @@ export function KanbanCard({
       type={onClick ? 'button' : undefined}
       onClick={onClick}
       className={clsx(
-        'relative block w-full overflow-hidden rounded-xl border border-white/60 bg-white/80 p-3.5 text-left shadow-glass-sm backdrop-blur-md transition-shadow',
+        'glass-surface glass-tint [--glass-tint-base:0.8] [--glass-blur-base:12px] relative block w-full overflow-hidden rounded-xl border border-white/60 p-3.5 text-left shadow-glass-sm transition-shadow',
         onClick && 'hover:shadow-glass',
         accent &&
           clsx('before:absolute before:inset-y-0 before:left-0 before:w-1', ACCENTS[accent]),

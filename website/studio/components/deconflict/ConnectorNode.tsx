@@ -26,8 +26,8 @@ export function ConnectorNode({ matches }: { matches: number }) {
 
       {/* the chip */}
       <div
-        className="relative z-10 flex h-20 w-20 flex-col items-center justify-center
-                   rounded-full border border-white/60 bg-white/70 shadow-glass backdrop-blur-md"
+        className="glass-surface glass-tint [--glass-blur-base:12px] relative z-10 flex h-20 w-20 flex-col items-center justify-center
+                   rounded-full border border-white/60 shadow-glass"
       >
         <LinkSimpleIcon weight="bold" className="h-5 w-5 text-match" />
         <span className="mt-0.5 text-xs font-semibold text-ink">

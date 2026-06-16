@@ -41,7 +41,7 @@ export function CommandPalettePanel({
   return (
     <div
       className={clsx(
-        'w-full overflow-hidden rounded-2xl border border-white/60 bg-white/80 shadow-glass backdrop-blur-2xl',
+        'glass-surface glass-tint [--glass-tint-base:0.8] [--glass-blur-base:40px] w-full overflow-hidden rounded-2xl border border-white/60 shadow-glass',
         className
       )}
     >

@@ -12,7 +12,7 @@ import { Sparkline } from './Sparkline';
 
 const TONES = {
   light: {
-    card: 'border-white/60 bg-white/70 text-ink shadow-glass backdrop-blur-xl',
+    card: 'glass-surface glass-tint border-white/60 text-ink shadow-glass',
     label: 'text-muted',
     value: 'text-ink',
     icon: 'border-white/60 bg-frost text-fi',

@@ -13,7 +13,7 @@ import { RiskPill } from './RiskPill';
 
 export function CaseCard({ data, reveal }: { data: CaseData; reveal: CaseReveal }) {
   return (
-    <article className="overflow-hidden rounded-xl border border-white/60 bg-white/70 shadow-glass backdrop-blur-xl">
+    <article className="glass-surface glass-tint overflow-hidden rounded-xl border border-white/60 shadow-glass">
       <header className="flex items-start gap-3 px-5 pt-5 pb-4">
         <span
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg
