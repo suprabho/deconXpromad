@@ -44,10 +44,27 @@ export const AI_IMAGE_MODELS: ImageModel[] = [
 export const DEFAULT_CONTENT_MODEL = AI_CONTENT_MODELS[0].id;
 export const DEFAULT_IMAGE_MODEL = AI_IMAGE_MODELS[0].id;
 
+/**
+ * Reference-image ("edit"/image-to-image) generation needs a multimodal model
+ * that accepts an input image. We route reference-guided requests through this
+ * one when the chosen model can't take a reference itself.
+ */
+export const REFERENCE_IMAGE_MODEL = 'google/gemini-3-pro-image';
+
 export function isContentModel(id: string | undefined): id is string {
   return !!id && AI_CONTENT_MODELS.some((m) => m.id === id);
 }
 
 export function imageModelFor(id: string | undefined): ImageModel {
   return AI_IMAGE_MODELS.find((m) => m.id === id) ?? AI_IMAGE_MODELS[0];
+}
+
+/** Display label for an image-model id (falls back to the raw id). */
+export function imageModelLabel(id: string | undefined): string {
+  return AI_IMAGE_MODELS.find((m) => m.id === id)?.label ?? id ?? '';
+}
+
+/** True when the model can take a reference image (multimodal edit-capable). */
+export function supportsReference(id: string | undefined): boolean {
+  return imageModelFor(id).mode === 'multimodal';
 }
