@@ -13,7 +13,13 @@ const nextConfig = {
   outputFileTracingRoot: __dirname,
   // Keep native / browser-driving packages out of the server bundle; they are
   // lazy-imported at runtime inside the export route.
-  serverExternalPackages: ['playwright', 'sharp'],
+  serverExternalPackages: ['playwright', 'playwright-core', 'sharp', '@sparticuz/chromium'],
+  // @sparticuz/chromium ships its chromium as brotli files loaded dynamically at
+  // runtime; Next's tracer can't see that require, so force the package into the
+  // export function's bundle or the launch fails with "Executable doesn't exist".
+  outputFileTracingIncludes: {
+    '/api/export': ['./node_modules/@sparticuz/chromium/**'],
+  },
 };
 
 export default nextConfig;

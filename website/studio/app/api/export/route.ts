@@ -1,5 +1,6 @@
 import { renderComposition, type ImageFormat } from '@/lib/composition/screenshot';
 import { putConfig } from '@/lib/composition/store';
+import { BLOB_ENABLED, putConfigBlob, delConfigBlob } from '@/lib/composition/blob-handoff';
 import { DEFAULT_COMPOSITION } from '@/lib/composition/defaults';
 import type { CompositionConfig } from '@/lib/composition/types';
 
@@ -17,10 +18,19 @@ export async function POST(req: Request) {
     return new Response('Invalid JSON body', { status: 400 });
   }
 
+  // Hand the config to /render. On serverless the two routes are separate
+  // invocations with no shared memory, so route the config through Blob and pass
+  // its URL; locally a single process shares the in-memory store, so pass an id.
+  let blobUrl: string | null = null;
   try {
     const origin = new URL(req.url).origin;
-    const id = putConfig(config);
-    const renderUrl = `${origin}/render?id=${id}`;
+    let renderUrl: string;
+    if (BLOB_ENABLED) {
+      blobUrl = await putConfigBlob(config);
+      renderUrl = `${origin}/render?u=${encodeURIComponent(blobUrl)}`;
+    } else {
+      renderUrl = `${origin}/render?id=${putConfig(config)}`;
+    }
     const buf = await renderComposition(renderUrl, config, { scale: 2, format });
 
     return new Response(new Uint8Array(buf), {
@@ -34,8 +44,10 @@ export async function POST(req: Request) {
   } catch (e) {
     const msg = (e as Error).message ?? 'render failed';
     const hint = /Executable doesn't exist|launch|browserType/i.test(msg)
-      ? ' — run `pnpm exec playwright install chromium` in website/studio.'
+      ? ' — on Vercel ensure @sparticuz/chromium is bundled; locally run `pnpm exec playwright install chromium` in website/studio.'
       : '';
     return new Response(`Export failed: ${msg}${hint}`, { status: 500 });
+  } finally {
+    if (blobUrl) await delConfigBlob(blobUrl);
   }
 }

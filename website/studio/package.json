@@ -7,14 +7,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "postinstall": "playwright install chromium"
+    "postinstall": "node -e \"process.env.VERCEL||require('child_process').execSync('playwright install chromium',{stdio:'inherit'})\""
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.7",
+    "@sparticuz/chromium": "^149.0.0",
+    "@vercel/blob": "^2.4.0",
     "ai": "^6.0.207",
     "clsx": "^2.1.1",
     "next": "^15.3.3",
     "playwright": "^1.49.0",
+    "playwright-core": "1.61.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "sharp": "^0.34.5",
