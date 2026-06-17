@@ -3,9 +3,23 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CompositionStage } from '@/components/studio/CompositionStage';
 import { Inspector } from '@/components/studio/inspector/Inspector';
+import { LibraryDialog } from '@/components/studio/LibraryDialog';
 import { sizeFor, type CompositionConfig } from '@/lib/composition/types';
 import { DEFAULT_COMPOSITION } from '@/lib/composition/defaults';
-import { exportJson, importJson, loadComposition, saveComposition } from '@/lib/composition/persistence';
+import {
+  exportJson,
+  importJson,
+  loadComposition,
+  loadDocPointer,
+  mergeComposition,
+  saveComposition,
+  saveDocPointer,
+} from '@/lib/composition/persistence';
+import {
+  updateComposition,
+  type SavedComposition,
+  type SavedCompositionMeta,
+} from '@/lib/composition/library-client';
 
 type ImageFormat = 'png' | 'webp';
 
@@ -16,15 +30,39 @@ export default function StudioEditor() {
   const [error, setError] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
 
+  // Saved-library state: which DB row the working draft tracks, and whether it
+  // has unsaved edits since the last save/open.
+  const [currentId, setCurrentId] = useState<string | null>(null);
+  const [currentName, setCurrentName] = useState('Untitled');
+  const [dirty, setDirty] = useState(false);
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  // JSON of the last saved / opened composition; the draft is "dirty" when it
+  // diverges. A value compare (recomputed on the autosave debounce) rather than an
+  // edit counter, so it stays correct across React Strict Mode's double-invoked
+  // effects. Null until the first hydrate, when no comparison is meaningful.
+  const baselineRef = useRef<string | null>(null);
+
   // Hydrate from localStorage AFTER mount (first render matches the server's
-  // DEFAULT_COMPOSITION, so there is no hydration mismatch).
+  // DEFAULT_COMPOSITION, so there is no hydration mismatch). Restore the saved-row
+  // pointer too, so "Save" knows whether to update an existing row or create one.
   useEffect(() => {
-    setConfig(loadComposition());
+    const pointer = loadDocPointer();
+    if (pointer) {
+      setCurrentId(pointer.id);
+      setCurrentName(pointer.name);
+    }
+    const loaded = loadComposition();
+    baselineRef.current = JSON.stringify(loaded);
+    setConfig(loaded);
   }, []);
 
-  // Debounced autosave.
+  // Debounced autosave of the working draft + dirty recompute against the baseline.
   useEffect(() => {
-    const t = setTimeout(() => saveComposition(config), 500);
+    const t = setTimeout(() => {
+      saveComposition(config);
+      if (baselineRef.current !== null) setDirty(JSON.stringify(config) !== baselineRef.current);
+    }, 500);
     return () => clearTimeout(t);
   }, [config]);
 
@@ -70,7 +108,14 @@ export default function StudioEditor() {
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      setConfig(await importJson(file));
+      const imported = await importJson(file);
+      baselineRef.current = JSON.stringify(imported);
+      setConfig(imported);
+      // An imported file is an untracked draft until it's saved.
+      setCurrentId(null);
+      setCurrentName(file.name.replace(/\.json$/i, '') || 'Untitled');
+      saveDocPointer(null);
+      setDirty(false);
       setError(null);
     } catch {
       setError('Could not read that JSON file.');
@@ -78,6 +123,68 @@ export default function StudioEditor() {
       e.target.value = '';
     }
   };
+
+  // A create/update of the CURRENT draft persisted `savedConfig` — adopt the row
+  // as the draft's identity and reset the dirty baseline to what's now stored.
+  const handleSaved = useCallback((meta: SavedCompositionMeta, savedConfig: CompositionConfig) => {
+    setCurrentId(meta.id);
+    setCurrentName(meta.name);
+    saveDocPointer({ id: meta.id, name: meta.name });
+    baselineRef.current = JSON.stringify(savedConfig);
+    setDirty(false);
+  }, []);
+
+  // A rename of the tracked row — name only, the config wasn't re-persisted, so
+  // the dirty state is left untouched.
+  const handleRenamed = useCallback((meta: SavedCompositionMeta) => {
+    setCurrentName(meta.name);
+    saveDocPointer({ id: meta.id, name: meta.name });
+  }, []);
+
+  // Load a saved composition into the editor.
+  const handleLoad = useCallback((doc: SavedComposition) => {
+    const merged = mergeComposition(doc.config);
+    baselineRef.current = JSON.stringify(merged);
+    setConfig(merged);
+    setCurrentId(doc.id);
+    setCurrentName(doc.name);
+    saveDocPointer({ id: doc.id, name: doc.name });
+    setDirty(false);
+    setError(null);
+  }, []);
+
+  // If the row the draft tracks gets deleted, detach (the draft lives on locally,
+  // now as unsaved work).
+  const handleDeleted = useCallback(
+    (id: string) => {
+      if (id === currentId) {
+        setCurrentId(null);
+        saveDocPointer(null);
+        setDirty(true);
+      }
+    },
+    [currentId],
+  );
+
+  // Header "Save": update the tracked row in place, or open the library to name a
+  // brand-new composition.
+  const quickSave = useCallback(async () => {
+    if (!currentId) {
+      setLibraryOpen(true);
+      return;
+    }
+    const sent = config;
+    setSaving(true);
+    setError(null);
+    try {
+      const meta = await updateComposition(currentId, { name: currentName, config: sent });
+      handleSaved(meta, sent);
+    } catch (e) {
+      setError((e as Error).message || 'Save failed');
+    } finally {
+      setSaving(false);
+    }
+  }, [currentId, currentName, config, handleSaved]);
 
   return (
     <div className="flex h-screen flex-col bg-frost text-ink">
@@ -88,6 +195,13 @@ export default function StudioEditor() {
           <span className="text-sm">Deconflict Visual Studio</span>
         </div>
         <span className="rounded bg-frost px-2 py-0.5 text-xs text-muted">{size.width} × {size.height}</span>
+        <span
+          className="flex items-center gap-1 text-xs text-muted"
+          title={currentId ? 'Saved to the library' : 'Not yet saved to the library'}
+        >
+          <span className="max-w-[160px] truncate">{currentName}</span>
+          {dirty && <span className="text-match" title="Unsaved changes">•</span>}
+        </span>
 
         <div className="ml-auto flex items-center gap-2">
           <input ref={fileInput} type="file" accept="application/json" className="hidden" onChange={onImport} />
@@ -105,6 +219,26 @@ export default function StudioEditor() {
           >
             Export JSON
           </button>
+
+          <span className="mx-1 h-5 w-px bg-hair" />
+
+          <button
+            type="button"
+            onClick={() => setLibraryOpen(true)}
+            className="rounded-md border border-hair px-2.5 py-1.5 text-xs font-medium text-ink hover:bg-frost"
+          >
+            Library
+          </button>
+          <button
+            type="button"
+            onClick={quickSave}
+            disabled={saving}
+            className="rounded-md border border-cobalt/30 bg-cobalt/5 px-2.5 py-1.5 text-xs font-semibold text-cobalt transition hover:bg-cobalt/10 disabled:opacity-60"
+          >
+            {saving ? 'Saving…' : currentId ? 'Save' : 'Save…'}
+          </button>
+
+          <span className="mx-1 h-5 w-px bg-hair" />
 
           <div className="flex overflow-hidden rounded-md border border-hair text-xs font-medium">
             {(['png', 'webp'] as ImageFormat[]).map((f) => (
@@ -155,6 +289,18 @@ export default function StudioEditor() {
           </div>
         </main>
       </div>
+
+      <LibraryDialog
+        open={libraryOpen}
+        onClose={() => setLibraryOpen(false)}
+        config={config}
+        currentId={currentId}
+        currentName={currentName}
+        onSaved={handleSaved}
+        onRenamed={handleRenamed}
+        onLoad={handleLoad}
+        onDeleted={handleDeleted}
+      />
     </div>
   );
 }

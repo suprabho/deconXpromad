@@ -12,6 +12,9 @@ import { DEFAULT_MID_TRANSFORM, DEFAULT_TRANSFORM, SCALE_FRACTION } from './type
 import { DEFAULT_COMPOSITION } from './defaults';
 
 const KEY = 'deconflict-studio:v1';
+/** Which saved-library row the working draft came from (so a reload still knows
+ *  whether "Save" should update an existing composition or create a new one). */
+const DOC_KEY = 'deconflict-studio:doc';
 
 /** Centre (x%, y%) approximating a legacy PositionPreset, for one-time migration. */
 const PRESET_XY: Record<PositionPreset, { x: number; y: number }> = {
@@ -132,6 +135,31 @@ export function saveComposition(config: CompositionConfig): void {
   if (typeof window === 'undefined') return;
   try {
     window.localStorage.setItem(KEY, JSON.stringify(config));
+  } catch {
+    /* quota / private mode — ignore */
+  }
+}
+
+/** A pointer to the saved-library row the working draft is tracking. */
+export type DocPointer = { id: string; name: string };
+
+export function loadDocPointer(): DocPointer | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem(DOC_KEY);
+    if (!raw) return null;
+    const p = JSON.parse(raw);
+    return p && typeof p.id === 'string' && typeof p.name === 'string' ? p : null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveDocPointer(pointer: DocPointer | null): void {
+  if (typeof window === 'undefined') return;
+  try {
+    if (pointer) window.localStorage.setItem(DOC_KEY, JSON.stringify(pointer));
+    else window.localStorage.removeItem(DOC_KEY);
   } catch {
     /* quota / private mode — ignore */
   }

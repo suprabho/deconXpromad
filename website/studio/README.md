@@ -78,8 +78,21 @@ chosen models are server-validated against the allow-list in
   [`components/deconflict/`](components/deconflict) — built per `deconflict-ui-guide.md`,
   fully props-driven. The inspector edits their content (case fields, per-field
   reveal states, timeline tracks, alert text, …).
-- **Local persistence.** Autosaves to `localStorage`; Import/Export the
-  composition as JSON. No backend. See [`lib/composition/persistence.ts`](lib/composition/persistence.ts).
+- **Persistence.** The working draft autosaves to `localStorage`; you can also
+  Import/Export it as JSON ([`lib/composition/persistence.ts`](lib/composition/persistence.ts)).
+  **Save / Library** persist named compositions to Supabase so they outlive the
+  browser — `Save` updates the open composition (or names a new one), and
+  `Library` lists every saved composition to open, rename or delete. The CRUD
+  lives in [`lib/composition/library.ts`](lib/composition/library.ts) behind
+  [`/api/compositions`](app/api/compositions/route.ts); there's no auth, so the
+  library is a single shared workspace.
+
+  **Setup:** the same `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` the export
+  handoff already uses (server-only — the service-role key bypasses RLS and must
+  never reach the client). Create the tables once by running
+  [`supabase/schema.sql`](supabase/schema.sql) in the Supabase SQL editor. Without
+  these env vars Save/Library are unavailable (the API returns 503) but the rest
+  of the studio — including localStorage autosave and JSON import/export — works.
 
 ## Assets
 

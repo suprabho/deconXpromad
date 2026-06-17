@@ -1,5 +1,5 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { CompositionConfig } from './types';
+import { REMOTE_ENABLED, supabase } from './supabase-server';
 import { putConfig as putMemory, getConfig as getMemory } from './store';
 
 /**
@@ -13,8 +13,8 @@ import { putConfig as putMemory, getConfig as getMemory } from './store';
  * handoff is addressed by a single `?id=` — render never touches a raw URL, so
  * there is no public blob and no SSRF surface.
  *
- * Required env (server-only — the service-role key bypasses RLS and must never
- * reach the client): SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY.
+ * Uses the shared service-role client in `supabase-server.ts` (env + RLS notes
+ * there).
  *
  * Table (run once in the Supabase SQL editor):
  *   create table if not exists export_handoff (
@@ -24,23 +24,8 @@ import { putConfig as putMemory, getConfig as getMemory } from './store';
  *   );
  *   alter table export_handoff enable row level security; -- service role only
  */
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-export const REMOTE_ENABLED = !!(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY);
-
 const TABLE = 'export_handoff';
 const TTL_MS = 5 * 60_000; // orphaned rows (export errored before delete) age out.
-
-let client: SupabaseClient | null = null;
-function supabase(): SupabaseClient {
-  if (!client) {
-    client = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
-  }
-  return client;
-}
 
 /** Stash a config, return the id /render should be pointed at. */
 export async function putHandoff(config: CompositionConfig): Promise<string> {

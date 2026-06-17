@@ -58,9 +58,16 @@ export async function renderComposition(
     // Let the aura canvas warm up and settle into a representative frame.
     await page.waitForTimeout(settleMs);
 
+    // Capture via a page-level clip rather than elementHandle.screenshot():
+    // #stage holds a perpetually-animating WebGL aura, so Playwright's per-element
+    // actionability (scroll-into-view + "wait for element to be stable") never
+    // settles and times out after 30s. A clipped page screenshot skips those
+    // checks while capturing the exact same region. #stage fills the viewport
+    // (viewport == composition size), so the clip is just its bounding box.
     const el = await page.$('#stage');
-    const png = (el
-      ? await el.screenshot({ type: 'png' })
+    const box = el && (await el.boundingBox());
+    const png = (box
+      ? await page.screenshot({ type: 'png', clip: box })
       : await page.screenshot({ type: 'png' })) as Buffer;
 
     if (format === 'webp') {
