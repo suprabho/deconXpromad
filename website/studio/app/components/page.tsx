@@ -382,33 +382,33 @@ export default function ComponentGalleryPage() {
                 </>
               }
             >
-              <ResultGroup label="Cases" action={<Button variant="link">See all</Button>}>
+              <ResultGroup label="Agencies" action={<Button variant="link">See all</Button>}>
                 <SearchResultRow
-                  icon={<ShieldCheckIcon weight="duotone" className="h-5 w-5 text-fi" />}
-                  title="John Doe — wire fraud"
-                  subtitle="Subject in active wire-fraud investigation"
-                  meta="15 entries"
+                  icon={<img src="/assets/logos/fbi.png" alt="" className="h-full w-full object-contain" />}
+                  title="Federal Bureau of Investigation"
+                  subtitle="Originating agency · case #LE-2024-08821"
+                  meta="18 entries"
                   active
                 />
                 <SearchResultRow
-                  icon={<BuildingsIcon weight="duotone" className="h-5 w-5 text-muted" />}
-                  title="FBI · Field Office 14"
-                  subtitle="Originating agency · case #LE-2024-08821"
-                  meta="18 entries"
+                  icon={<img src="/assets/logos/interpol.png" alt="" className="h-full w-full object-contain" />}
+                  title="INTERPOL"
+                  subtitle="Red Notice linked · cross-border alert"
+                  meta="12 entries"
                 />
               </ResultGroup>
-              <ResultGroup label="Entities">
+              <ResultGroup label="Institutions">
                 <SearchResultRow
-                  icon={<Avatar name="John Doe" size="sm" />}
-                  title="John Doe"
-                  subtitle="wallet 0x7a3f…c10b · 3 linked accounts"
-                  meta="23 entries"
-                />
-                <SearchResultRow
-                  icon={<BankIcon weight="duotone" className="h-5 w-5 text-muted" />}
-                  title="Meridian Bank"
+                  icon={<img src="/assets/logos/hsbc.png" alt="" className="h-full w-full object-contain" />}
+                  title="HSBC"
                   subtitle="Financial institution · AML alert linked"
                   meta="15 entries"
+                />
+                <SearchResultRow
+                  icon={<img src="/assets/logos/chainalysis.png" alt="" className="h-full w-full object-contain" />}
+                  title="Chainalysis"
+                  subtitle="On-chain analytics · wallet cluster flagged"
+                  meta="23 entries"
                 />
               </ResultGroup>
             </CommandPalettePanel>
