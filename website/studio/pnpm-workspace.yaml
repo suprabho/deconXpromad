@@ -1,9 +1,6 @@
-allowBuilds:
-  sharp: set this to true or false
-
 # pnpm 10+ reads project settings from here (no longer from .npmrc or the
 # package.json "pnpm" field).
-#
+
 # nodeLinker: hoisted installs a flat, npm-style node_modules instead of pnpm's
 # default symlink farm. The /api/export serverless function force-includes
 # @sparticuz/chromium (and traces playwright-core / sharp) into its Lambda
@@ -12,8 +9,14 @@ allowBuilds:
 # Function ... files in symlinked directories"). Hoisting makes them real dirs.
 nodeLinker: hoisted
 
-# Migrated from the deprecated package.json "pnpm" field.
-onlyBuiltDependencies:
-  - sharp
-  - esbuild
-  - '@phosphor-icons/react'
+# Disable pnpm 11's fresh-release quarantine. It rejects packages published
+# within ~24h (e.g. ai / @ai-sdk/* / @supabase/phoenix), which blocks CI from
+# installing our already-committed, vetted lockfile.
+minimumReleaseAge: 0
+
+# Allow these dependencies to run install/build scripts (pnpm 11 blocks them by
+# default). Replaces the deprecated package.json "pnpm.onlyBuiltDependencies".
+allowBuilds:
+  sharp: true
+  esbuild: true
+  '@phosphor-icons/react': true
