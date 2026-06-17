@@ -8,7 +8,7 @@ import type { CompositionConfig } from './types';
  * string). This works because local dev / `next start` runs export and render in
  * the SAME process, so a `globalThis`-backed Map is shared between them (and
  * survives dev HMR reloads). On serverless the two run in separate invocations
- * with no shared memory — see `blob-handoff.ts` for that path.
+ * with no shared memory — `handoff.ts` swaps in a Supabase-backed store there.
  */
 type Entry = { config: CompositionConfig; expires: number };
 

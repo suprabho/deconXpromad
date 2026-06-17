@@ -1,6 +1,5 @@
 import { renderComposition, type ImageFormat } from '@/lib/composition/screenshot';
-import { putConfig } from '@/lib/composition/store';
-import { BLOB_ENABLED, putConfigBlob, delConfigBlob } from '@/lib/composition/blob-handoff';
+import { putHandoff, delHandoff } from '@/lib/composition/handoff';
 import { DEFAULT_COMPOSITION } from '@/lib/composition/defaults';
 import type { CompositionConfig } from '@/lib/composition/types';
 
@@ -18,19 +17,14 @@ export async function POST(req: Request) {
     return new Response('Invalid JSON body', { status: 400 });
   }
 
-  // Hand the config to /render. On serverless the two routes are separate
-  // invocations with no shared memory, so route the config through Blob and pass
-  // its URL; locally a single process shares the in-memory store, so pass an id.
-  let blobUrl: string | null = null;
+  // Stash the config and point /render at it by id. The handoff is durable
+  // (Supabase) on serverless — where export and render are separate invocations
+  // with no shared memory — and falls back to an in-process Map locally.
+  let handoffId: string | null = null;
   try {
     const origin = new URL(req.url).origin;
-    let renderUrl: string;
-    if (BLOB_ENABLED) {
-      blobUrl = await putConfigBlob(config);
-      renderUrl = `${origin}/render?u=${encodeURIComponent(blobUrl)}`;
-    } else {
-      renderUrl = `${origin}/render?id=${putConfig(config)}`;
-    }
+    handoffId = await putHandoff(config);
+    const renderUrl = `${origin}/render?id=${handoffId}`;
     const buf = await renderComposition(renderUrl, config, { scale: 2, format });
 
     return new Response(new Uint8Array(buf), {
@@ -48,6 +42,6 @@ export async function POST(req: Request) {
       : '';
     return new Response(`Export failed: ${msg}${hint}`, { status: 500 });
   } finally {
-    if (blobUrl) await delConfigBlob(blobUrl);
+    if (handoffId) await delHandoff(handoffId);
   }
 }
