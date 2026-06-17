@@ -12,8 +12,18 @@ import { OverlayTextLayer } from './OverlayTextLayer';
  * and the Playwright screenshot — are pixel-identical.
  *
  * Layer order (z): background → scrim → mid graphics → foreground elements → overlay text.
+ *
+ * `staticAuraUrl` is forwarded to the background layer to pick the aura render
+ * mode (live iframe in the editor vs. a cached still for the headless export) —
+ * see {@link BackgroundLayer}. The editor omits it; only /render sets it.
  */
-export function CompositionStage({ config }: { config: CompositionConfig }) {
+export function CompositionStage({
+  config,
+  staticAuraUrl,
+}: {
+  config: CompositionConfig;
+  staticAuraUrl?: string | null;
+}) {
   const size = sizeFor(config.sizeId);
   return (
     <div
@@ -26,7 +36,7 @@ export function CompositionStage({ config }: { config: CompositionConfig }) {
         isolation: 'isolate',
       }}
     >
-      <BackgroundLayer background={config.background} />
+      <BackgroundLayer background={config.background} staticAuraUrl={staticAuraUrl} />
       <ScrimLayer scrim={config.scrim} />
       <MidGraphicsLayer items={config.midGraphics} width={size.width} />
       <ForegroundLayer elements={config.foreground} width={size.width} />

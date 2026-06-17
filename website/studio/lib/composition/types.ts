@@ -730,3 +730,10 @@ export function auraEmbedUrl(slug: string): string {
   // deterministic background (also what the screenshot needs).
   return `https://aura.promad.design/embed/${finalSlug}?hideText=true&hideIcons=true&input=off`;
 }
+
+/** Cache key for a snapshotted aura still — per slug AND size, so the frozen
+ *  frame keeps each composition's aspect/geometry. Shared by the export client
+ *  (write) and the /render surface (read) so they never drift. */
+export function auraCacheKey(slug: string, sizeId: string): string {
+  return `${slug.trim()}__${sizeId}`;
+}

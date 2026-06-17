@@ -8,15 +8,29 @@ import {
 import { assetUrl } from '@/lib/assets/catalog';
 
 /**
- * z-0 background. An aura is a cross-origin iframe (the reason export must be a
- * real browser screenshot — it can't be canvas-captured). Image / solid are local.
+ * z-0 background. An aura is a cross-origin WebGL iframe in the editor (it can't
+ * be canvas-captured here). For the headless export it's swapped for a static
+ * still — see `staticAuraUrl`. Image / solid are local.
+ *
+ * `staticAuraUrl` selects the aura render mode (tri-state):
+ *   - undefined  → editor: render the live, animated iframe.
+ *   - string     → export: render the cached still as an <img>.
+ *   - null       → export, but the still isn't cached (or Supabase is off):
+ *                  render the background colour so the headless browser never
+ *                  loads the WebGL iframe (which has no GPU and would hang).
  *
  * `opacity` and `blur` are whole-layer knobs that apply to every kind. A blurred
  * layer is overscanned (scaled up a touch) so the soft fringe a `blur()` leaves
  * around the edges is pushed past the frame instead of showing as a translucent
  * border — the stage clips it (CompositionStage is `overflow-hidden`).
  */
-export function BackgroundLayer({ background }: { background: BackgroundConfig }) {
+export function BackgroundLayer({
+  background,
+  staticAuraUrl,
+}: {
+  background: BackgroundConfig;
+  staticAuraUrl?: string | null;
+}) {
   const opacity = background.opacity ?? 1;
   const blur = background.blur ?? 0;
   const blurCss = blur > 0 ? `blur(${blur}px)` : '';
@@ -24,6 +38,28 @@ export function BackgroundLayer({ background }: { background: BackgroundConfig }
   const overscan: CSSProperties = blur > 0 ? { transform: `scale(${1 + Math.min(blur, 60) / 200})` } : {};
 
   if (background.kind === 'aura' && background.auraSlug) {
+    // Export surface: use the cached still (or the background colour if absent).
+    if (staticAuraUrl !== undefined) {
+      if (staticAuraUrl) {
+        return (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={staticAuraUrl}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 z-0 h-full w-full"
+            style={{ objectFit: 'cover', opacity, filter: blurCss || undefined, ...overscan }}
+          />
+        );
+      }
+      return (
+        <div
+          className="absolute inset-0 z-0"
+          style={{ background: background.color ?? '#0D1B3E', opacity, filter: blurCss || undefined, ...overscan }}
+        />
+      );
+    }
+    // Editor: the live, animated scene.
     return (
       <iframe
         title="Aura background"

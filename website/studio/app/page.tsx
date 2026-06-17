@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { CompositionStage } from '@/components/studio/CompositionStage';
 import { Inspector } from '@/components/studio/inspector/Inspector';
 import { LibraryDialog } from '@/components/studio/LibraryDialog';
-import { sizeFor, type CompositionConfig } from '@/lib/composition/types';
+import { auraCacheKey, sizeFor, type CompositionConfig } from '@/lib/composition/types';
+import { captureAura } from '@/lib/composition/aura-capture';
 import { DEFAULT_COMPOSITION } from '@/lib/composition/defaults';
 import {
   exportJson,
@@ -84,6 +85,26 @@ export default function StudioEditor() {
     setBusy(true);
     setError(null);
     try {
+      // The aura is a WebGL scene the headless export browser can't rasterize.
+      // Have the aura embed snapshot its own canvas (its GPU), cache the still by
+      // slug+size, and the export composites that. Skip when it's already cached.
+      if (config.background.kind === 'aura' && config.background.auraSlug) {
+        const slug = config.background.auraSlug;
+        const key = auraCacheKey(slug, config.sizeId);
+        const cached = await fetch(`/api/aura-cache?key=${encodeURIComponent(key)}`)
+          .then((r) => r.json())
+          .catch(() => ({ url: null }));
+        if (!cached?.url) {
+          const dataUrl = await captureAura(slug, { width: size.width, height: size.height });
+          const put = await fetch('/api/aura-cache', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key, dataUrl }),
+          });
+          if (!put.ok) throw new Error(`Aura snapshot caching failed: ${await put.text()}`);
+        }
+      }
+
       const res = await fetch('/api/export', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -102,7 +123,7 @@ export default function StudioEditor() {
     } finally {
       setBusy(false);
     }
-  }, [config, format]);
+  }, [config, format, size.width, size.height]);
 
   const onImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
