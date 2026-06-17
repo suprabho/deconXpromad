@@ -37,6 +37,13 @@ through the AI SDK:
   The client re-encodes it through the same downscale/WebP path uploads use.
   Model picker: **Imagen 4** (default) / FLUX.2 Pro / GPT Image 1 / Nano Banana
   Pro / Seedream 4.5 (cheap).
+  - **Download** — after generating, a thumbnail + **Download** button saves the
+    model's full-resolution original (the layer still gets the downscaled copy).
+  - **Reference image** — attach an optional reference to do image-to-image /
+    edits. Reference-guided requests need an edit-capable (multimodal) model, so
+    they route through `generateText` with the reference as an image content-part;
+    if the chosen model can't take a reference, the server falls back to
+    `REFERENCE_IMAGE_MODEL` (Nano Banana Pro) and reports the model actually used.
 
 **Setup:** add a gateway key to `website/studio/.env.local`, then restart `pnpm dev`:
 

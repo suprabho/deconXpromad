@@ -1,12 +1,14 @@
 import type { CompositionConfig } from './types';
 
 /**
- * A short-lived, process-memory handoff for the export pipeline. The export
- * route stashes a config and hands the /render route a tiny id (URLs have size
- * limits — a DeconflictBanner config with two cases + a timeline is too big to
- * pass in the query string). Export and render run in the SAME Next server
- * process, so a `globalThis`-backed Map is shared between them (and survives
- * dev HMR module reloads).
+ * A short-lived, process-memory handoff for the export pipeline — the LOCAL /
+ * single-process path only. The export route stashes a config and hands /render
+ * a tiny id (URLs have size limits — a DeconflictBanner config with two cases +
+ * a timeline, let alone an uploaded image data URL, is too big for the query
+ * string). This works because local dev / `next start` runs export and render in
+ * the SAME process, so a `globalThis`-backed Map is shared between them (and
+ * survives dev HMR reloads). On serverless the two run in separate invocations
+ * with no shared memory — `handoff.ts` swaps in a Supabase-backed store there.
  */
 type Entry = { config: CompositionConfig; expires: number };
 
