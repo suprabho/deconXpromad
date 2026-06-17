@@ -18,6 +18,39 @@ pnpm dev                # http://localhost:3000  (we develop on :3317)
 Export needs the Chromium that `pnpm install` fetched. If a download ever fails:
 `pnpm exec playwright install chromium`.
 
+## AI generation (Vercel AI Gateway)
+
+Two `✦` affordances in the inspector call the [Vercel AI Gateway](https://vercel.com/docs/ai-gateway)
+through the AI SDK:
+
+- **Foreground content** — each foreground element has a "Generate content with
+  AI" box. A free-text brief is sent to [`/api/ai/content`](app/api/ai/content/route.ts),
+  which runs `generateObject` constrained to that element type's **fixed schema**
+  ([`lib/ai/schemas.ts`](lib/ai/schemas.ts), mirroring the `ForegroundContent`
+  union) and returns a ready-to-drop `ForegroundContent`. Enums (tones, icons,
+  risk tiers) are locked to the component's own unions, so the model can only emit
+  valid values. Model picker: **Claude Sonnet 4.6** (default) / GPT-5.1.
+- **Images** — the Background (image type) and each mid-graphic have a "Generate
+  image with AI" box. [`/api/ai/image`](app/api/ai/image/route.ts) calls
+  `experimental_generateImage` (or `generateText`→files for Nano Banana), sized to
+  the canvas frame, and returns a data URL — a drop-in for any catalogue `src`.
+  The client re-encodes it through the same downscale/WebP path uploads use.
+  Model picker: **Imagen 4** (default) / FLUX.2 Pro / GPT Image 1 / Nano Banana
+  Pro / Seedream 4.5 (cheap).
+
+**Setup:** add a gateway key to `website/studio/.env.local`, then restart `pnpm dev`:
+
+```bash
+AI_GATEWAY_API_KEY=…            # vercel.com → AI Gateway → API Keys
+# optional default overrides (the inspector dropdowns still apply):
+# AI_CONTENT_MODEL=anthropic/claude-sonnet-4.6
+# AI_IMAGE_MODEL=google/imagen-4.0-generate-001
+```
+
+On Vercel deployments the key is optional — OIDC auth is used automatically. The
+chosen models are server-validated against the allow-list in
+[`lib/ai/models.ts`](lib/ai/models.ts); the key is never exposed to the client.
+
 ## How it works
 
 - **Structured layers, not freeform.** A composition is a fixed stack —

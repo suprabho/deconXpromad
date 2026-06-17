@@ -135,7 +135,7 @@ export default function StudioEditor() {
 
       {/* Body: inspector + preview */}
       <div className="flex min-h-0 flex-1">
-        <aside className="w-[360px] shrink-0 overflow-y-auto border-r border-hair bg-frost p-4">
+        <aside className="flex w-[380px] shrink-0 border-r border-hair bg-frost">
           <Inspector config={config} onChange={setConfig} />
         </aside>
 
