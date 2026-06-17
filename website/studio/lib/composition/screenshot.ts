@@ -58,17 +58,32 @@ export async function renderComposition(
     // Let the aura canvas warm up and settle into a representative frame.
     await page.waitForTimeout(settleMs);
 
-    // Capture via a page-level clip rather than elementHandle.screenshot():
-    // #stage holds a perpetually-animating WebGL aura, so Playwright's per-element
-    // actionability (scroll-into-view + "wait for element to be stable") never
-    // settles and times out after 30s. A clipped page screenshot skips those
-    // checks while capturing the exact same region. #stage fills the viewport
-    // (viewport == composition size), so the clip is just its bounding box.
+    // Capture #stage via a raw CDP screenshot with captureBeyondViewport:true.
+    // Why not page/element .screenshot(): Playwright's clip path reads chromium's
+    // ON-SCREEN compositor surface (captureBeyondViewport:false). On
+    // @sparticuz/chromium's single-process headless shell that surface either
+    // isn't available ("Unable to capture screenshot") or, with the
+    // perpetually-animating WebGL aura, never produces a stable frame and the
+    // call hangs to the 30s timeout. Rendering the clip region OFF-SCREEN
+    // (captureBeyondViewport:true) is surface-independent and also sidesteps
+    // Playwright's per-element stability/scroll actionability. deviceScaleFactor
+    // (set on the page) still drives output resolution, so clip.scale stays 1.
     const el = await page.$('#stage');
-    const box = el && (await el.boundingBox());
-    const png = (box
-      ? await page.screenshot({ type: 'png', clip: box })
-      : await page.screenshot({ type: 'png' })) as Buffer;
+    const box = (el && (await el.boundingBox())) || { x: 0, y: 0, width: size.width, height: size.height };
+    const client = await page.context().newCDPSession(page);
+    const png = await Promise.race([
+      client
+        .send('Page.captureScreenshot', {
+          format: 'png',
+          clip: { x: box.x, y: box.y, width: box.width, height: box.height, scale: 1 },
+          captureBeyondViewport: true,
+        })
+        .then((r: { data: string }) => Buffer.from(r.data, 'base64')),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('captureScreenshot timed out after 45s')), 45_000),
+      ),
+    ]);
+    await client.detach().catch(() => {});
 
     if (format === 'webp') {
       const sharp = (await import('sharp')).default;
