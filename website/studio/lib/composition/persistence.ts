@@ -2,11 +2,13 @@ import type {
   CompositionConfig,
   ForegroundContent,
   ForegroundElement,
+  MidGraphic,
+  MidTransform,
   PositionPreset,
   SizeScale,
   Transform,
 } from './types';
-import { DEFAULT_TRANSFORM, SCALE_FRACTION } from './types';
+import { DEFAULT_MID_TRANSFORM, DEFAULT_TRANSFORM, SCALE_FRACTION } from './types';
 import { DEFAULT_COMPOSITION } from './defaults';
 
 const KEY = 'deconflict-studio:v1';
@@ -73,6 +75,33 @@ function migrateForeground(raw: unknown): ForegroundElement[] {
   return DEFAULT_COMPOSITION.foreground.map((el) => ({ ...el, transform: { ...el.transform } }));
 }
 
+/**
+ * Coerce any saved mid graphics into the current MidGraphic[] shape. Mid
+ * graphics used to be preset-placed ({ position, size }); a saved graphic that
+ * predates the 2-D transform is mapped preset → centre (x, y) and size bucket →
+ * width fraction, so it keeps its look. A graphic already carrying a `transform`
+ * just backfills any missing fields.
+ */
+function migrateMidGraphics(raw: unknown): MidGraphic[] {
+  if (!Array.isArray(raw)) return DEFAULT_COMPOSITION.midGraphics.map((g) => ({ ...g }));
+  return raw
+    .filter((g): g is Partial<MidGraphic> & Record<string, unknown> => !!g && typeof g === 'object')
+    .map((g, i) => {
+      const legacy = g as { position?: PositionPreset; size?: SizeScale; transform?: Partial<MidTransform> };
+      const xy = PRESET_XY[legacy.position ?? 'center'] ?? PRESET_XY.center;
+      const legacyWidth = SCALE_FRACTION[legacy.size ?? 'M'] ?? SCALE_FRACTION.M;
+      const transform: MidTransform = legacy.transform
+        ? { ...DEFAULT_MID_TRANSFORM, ...legacy.transform }
+        : { ...DEFAULT_MID_TRANSFORM, x: xy.x, y: xy.y, width: legacyWidth };
+      return {
+        id: typeof g.id === 'string' ? g.id : `mid-${i}`,
+        src: typeof g.src === 'string' ? g.src : '',
+        transform,
+        opacity: typeof g.opacity === 'number' ? g.opacity : 1,
+      };
+    });
+}
+
 /** Merge a partial/loaded config over the defaults so new fields always backfill. */
 export function mergeComposition(saved: Partial<CompositionConfig> | null | undefined): CompositionConfig {
   if (!saved || typeof saved !== 'object') return DEFAULT_COMPOSITION;
@@ -82,7 +111,7 @@ export function mergeComposition(saved: Partial<CompositionConfig> | null | unde
     version: 1,
     background: { ...DEFAULT_COMPOSITION.background, ...saved.background },
     scrim: { ...DEFAULT_COMPOSITION.scrim, ...saved.scrim },
-    midGraphics: saved.midGraphics ?? DEFAULT_COMPOSITION.midGraphics,
+    midGraphics: migrateMidGraphics(saved.midGraphics),
     foreground: migrateForeground(saved.foreground),
     overlay: { ...DEFAULT_COMPOSITION.overlay, ...saved.overlay },
   };

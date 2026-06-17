@@ -1,10 +1,9 @@
-import { placementStyle, SCALE_FRACTION, type MidGraphic } from '@/lib/composition/types';
+import { composeMidTransform, type MidGraphic } from '@/lib/composition/types';
 import { assetUrl } from '@/lib/assets/catalog';
 
-/** z-2 — preset-placed SVG / image graphics between background and foreground. */
+/** z-2 — freely placed (2-D) SVG / image graphics between background and foreground. */
 export function MidGraphicsLayer({ items, width }: { items: MidGraphic[]; width: number }) {
   if (!items.length) return null;
-  const gap = Math.round(width * 0.045);
   return (
     <div className="absolute inset-0 z-[2]" style={{ pointerEvents: 'none' }}>
       {items.map((g) => (
@@ -15,9 +14,15 @@ export function MidGraphicsLayer({ items, width }: { items: MidGraphic[]; width:
           alt=""
           aria-hidden
           style={{
-            ...placementStyle(g.position, gap),
-            width: Math.round(SCALE_FRACTION[g.size] * width),
+            position: 'absolute',
+            left: `${g.transform.x}%`,
+            top: `${g.transform.y}%`,
+            width: Math.round(g.transform.width * width),
             height: 'auto',
+            // Opt out of Tailwind Preflight's `img { max-width: 100% }`, which
+            // would otherwise clamp the graphic to the canvas width (≤ 100%).
+            maxWidth: 'none',
+            transform: composeMidTransform(g.transform),
             opacity: g.opacity,
           }}
         />

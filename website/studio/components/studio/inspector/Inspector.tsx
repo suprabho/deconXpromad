@@ -20,12 +20,19 @@ import type {
   ForegroundType,
   GlassConfig,
   MidGraphic,
+  MidTransform,
   PositionPreset,
   ScrimDirection,
   SizeScale,
   Transform,
 } from '@/lib/composition/types';
-import { DEFAULT_SHADOW, POSITION_PRESETS, SIZE_PRESETS, SIZE_SCALES } from '@/lib/composition/types';
+import {
+  DEFAULT_MID_TRANSFORM,
+  DEFAULT_SHADOW,
+  POSITION_PRESETS,
+  SIZE_PRESETS,
+  SIZE_SCALES,
+} from '@/lib/composition/types';
 import { defaultForegroundContent, defaultForegroundElement } from '@/lib/composition/defaults';
 import {
   AURA_OPTIONS,
@@ -118,6 +125,28 @@ function ElementTransformFields({
       {has3D && (
         <Slider label="Perspective" value={t.perspective} min={200} max={3000} step={50} format={(v) => `${Math.round(v)}px`} onChange={(perspective) => onChange({ perspective })} />
       )}
+    </div>
+  );
+}
+
+/** Position / size / in-plane rotation controls for one mid-ground graphic (2-D only). */
+function MidTransformFields({
+  transform: t,
+  onChange,
+}: {
+  transform: MidTransform;
+  onChange: (p: Partial<MidTransform>) => void;
+}) {
+  return (
+    <div className="space-y-2 rounded-md bg-frost p-2">
+      <div className="grid grid-cols-2 gap-x-3">
+        <Slider label="Pos X" value={t.x} min={-25} max={125} step={0.5} format={(v) => `${Math.round(v)}%`} onChange={(x) => onChange({ x })} />
+        <Slider label="Pos Y" value={t.y} min={-25} max={125} step={0.5} format={(v) => `${Math.round(v)}%`} onChange={(y) => onChange({ y })} />
+      </div>
+      <div className="grid grid-cols-2 gap-x-3">
+        <Slider label="Width" value={t.width} min={0.05} max={3} step={0.01} format={(v) => `${Math.round(v * 100)}%`} onChange={(width) => onChange({ width })} />
+        <Slider label="Rotation" value={t.rotation} min={-180} max={180} step={1} format={(v) => `${Math.round(v)}°`} onChange={(rotation) => onChange({ rotation })} />
+      </div>
     </div>
   );
 }
@@ -232,6 +261,8 @@ export function Inspector({
     midGraphics[i] = { ...midGraphics[i], ...p };
     patch({ midGraphics });
   };
+  const setMidTransform = (i: number, p: Partial<MidTransform>) =>
+    setMid(i, { transform: { ...config.midGraphics[i].transform, ...p } });
   const addMid = () =>
     patch({
       midGraphics: [
@@ -239,8 +270,7 @@ export function Inspector({
         {
           id: crypto.randomUUID(),
           src: MID_GRAPHIC_OPTIONS[0]?.src ?? '',
-          position: 'center',
-          size: 'M',
+          transform: { ...DEFAULT_MID_TRANSFORM },
           opacity: 1,
         },
       ],
@@ -443,7 +473,7 @@ export function Inspector({
         )}
 
         {panel === 'mid' && (
-          <Section title="Mid-ground graphics" subtitle="Layer SVGs / images between background and foreground.">
+          <Section title="Mid-ground graphics" subtitle="Layer SVGs / images between background and foreground — each freely placed, scaled and rotated in 2-D.">
             <SelectField label="AI image model" value={imageModel} onChange={pickImageModel} options={IMAGE_MODEL_OPTS} />
             {config.midGraphics.length === 0 && <p className="text-xs text-muted">No graphics yet.</p>}
             {config.midGraphics.map((g, i) => (
@@ -457,8 +487,7 @@ export function Inspector({
                 <GroupedSelect label="Asset" value={g.src} onChange={(src) => setMid(i, { src })} groups={groupOptions(MID_GRAPHIC_OPTIONS)} />
                 <ImageUpload label="Or upload your own" value={g.src} onChange={(src) => setMid(i, { src })} hint="SVG keeps its vector crispness; rasters are downscaled." />
                 <AiImageGenerator model={imageModel} sizeId={config.sizeId} onGenerated={(src) => setMid(i, { src })} />
-                <SelectField label="Position" value={g.position} onChange={(position) => setMid(i, { position })} options={POSITION_OPTS} />
-                <Segmented label="Size" value={g.size} onChange={(size) => setMid(i, { size })} options={SCALE_OPTS} />
+                <MidTransformFields transform={g.transform} onChange={(p) => setMidTransform(i, p)} />
                 <Slider label="Opacity" value={g.opacity} format={(v) => `${Math.round(v * 100)}%`} onChange={(opacity) => setMid(i, { opacity })} />
               </div>
             ))}

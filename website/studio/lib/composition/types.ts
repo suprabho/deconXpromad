@@ -4,9 +4,11 @@
  *
  *   background  →  scrim  →  mid graphics  →  foreground UI elements  →  overlay text
  *
- * Background, mid graphics and overlay text are preset-placed (position + size
- * buckets). The foreground holds 0..n UI elements, each freely placed, scaled
- * and rotated in 3-D via an absolute Transform (% of canvas, resolution-free).
+ * Background and overlay text are preset-placed (position + size buckets). Mid
+ * graphics are freely placed, scaled and rotated in 2-D (an absolute, flat
+ * MidTransform). The foreground holds 0..n UI elements, each freely placed,
+ * scaled and rotated in 3-D via an absolute Transform (% of canvas,
+ * resolution-free).
  *
  * This file is the single contract shared by three surfaces that MUST render
  * identically: the editor preview, the chrome-less /render route, and the
@@ -188,14 +190,50 @@ export type ScrimConfig = {
 };
 
 /* -------------------------------------------------------------------------- *
- * Mid-ground graphics — 0..n SVG / image asset refs, preset-placed.
+ * Mid-ground graphics — 0..n SVG / image asset refs, freely placed in 2-D.
  * -------------------------------------------------------------------------- */
+
+/**
+ * A flat (2-D only) transform for a mid-ground graphic: centre position, size
+ * and in-plane rotation. Resolution-independent — x/y are % of the canvas and
+ * width is a fraction of canvas width — so a graphic reads identically at any
+ * export size. Deliberately has NO out-of-plane tilt or perspective: mid
+ * graphics stay flat, unlike the foreground's 3-D {@link Transform}.
+ */
+export type MidTransform = {
+  /** Element CENTRE X, as a % of canvas width (0 = left edge, 50 = centre, 100 = right). */
+  x: number;
+  /** Element CENTRE Y, as a % of canvas height. */
+  y: number;
+  /** Display width as a fraction of canvas width; height follows the asset's aspect. */
+  width: number;
+  /** In-plane rotation in degrees. */
+  rotation: number;
+};
+
+export const DEFAULT_MID_TRANSFORM: MidTransform = {
+  x: 50,
+  y: 50,
+  width: 0.5,
+  rotation: 0,
+};
+
+/**
+ * Build the CSS `transform` for a mid-ground graphic. `translate(-50%, -50%)`
+ * centres the box on (x, y); `rotate()` (emitted only when ≠ 0) then spins it in
+ * plane. Shared so the editor preview and the screenshot export stay identical.
+ */
+export function composeMidTransform(t: MidTransform): string {
+  const parts = ['translate(-50%, -50%)'];
+  if (t.rotation !== 0) parts.push(`rotate(${t.rotation}deg)`);
+  return parts.join(' ');
+}
+
 export type MidGraphic = {
   id: string;
   /** Catalogue src or absolute/data URL. */
   src: string;
-  position: PositionPreset;
-  size: SizeScale;
+  transform: MidTransform;
   opacity: number; // 0–1
 };
 
