@@ -57,6 +57,12 @@ export const APP_ICONS: Record<AppIconKey, ReactNode> = {
   link: <LinkSimpleIcon weight="duotone" className="h-5 w-5" />,
   binoculars: <BinocularsIcon weight="duotone" className="h-5 w-5" />,
   share: <ShareNetworkIcon weight="duotone" className="h-5 w-5" />,
+  // Real-org logo marks — fill the host badge (h-9/h-8 chip) rather than the
+  // fixed glyph box, so they read as brand badges.
+  'logo-fbi': <img src="/assets/logos/fbi.png" alt="" className="h-full w-full object-contain" />,
+  'logo-interpol': <img src="/assets/logos/interpol.png" alt="" className="h-full w-full object-contain" />,
+  'logo-hsbc': <img src="/assets/logos/hsbc.png" alt="" className="h-full w-full object-contain" />,
+  'logo-chainalysis': <img src="/assets/logos/chainalysis.png" alt="" className="h-full w-full object-contain" />,
 };
 
 function iconNode(key: AppIconKey | 'none'): ReactNode | undefined {

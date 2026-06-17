@@ -94,6 +94,10 @@ const APP_ICON_LABELS: Record<AppIconKey, string> = {
   link: 'Link',
   binoculars: 'Binoculars',
   share: 'Share',
+  'logo-fbi': 'FBI (logo)',
+  'logo-interpol': 'INTERPOL (logo)',
+  'logo-hsbc': 'HSBC (logo)',
+  'logo-chainalysis': 'Chainalysis (logo)',
 };
 const APP_ICON_OPTS = APP_ICON_KEYS.map((k) => ({ value: k, label: APP_ICON_LABELS[k] }));
 const APP_ICON_OPTS_OPTIONAL: { value: AppIconKey | 'none'; label: string }[] = [

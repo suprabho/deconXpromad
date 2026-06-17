@@ -154,10 +154,10 @@ export const SAMPLE_GRAPH_NODES: GraphNodeData[] = [
 ];
 
 export const SAMPLE_COMMAND_ROWS: CommandRowData[] = [
-  { icon: 'shield-check', title: 'John Doe — wire fraud', subtitle: 'Subject in active investigation', meta: '15 entries' },
-  { icon: 'buildings', title: 'FBI · Field Office 14', subtitle: 'Originating agency · #LE-2024-08821', meta: '18 entries' },
-  { icon: 'user', title: 'John Doe', subtitle: 'wallet 0x7a3f…c10b · 3 linked accounts', meta: '23 entries' },
-  { icon: 'bank', title: 'Meridian Bank', subtitle: 'Financial institution · AML alert linked', meta: '15 entries' },
+  { icon: 'logo-fbi', title: 'Federal Bureau of Investigation', subtitle: 'Originating agency · #LE-2024-08821', meta: '18 entries' },
+  { icon: 'logo-interpol', title: 'INTERPOL', subtitle: 'Red Notice linked · cross-border alert', meta: '12 entries' },
+  { icon: 'logo-hsbc', title: 'HSBC', subtitle: 'Financial institution · AML alert linked', meta: '15 entries' },
+  { icon: 'logo-chainalysis', title: 'Chainalysis', subtitle: 'On-chain analytics · wallet cluster flagged', meta: '23 entries' },
 ];
 
 export const SAMPLE_DONUT: DonutChartData = {
@@ -313,7 +313,7 @@ export function defaultForegroundContent(type: ForegroundType): ForegroundConten
       return {
         type: 'CommandPalette',
         query: 'John Doe · wire fraud',
-        groupLabel: 'Cases',
+        groupLabel: 'Linked organisations',
         rows: structuredClone(SAMPLE_COMMAND_ROWS),
       };
     case 'DonutChart':

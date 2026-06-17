@@ -338,7 +338,13 @@ export type AppIconKey =
   | 'scales'
   | 'link'
   | 'binoculars'
-  | 'share';
+  | 'share'
+  // Real-organisation logo marks (bitmaps under /public/assets/logos), used for
+  // brand badges in the command palette. Resolved to <img> nodes in APP_ICONS.
+  | 'logo-fbi'
+  | 'logo-interpol'
+  | 'logo-hsbc'
+  | 'logo-chainalysis';
 
 export const APP_ICON_KEYS: AppIconKey[] = [
   'shield-check',
@@ -356,6 +362,10 @@ export const APP_ICON_KEYS: AppIconKey[] = [
   'link',
   'binoculars',
   'share',
+  'logo-fbi',
+  'logo-interpol',
+  'logo-hsbc',
+  'logo-chainalysis',
 ];
 
 /** Mirrors StatusDot's StatusTone. */
