@@ -66,8 +66,11 @@ export async function renderComposition(
     // perpetually-animating WebGL aura, never produces a stable frame and the
     // call hangs to the 30s timeout. Rendering the clip region OFF-SCREEN
     // (captureBeyondViewport:true) is surface-independent and also sidesteps
-    // Playwright's per-element stability/scroll actionability. deviceScaleFactor
-    // (set on the page) still drives output resolution, so clip.scale stays 1.
+    // Playwright's per-element stability/scroll actionability. NOTE: in
+    // captureBeyondViewport mode chromium ignores the emulated deviceScaleFactor
+    // for output sizing (px = css * clip.scale), so the retina multiplier must be
+    // carried by clip.scale — the page still lays out at deviceScaleFactor, so the
+    // raster stays crisp.
     const el = await page.$('#stage');
     const box = (el && (await el.boundingBox())) || { x: 0, y: 0, width: size.width, height: size.height };
     const client = await page.context().newCDPSession(page);
@@ -75,7 +78,7 @@ export async function renderComposition(
       client
         .send('Page.captureScreenshot', {
           format: 'png',
-          clip: { x: box.x, y: box.y, width: box.width, height: box.height, scale: 1 },
+          clip: { x: box.x, y: box.y, width: box.width, height: box.height, scale },
           captureBeyondViewport: true,
         })
         .then((r: { data: string }) => Buffer.from(r.data, 'base64')),
