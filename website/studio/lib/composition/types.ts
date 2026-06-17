@@ -491,6 +491,240 @@ export type SecureChatData = {
   items: ChatItemData[];
 };
 
+/* -------------------------------------------------------------------------- *
+ * Remaining components/app plates. Same contract as the app plates above: every
+ * node-bearing field is a plain string / string KEY (icons → AppIconKey, tones →
+ * the string unions below) so the whole composition stays JSON-serialisable for
+ * save/load and the screenshot route. Icon-bearing plates resolve their keys to
+ * nodes in the client `foreground/adapters.tsx`; icon-free plates render their
+ * component directly in ForegroundLayer. Tone unions mirror each component's own
+ * prop union — a drift surfaces as a type error where the data flows in.
+ * -------------------------------------------------------------------------- */
+
+/** Mirrors ProgressBar's ProgressTone (also RankList). */
+export type AppProgressTone = 'fi' | 'match' | 'ok' | 'alert' | 'ink';
+/** Mirrors Badge's BadgeTone. */
+export type AppBadgeTone = 'neutral' | 'info' | 'ok' | 'warn' | 'alert' | 'match';
+/** Mirrors DistributionBar's DistTone. */
+export type AppDistTone = 'fi' | 'match' | 'ok' | 'warn' | 'alert' | 'navy' | 'ink' | 'muted';
+/** Mirrors Heatmap's HeatTone. */
+export type AppHeatTone = 'fi' | 'match' | 'ok' | 'alert';
+/** Mirrors Sparkline's stroke tones. */
+export type AppSparkTone = 'fi' | 'match' | 'ok' | 'alert' | 'white';
+/** Mirrors AreaChart's tones. */
+export type AppAreaTone = 'fi' | 'match' | 'ok';
+/** Mirrors BarChart's fill tones. */
+export type AppBarTone = 'fi' | 'match' | 'ok' | 'white' | 'ink';
+/** Mirrors KpiTile's tones. */
+export type AppKpiTone = 'solid' | 'navy' | 'frost';
+/** Mirrors Button's variant + size. */
+export type AppButtonVariant = 'primary' | 'secondary' | 'ghost' | 'link' | 'danger';
+export type AppButtonSize = 'sm' | 'md' | 'lg';
+/** Mirrors Avatar's size. */
+export type AppAvatarSize = 'xs' | 'sm' | 'md' | 'lg';
+/** Mirrors IconButton's variant. */
+export type AppIconButtonVariant = 'ghost' | 'frost' | 'solid';
+/** Mirrors WindowChrome's tone. */
+export type AppWindowTone = 'light' | 'dark';
+
+/* analytics ---------------------------------------------------------------- */
+export type ActivityFeedItemData = {
+  id: string;
+  tone: AppStatusTone;
+  title: string;
+  description: string;
+  time: string;
+  pulse: boolean;
+};
+export type ActivityFeedData = { title: string; items: ActivityFeedItemData[] };
+
+export type AreaChartData = {
+  title: string;
+  data: number[];
+  /** Faded dashed comparison series; empty = none. */
+  compare: number[];
+  tone: AppAreaTone;
+  ticks: string[];
+  smooth: boolean;
+};
+
+export type BarData = { value: number; label: string; highlight: boolean };
+export type BarChartData = {
+  title: string;
+  bars: BarData[];
+  tone: AppBarTone;
+  highlightTone: AppBarTone;
+  showLabels: boolean;
+};
+
+export type DistSegmentData = { label: string; value: number; tone: AppDistTone };
+export type DistributionBarData = {
+  title: string;
+  segments: DistSegmentData[];
+  showPercent: boolean;
+  legend: boolean;
+};
+
+export type HeatmapData = {
+  title: string;
+  /** Column-major flat series: index = col * rows + row. */
+  values: number[];
+  columns: number;
+  rows: number;
+  tone: AppHeatTone;
+  rowLabels: string[];
+  legend: boolean;
+};
+
+export type KpiTileData = { label: string; value: string; hint: string; tone: AppKpiTone };
+
+export type RankItemData = {
+  label: string;
+  value: number;
+  /** Formatted figure on the right; blank = the raw value. */
+  display: string;
+  sub: string;
+  tone: AppProgressTone;
+};
+export type RankListData = {
+  title: string;
+  items: RankItemData[];
+  tone: AppProgressTone;
+  showRank: boolean;
+  showBar: boolean;
+};
+
+export type SparklineData = { title: string; data: number[]; tone: AppSparkTone; smooth: boolean; endDot: boolean };
+
+export type DeltaData = { value: number; suffix: string; invert: boolean; tone: 'auto' | 'on-dark' };
+
+export type MetricPanelData = {
+  title: string;
+  figureValue: string;
+  figureCaption: string;
+  spark: number[];
+  bars: number[];
+};
+
+export type DataTableColumnData = { key: string; header: string; align: 'left' | 'right' | 'center' };
+export type DataTableData = {
+  title: string;
+  columns: DataTableColumnData[];
+  /** Row-major plain-text cells; each row has one entry per column. */
+  rows: string[][];
+  zebra: boolean;
+};
+
+/* board -------------------------------------------------------------------- */
+export type BoardColumnData = {
+  id: string;
+  title: string;
+  count: number;
+  tone: AppStatusTone;
+  cards: KanbanCardData[];
+};
+export type BoardData = { columns: BoardColumnData[] };
+
+export type CrumbData = { label: string; href: string };
+export type BreadcrumbData = { items: CrumbData[]; showBack: boolean };
+
+export type ConnectorCardData = {
+  name: string;
+  descriptor: string;
+  icon: AppIconKey | 'none';
+  status: string;
+  statusTone: AppStatusTone;
+  pulse: boolean;
+};
+
+/** A tab entry shared by Tabs + PageHeader. `count` < 0 omits the count chip. */
+export type TabItemData = { value: string; label: string; count: number };
+export type PageHeaderData = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  tabs: TabItemData[];
+  activeTab: string;
+  /** Primary action button label; blank = no action. */
+  primaryAction: string;
+};
+
+/* shell -------------------------------------------------------------------- */
+export type NavNodeData = {
+  id: string;
+  label: string;
+  icon: AppIconKey | 'none';
+  done: boolean;
+  children: NavNodeData[];
+};
+export type NavTreeData = {
+  title: string;
+  activeId: string;
+  expandedIds: string[];
+  nodes: NavNodeData[];
+};
+
+export type EntityItemData = { id: string; label: string; tone: AppStatusTone; score: number; meta: string };
+export type EntityListData = { title: string; items: EntityItemData[]; selectedId: string; numbered: boolean };
+
+export type SidebarItemData = {
+  id: string;
+  label: string;
+  icon: AppIconKey;
+  active: boolean;
+  /** Section heading rendered above this item; blank = none. */
+  section: string;
+};
+export type SidebarData = { brandName: string; brandMark: AppIconKey | 'none'; items: SidebarItemData[] };
+
+export type AppHeaderData = {
+  brandName: string;
+  brandMark: AppIconKey | 'none';
+  searchPlaceholder: string;
+  /** Right-cluster IconButton glyphs. */
+  actions: AppIconKey[];
+  avatarName: string;
+};
+
+export type ToolbarSelectData = { value: string; icon: AppIconKey | 'none' };
+export type ToolbarButtonData = { label: string; variant: AppButtonVariant; icon: AppIconKey | 'none' };
+export type ToolbarData = { selects: ToolbarSelectData[]; searchPlaceholder: string; buttons: ToolbarButtonData[] };
+
+export type PanelData = { title: string; icon: AppIconKey | 'none'; body: string; footer: string };
+
+export type WorkspaceLayoutData = { rail: SidebarData; nav: NavTreeData; header: AppHeaderData; panel: PanelData };
+
+/* primitives --------------------------------------------------------------- */
+export type AvatarData = { name: string; src: string; size: AppAvatarSize; presence: AppStatusTone | 'none' };
+export type BadgeData = { text: string; tone: AppBadgeTone; variant: 'soft' | 'solid'; icon: AppIconKey | 'none' };
+export type ButtonData = {
+  label: string;
+  variant: AppButtonVariant;
+  size: AppButtonSize;
+  leftIcon: AppIconKey | 'none';
+  rightIcon: AppIconKey | 'none';
+  fullWidth: boolean;
+};
+export type IconButtonData = {
+  icon: AppIconKey;
+  label: string;
+  size: 'sm' | 'md' | 'lg';
+  variant: AppIconButtonVariant;
+  /** Notification count; < 0 omits the badge. */
+  badge: number;
+  active: boolean;
+};
+export type PageDotsData = { count: number; active: number };
+export type ProgressBarData = { value: number; tone: AppProgressTone; size: 'sm' | 'md'; showValue: boolean; label: string };
+export type SearchInputData = { placeholder: string; value: string; size: 'md' | 'lg'; kbdHint: string };
+export type SegOptionData = { value: string; label: string };
+export type SegmentedControlData = { segments: SegOptionData[]; value: string; size: 'sm' | 'md' };
+export type SelectData = { value: string; placeholder: string; leftIcon: AppIconKey | 'none'; size: 'sm' | 'md'; active: boolean };
+export type StatusBadgeData = { label: string; tone: AppStatusTone; caret: boolean; pulse: boolean };
+export type StatusDotData = { tone: AppStatusTone; size: 'sm' | 'md' | 'lg'; pulse: boolean; label: string };
+export type TabsData = { tabs: TabItemData[]; value: string };
+export type WindowChromeData = { title: string; tone: AppWindowTone };
+
 export type ForegroundType =
   | 'none'
   | 'OverlapAlert'
@@ -507,7 +741,46 @@ export type ForegroundType =
   | 'CommandPalette'
   | 'DonutChart'
   | 'GaugeArc'
-  | 'SecureChat';
+  | 'SecureChat'
+  // analytics
+  | 'ActivityFeed'
+  | 'AreaChart'
+  | 'BarChart'
+  | 'DistributionBar'
+  | 'Heatmap'
+  | 'KpiTile'
+  | 'RankList'
+  | 'Sparkline'
+  | 'Delta'
+  | 'MetricPanel'
+  | 'DataTable'
+  // board
+  | 'Board'
+  | 'Breadcrumb'
+  | 'ConnectorCard'
+  | 'PageHeader'
+  // shell
+  | 'NavTree'
+  | 'EntityList'
+  | 'Sidebar'
+  | 'AppHeader'
+  | 'Toolbar'
+  | 'Panel'
+  | 'WorkspaceLayout'
+  // primitives
+  | 'Avatar'
+  | 'Badge'
+  | 'Button'
+  | 'IconButton'
+  | 'PageDots'
+  | 'ProgressBar'
+  | 'SearchInput'
+  | 'SegmentedControl'
+  | 'Select'
+  | 'StatusBadge'
+  | 'StatusDot'
+  | 'Tabs'
+  | 'WindowChrome';
 
 /** Discriminated union of per-component editable content. */
 export type ForegroundContent =
@@ -535,7 +808,46 @@ export type ForegroundContent =
   | ({ type: 'CommandPalette' } & CommandPaletteData)
   | ({ type: 'DonutChart' } & DonutChartData)
   | ({ type: 'GaugeArc' } & GaugeArcData)
-  | ({ type: 'SecureChat' } & SecureChatData);
+  | ({ type: 'SecureChat' } & SecureChatData)
+  // analytics
+  | ({ type: 'ActivityFeed' } & ActivityFeedData)
+  | ({ type: 'AreaChart' } & AreaChartData)
+  | ({ type: 'BarChart' } & BarChartData)
+  | ({ type: 'DistributionBar' } & DistributionBarData)
+  | ({ type: 'Heatmap' } & HeatmapData)
+  | ({ type: 'KpiTile' } & KpiTileData)
+  | ({ type: 'RankList' } & RankListData)
+  | ({ type: 'Sparkline' } & SparklineData)
+  | ({ type: 'Delta' } & DeltaData)
+  | ({ type: 'MetricPanel' } & MetricPanelData)
+  | ({ type: 'DataTable' } & DataTableData)
+  // board
+  | ({ type: 'Board' } & BoardData)
+  | ({ type: 'Breadcrumb' } & BreadcrumbData)
+  | ({ type: 'ConnectorCard' } & ConnectorCardData)
+  | ({ type: 'PageHeader' } & PageHeaderData)
+  // shell
+  | ({ type: 'NavTree' } & NavTreeData)
+  | ({ type: 'EntityList' } & EntityListData)
+  | ({ type: 'Sidebar' } & SidebarData)
+  | ({ type: 'AppHeader' } & AppHeaderData)
+  | ({ type: 'Toolbar' } & ToolbarData)
+  | ({ type: 'Panel' } & PanelData)
+  | ({ type: 'WorkspaceLayout' } & WorkspaceLayoutData)
+  // primitives
+  | ({ type: 'Avatar' } & AvatarData)
+  | ({ type: 'Badge' } & BadgeData)
+  | ({ type: 'Button' } & ButtonData)
+  | ({ type: 'IconButton' } & IconButtonData)
+  | ({ type: 'PageDots' } & PageDotsData)
+  | ({ type: 'ProgressBar' } & ProgressBarData)
+  | ({ type: 'SearchInput' } & SearchInputData)
+  | ({ type: 'SegmentedControl' } & SegmentedControlData)
+  | ({ type: 'Select' } & SelectData)
+  | ({ type: 'StatusBadge' } & StatusBadgeData)
+  | ({ type: 'StatusDot' } & StatusDotData)
+  | ({ type: 'Tabs' } & TabsData)
+  | ({ type: 'WindowChrome' } & WindowChromeData);
 
 /* -------------------------------------------------------------------------- *
  * Freeform transform — absolute placement + sizing + 3-axis rotation for a

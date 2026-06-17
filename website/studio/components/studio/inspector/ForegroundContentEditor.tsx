@@ -34,6 +34,58 @@ import type {
   TimelineData,
   Track,
 } from '@/lib/composition/types';
+import type {
+  ActivityFeedData,
+  AppAreaTone,
+  AppAvatarSize,
+  AppBadgeTone,
+  AppBarTone,
+  AppButtonSize,
+  AppButtonVariant,
+  AppDistTone,
+  AppHeaderData,
+  AppHeatTone,
+  AppIconButtonVariant,
+  AppKpiTone,
+  AppProgressTone,
+  AppSparkTone,
+  AppWindowTone,
+  AreaChartData,
+  AvatarData,
+  BadgeData,
+  BarChartData,
+  BoardData,
+  BreadcrumbData,
+  ButtonData,
+  ConnectorCardData,
+  DataTableData,
+  DeltaData,
+  DistributionBarData,
+  EntityListData,
+  HeatmapData,
+  IconButtonData,
+  KpiTileData,
+  MetricPanelData,
+  NavNodeData,
+  NavTreeData,
+  PageDotsData,
+  PageHeaderData,
+  PanelData,
+  ProgressBarData,
+  RankListData,
+  SearchInputData,
+  SegmentedControlData,
+  SelectData,
+  SidebarData,
+  SparklineData,
+  StatusBadgeData,
+  StatusDotData,
+  TabItemData,
+  TabsData,
+  ToolbarData,
+  WindowChromeData,
+  WorkspaceLayoutData,
+} from '@/lib/composition/types';
 import { APP_ICON_KEYS, FEATURE_ICON_KEYS } from '@/lib/composition/types';
 import {
   ColorField,
@@ -46,6 +98,122 @@ import {
   Toggle,
   inputCls,
 } from './controls';
+
+/* ---------------------- option lists for the new plates --------------------- */
+
+const PROGRESS_TONE_OPTS: { value: AppProgressTone; label: string }[] = [
+  { value: 'fi', label: 'Blue' },
+  { value: 'match', label: 'Orange' },
+  { value: 'ok', label: 'Green' },
+  { value: 'alert', label: 'Red' },
+  { value: 'ink', label: 'Ink' },
+];
+const BADGE_TONE_OPTS: { value: AppBadgeTone; label: string }[] = [
+  { value: 'neutral', label: 'Neutral' },
+  { value: 'info', label: 'Blue' },
+  { value: 'ok', label: 'Green' },
+  { value: 'warn', label: 'Amber' },
+  { value: 'alert', label: 'Red' },
+  { value: 'match', label: 'Orange' },
+];
+const DIST_TONE_OPTS: { value: AppDistTone; label: string }[] = [
+  { value: 'fi', label: 'Blue' },
+  { value: 'match', label: 'Orange' },
+  { value: 'ok', label: 'Green' },
+  { value: 'warn', label: 'Amber' },
+  { value: 'alert', label: 'Red' },
+  { value: 'navy', label: 'Navy' },
+  { value: 'ink', label: 'Ink' },
+  { value: 'muted', label: 'Grey' },
+];
+const HEAT_TONE_OPTS: { value: AppHeatTone; label: string }[] = [
+  { value: 'fi', label: 'Blue' },
+  { value: 'match', label: 'Orange' },
+  { value: 'ok', label: 'Green' },
+  { value: 'alert', label: 'Red' },
+];
+const SPARK_TONE_OPTS: { value: AppSparkTone; label: string }[] = [
+  { value: 'fi', label: 'Blue' },
+  { value: 'match', label: 'Orange' },
+  { value: 'ok', label: 'Green' },
+  { value: 'alert', label: 'Red' },
+  { value: 'white', label: 'White' },
+];
+const AREA_TONE_OPTS: { value: AppAreaTone; label: string }[] = [
+  { value: 'fi', label: 'Blue' },
+  { value: 'match', label: 'Orange' },
+  { value: 'ok', label: 'Green' },
+];
+const BAR_TONE_OPTS: { value: AppBarTone; label: string }[] = [
+  { value: 'fi', label: 'Blue' },
+  { value: 'match', label: 'Orange' },
+  { value: 'ok', label: 'Green' },
+  { value: 'white', label: 'White' },
+  { value: 'ink', label: 'Ink' },
+];
+const KPI_TONE_OPTS: { value: AppKpiTone; label: string }[] = [
+  { value: 'solid', label: 'Blue' },
+  { value: 'navy', label: 'Navy' },
+  { value: 'frost', label: 'Frost' },
+];
+const BUTTON_VARIANT_OPTS: { value: AppButtonVariant; label: string }[] = [
+  { value: 'primary', label: 'Primary' },
+  { value: 'secondary', label: 'Secondary' },
+  { value: 'ghost', label: 'Ghost' },
+  { value: 'link', label: 'Link' },
+  { value: 'danger', label: 'Danger' },
+];
+const BUTTON_SIZE_OPTS: { value: AppButtonSize; label: string }[] = [
+  { value: 'sm', label: 'S' },
+  { value: 'md', label: 'M' },
+  { value: 'lg', label: 'L' },
+];
+const AVATAR_SIZE_OPTS: { value: AppAvatarSize; label: string }[] = [
+  { value: 'xs', label: 'XS' },
+  { value: 'sm', label: 'S' },
+  { value: 'md', label: 'M' },
+  { value: 'lg', label: 'L' },
+];
+const ICONBTN_VARIANT_OPTS: { value: AppIconButtonVariant; label: string }[] = [
+  { value: 'ghost', label: 'Ghost' },
+  { value: 'frost', label: 'Frost' },
+  { value: 'solid', label: 'Solid' },
+];
+const WINDOW_TONE_OPTS: { value: AppWindowTone; label: string }[] = [
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+];
+const DELTA_TONE_OPTS: { value: DeltaData['tone']; label: string }[] = [
+  { value: 'auto', label: 'Auto' },
+  { value: 'on-dark', label: 'On dark' },
+];
+const DOT_SIZE_OPTS = [
+  { value: 'sm' as const, label: 'S' },
+  { value: 'md' as const, label: 'M' },
+  { value: 'lg' as const, label: 'L' },
+];
+const SM_MD_OPTS = [
+  { value: 'sm' as const, label: 'S' },
+  { value: 'md' as const, label: 'M' },
+];
+const MD_LG_OPTS = [
+  { value: 'md' as const, label: 'M' },
+  { value: 'lg' as const, label: 'L' },
+];
+const ALIGN_OPTS = [
+  { value: 'left' as const, label: 'Left' },
+  { value: 'center' as const, label: 'Centre' },
+  { value: 'right' as const, label: 'Right' },
+];
+const BADGE_VARIANT_OPTS = [
+  { value: 'soft' as const, label: 'Soft' },
+  { value: 'solid' as const, label: 'Solid' },
+];
+
+/** ", "-joined string list ↔ string[] for comma-separated text inputs. */
+const strList = (arr: string[]) => arr.join(', ');
+const parseStrList = (s: string) => s.split(',').map((x) => x.trim()).filter(Boolean);
+const rid = () => crypto.randomUUID().slice(0, 6);
 
 const REVEAL_OPTS: { value: Reveal; label: string }[] = [
   { value: 'masked', label: 'Masked' },
@@ -749,6 +917,771 @@ function SecureChatFields({ data, onChange }: { data: SecureChatData; onChange: 
   );
 }
 
+/* -------------------- sub-editors for the remaining plates ------------------ */
+
+function ActivityFeedFields({ data, onChange }: { data: ActivityFeedData; onChange: (d: ActivityFeedData) => void }) {
+  const set = (i: number, it: ActivityFeedData['items'][number]) => {
+    const items = data.items.slice();
+    items[i] = it;
+    onChange({ ...data, items });
+  };
+  return (
+    <div className="space-y-3">
+      <TextField label="Panel title" value={data.title} onChange={(title) => onChange({ ...data, title })} />
+      <ListHeader
+        title="Items"
+        onAdd={() => onChange({ ...data, items: [...data.items, { id: rid(), tone: 'info', title: 'New event', description: '', time: '', pulse: false }] })}
+      />
+      {data.items.map((it, i) => (
+        <div key={it.id} className="space-y-2 rounded-md border border-hair p-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-ink">Item {i + 1}</span>
+            <RemoveBtn onClick={() => onChange({ ...data, items: data.items.filter((_, j) => j !== i) })} />
+          </div>
+          <TextField label="Title" value={it.title} onChange={(title) => set(i, { ...it, title })} />
+          <TextField label="Description" value={it.description} onChange={(description) => set(i, { ...it, description })} />
+          <div className="grid grid-cols-2 gap-2">
+            <TextField label="Time" value={it.time} placeholder="2m" onChange={(time) => set(i, { ...it, time })} />
+            <SelectField label="Dot tone" value={it.tone} onChange={(tone) => set(i, { ...it, tone })} options={STATUS_TONE_OPTS} />
+          </div>
+          <Toggle label="Pulse" checked={it.pulse} onChange={(pulse) => set(i, { ...it, pulse })} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AreaChartFields({ data, onChange }: { data: AreaChartData; onChange: (d: AreaChartData) => void }) {
+  return (
+    <div className="space-y-3">
+      <TextField label="Panel title" value={data.title} onChange={(title) => onChange({ ...data, title })} />
+      <TextField label="Series" value={numList(data.data)} placeholder="12, 18, 15…" onChange={(v) => onChange({ ...data, data: parseNumList(v) })} />
+      <TextField label="Compare series" value={numList(data.compare)} hint="Dashed faded line; blank = none." onChange={(v) => onChange({ ...data, compare: parseNumList(v) })} />
+      <TextField label="X-axis ticks" value={strList(data.ticks)} placeholder="Apr, May, Jun…" onChange={(v) => onChange({ ...data, ticks: parseStrList(v) })} />
+      <Segmented label="Tone" value={data.tone} onChange={(tone) => onChange({ ...data, tone })} options={AREA_TONE_OPTS} />
+      <Toggle label="Smooth curve" checked={data.smooth} onChange={(smooth) => onChange({ ...data, smooth })} />
+    </div>
+  );
+}
+
+function BarChartFields({ data, onChange }: { data: BarChartData; onChange: (d: BarChartData) => void }) {
+  const set = (i: number, b: BarChartData['bars'][number]) => {
+    const bars = data.bars.slice();
+    bars[i] = b;
+    onChange({ ...data, bars });
+  };
+  return (
+    <div className="space-y-3">
+      <TextField label="Panel title" value={data.title} onChange={(title) => onChange({ ...data, title })} />
+      <div className="grid grid-cols-2 gap-2">
+        <Segmented label="Tone" value={data.tone} onChange={(tone) => onChange({ ...data, tone })} options={BAR_TONE_OPTS} />
+        <Segmented label="Highlight" value={data.highlightTone} onChange={(highlightTone) => onChange({ ...data, highlightTone })} options={BAR_TONE_OPTS} />
+      </div>
+      <Toggle label="Show labels" checked={data.showLabels} onChange={(showLabels) => onChange({ ...data, showLabels })} />
+      <ListHeader title="Bars" onAdd={() => onChange({ ...data, bars: [...data.bars, { value: 10, label: '', highlight: false }] })} />
+      {data.bars.map((b, i) => (
+        <div key={i} className="space-y-2 rounded-md border border-hair p-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-ink">Bar {i + 1}</span>
+            <RemoveBtn onClick={() => onChange({ ...data, bars: data.bars.filter((_, j) => j !== i) })} />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <NumberField label="Value" value={b.value} onChange={(value) => set(i, { ...b, value })} />
+            <TextField label="Label" value={b.label} onChange={(label) => set(i, { ...b, label })} />
+          </div>
+          <Toggle label="Highlight" checked={b.highlight} onChange={(highlight) => set(i, { ...b, highlight })} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DistributionBarFields({ data, onChange }: { data: DistributionBarData; onChange: (d: DistributionBarData) => void }) {
+  const set = (i: number, s: DistributionBarData['segments'][number]) => {
+    const segments = data.segments.slice();
+    segments[i] = s;
+    onChange({ ...data, segments });
+  };
+  return (
+    <div className="space-y-3">
+      <TextField label="Panel title" value={data.title} onChange={(title) => onChange({ ...data, title })} />
+      <Toggle label="Show percent" checked={data.showPercent} onChange={(showPercent) => onChange({ ...data, showPercent })} />
+      <Toggle label="Legend" checked={data.legend} onChange={(legend) => onChange({ ...data, legend })} />
+      <ListHeader title="Segments" onAdd={() => onChange({ ...data, segments: [...data.segments, { label: 'New', value: 10, tone: 'fi' }] })} />
+      {data.segments.map((s, i) => (
+        <div key={i} className="space-y-2 rounded-md border border-hair p-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-ink">Segment {i + 1}</span>
+            <RemoveBtn onClick={() => onChange({ ...data, segments: data.segments.filter((_, j) => j !== i) })} />
+          </div>
+          <TextField label="Label" value={s.label} onChange={(label) => set(i, { ...s, label })} />
+          <div className="grid grid-cols-2 gap-2">
+            <NumberField label="Value" value={s.value} min={0} onChange={(value) => set(i, { ...s, value })} />
+            <SelectField label="Colour" value={s.tone} onChange={(tone) => set(i, { ...s, tone })} options={DIST_TONE_OPTS} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function HeatmapFields({ data, onChange }: { data: HeatmapData; onChange: (d: HeatmapData) => void }) {
+  return (
+    <div className="space-y-3">
+      <TextField label="Panel title" value={data.title} onChange={(title) => onChange({ ...data, title })} />
+      <div className="grid grid-cols-2 gap-2">
+        <NumberField label="Columns" value={data.columns} min={1} onChange={(columns) => onChange({ ...data, columns })} />
+        <NumberField label="Rows" value={data.rows} min={1} onChange={(rows) => onChange({ ...data, rows })} />
+      </div>
+      <Segmented label="Tone" value={data.tone} onChange={(tone) => onChange({ ...data, tone })} options={HEAT_TONE_OPTS} />
+      <TextField label="Values" value={numList(data.values)} hint="Column-major: index = col × rows + row." onChange={(v) => onChange({ ...data, values: parseNumList(v) })} />
+      <TextField label="Row labels" value={strList(data.rowLabels)} placeholder="M, , W, , F, , S" onChange={(v) => onChange({ ...data, rowLabels: v.split(',').map((x) => x.trim()) })} />
+      <Toggle label="Legend" checked={data.legend} onChange={(legend) => onChange({ ...data, legend })} />
+    </div>
+  );
+}
+
+function KpiTileFields({ data, onChange }: { data: KpiTileData; onChange: (d: KpiTileData) => void }) {
+  return (
+    <div className="space-y-3">
+      <TextField label="Label" value={data.label} onChange={(label) => onChange({ ...data, label })} />
+      <TextField label="Value" value={data.value} onChange={(value) => onChange({ ...data, value })} />
+      <TextField label="Hint" value={data.hint} onChange={(hint) => onChange({ ...data, hint })} />
+      <Segmented label="Tone" value={data.tone} onChange={(tone) => onChange({ ...data, tone })} options={KPI_TONE_OPTS} />
+    </div>
+  );
+}
+
+function RankListFields({ data, onChange }: { data: RankListData; onChange: (d: RankListData) => void }) {
+  const set = (i: number, it: RankListData['items'][number]) => {
+    const items = data.items.slice();
+    items[i] = it;
+    onChange({ ...data, items });
+  };
+  return (
+    <div className="space-y-3">
+      <TextField label="Panel title" value={data.title} onChange={(title) => onChange({ ...data, title })} />
+      <div className="grid grid-cols-2 gap-2">
+        <Toggle label="Rank chips" checked={data.showRank} onChange={(showRank) => onChange({ ...data, showRank })} />
+        <Toggle label="Meters" checked={data.showBar} onChange={(showBar) => onChange({ ...data, showBar })} />
+      </div>
+      <Segmented label="Default tone" value={data.tone} onChange={(tone) => onChange({ ...data, tone })} options={PROGRESS_TONE_OPTS} />
+      <ListHeader title="Items" onAdd={() => onChange({ ...data, items: [...data.items, { label: 'New', value: 50, display: '', sub: '', tone: 'fi' }] })} />
+      {data.items.map((it, i) => (
+        <div key={i} className="space-y-2 rounded-md border border-hair p-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-ink">Item {i + 1}</span>
+            <RemoveBtn onClick={() => onChange({ ...data, items: data.items.filter((_, j) => j !== i) })} />
+          </div>
+          <TextField label="Label" value={it.label} onChange={(label) => set(i, { ...it, label })} />
+          <div className="grid grid-cols-2 gap-2">
+            <NumberField label="Value" value={it.value} onChange={(value) => set(i, { ...it, value })} />
+            <TextField label="Display" value={it.display} placeholder="$4.2M" onChange={(display) => set(i, { ...it, display })} />
+          </div>
+          <TextField label="Sub-line" value={it.sub} onChange={(sub) => set(i, { ...it, sub })} />
+          <SelectField label="Tone" value={it.tone} onChange={(tone) => set(i, { ...it, tone })} options={PROGRESS_TONE_OPTS} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SparklineFields({ data, onChange }: { data: SparklineData; onChange: (d: SparklineData) => void }) {
+  return (
+    <div className="space-y-3">
+      <TextField label="Panel title" value={data.title} onChange={(title) => onChange({ ...data, title })} />
+      <TextField label="Series" value={numList(data.data)} placeholder="4, 6, 5, 9…" onChange={(v) => onChange({ ...data, data: parseNumList(v) })} />
+      <Segmented label="Tone" value={data.tone} onChange={(tone) => onChange({ ...data, tone })} options={SPARK_TONE_OPTS} />
+      <div className="grid grid-cols-2 gap-2">
+        <Toggle label="Smooth" checked={data.smooth} onChange={(smooth) => onChange({ ...data, smooth })} />
+        <Toggle label="End dot" checked={data.endDot} onChange={(endDot) => onChange({ ...data, endDot })} />
+      </div>
+    </div>
+  );
+}
+
+function DeltaFields({ data, onChange }: { data: DeltaData; onChange: (d: DeltaData) => void }) {
+  return (
+    <div className="space-y-3">
+      <NumberField label="Value" value={data.value} onChange={(value) => onChange({ ...data, value })} />
+      <TextField label="Suffix" value={data.suffix} placeholder="%" onChange={(suffix) => onChange({ ...data, suffix })} />
+      <Toggle label="Invert (down is good)" checked={data.invert} onChange={(invert) => onChange({ ...data, invert })} />
+      <Segmented label="Tone" value={data.tone} onChange={(tone) => onChange({ ...data, tone })} options={DELTA_TONE_OPTS} />
+    </div>
+  );
+}
+
+function MetricPanelFields({ data, onChange }: { data: MetricPanelData; onChange: (d: MetricPanelData) => void }) {
+  return (
+    <div className="space-y-3">
+      <TextField label="Panel title" value={data.title} onChange={(title) => onChange({ ...data, title })} />
+      <TextField label="Figure" value={data.figureValue} onChange={(figureValue) => onChange({ ...data, figureValue })} />
+      <TextField label="Caption" value={data.figureCaption} onChange={(figureCaption) => onChange({ ...data, figureCaption })} />
+      <TextField label="Sparkline values" value={numList(data.spark)} onChange={(v) => onChange({ ...data, spark: parseNumList(v) })} />
+      <TextField label="Bar values" value={numList(data.bars)} onChange={(v) => onChange({ ...data, bars: parseNumList(v) })} />
+    </div>
+  );
+}
+
+function DataTableFields({ data, onChange }: { data: DataTableData; onChange: (d: DataTableData) => void }) {
+  const setCol = (i: number, c: DataTableData['columns'][number]) => {
+    const columns = data.columns.slice();
+    columns[i] = c;
+    onChange({ ...data, columns });
+  };
+  const rowsText = data.rows.map((r) => r.join(', ')).join('\n');
+  return (
+    <div className="space-y-3">
+      <TextField label="Panel title" value={data.title} onChange={(title) => onChange({ ...data, title })} />
+      <Toggle label="Zebra rows" checked={data.zebra} onChange={(zebra) => onChange({ ...data, zebra })} />
+      <ListHeader title="Columns" onAdd={() => onChange({ ...data, columns: [...data.columns, { key: rid(), header: 'Column', align: 'left' }] })} />
+      {data.columns.map((col, i) => (
+        <div key={i} className="space-y-2 rounded-md border border-hair p-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-ink">Column {i + 1}</span>
+            <RemoveBtn onClick={() => onChange({ ...data, columns: data.columns.filter((_, j) => j !== i) })} />
+          </div>
+          <TextField label="Header" value={col.header} onChange={(header) => setCol(i, { ...col, header })} />
+          <Segmented label="Align" value={col.align} onChange={(align) => setCol(i, { ...col, align })} options={ALIGN_OPTS} />
+        </div>
+      ))}
+      <TextArea
+        label="Rows (one per line, cells comma-separated)"
+        rows={6}
+        value={rowsText}
+        onChange={(v) => onChange({ ...data, rows: v.split('\n').filter((l) => l.trim()).map((l) => l.split(',').map((c) => c.trim())) })}
+      />
+    </div>
+  );
+}
+
+function BoardFields({ data, onChange }: { data: BoardData; onChange: (d: BoardData) => void }) {
+  const setCol = (i: number, c: BoardData['columns'][number]) => {
+    const columns = data.columns.slice();
+    columns[i] = c;
+    onChange({ ...data, columns });
+  };
+  return (
+    <div className="space-y-3">
+      <ListHeader title="Columns" onAdd={() => onChange({ ...data, columns: [...data.columns, { id: rid(), title: 'New lane', count: 0, tone: 'idle', cards: [] }] })} />
+      {data.columns.map((col, ci) => {
+        const setCard = (k: number, card: BoardData['columns'][number]['cards'][number]) => {
+          const cards = col.cards.slice();
+          cards[k] = card;
+          setCol(ci, { ...col, cards });
+        };
+        return (
+          <div key={col.id} className="space-y-2 rounded-md border border-hair p-2.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-ink">Lane {ci + 1}</span>
+              <RemoveBtn onClick={() => onChange({ ...data, columns: data.columns.filter((_, j) => j !== ci) })} />
+            </div>
+            <TextField label="Title" value={col.title} onChange={(title) => setCol(ci, { ...col, title })} />
+            <div className="grid grid-cols-2 gap-2">
+              <NumberField label="Count" value={col.count} onChange={(count) => setCol(ci, { ...col, count })} />
+              <SelectField label="Lane dot" value={col.tone} onChange={(tone) => setCol(ci, { ...col, tone })} options={STATUS_TONE_OPTS} />
+            </div>
+            <ListHeader
+              title="Cards"
+              onAdd={() => setCol(ci, { ...col, cards: [...col.cards, { title: 'New card', subtitle: '', status: 'Active', statusTone: 'ok', accent: 'none', flagged: false, leading: 'none' }] })}
+            />
+            {col.cards.map((card, k) => (
+              <details key={k} className="rounded-md border border-hair/70 p-2">
+                <summary className="cursor-pointer text-[11px] font-semibold text-muted">Card {k + 1} · {card.title}</summary>
+                <div className="mt-2 space-y-2">
+                  <KanbanCardFields data={card} onChange={(c) => setCard(k, c)} />
+                  <RemoveBtn onClick={() => setCol(ci, { ...col, cards: col.cards.filter((_, j) => j !== k) })} />
+                </div>
+              </details>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function BreadcrumbFields({ data, onChange }: { data: BreadcrumbData; onChange: (d: BreadcrumbData) => void }) {
+  const set = (i: number, c: BreadcrumbData['items'][number]) => {
+    const items = data.items.slice();
+    items[i] = c;
+    onChange({ ...data, items });
+  };
+  return (
+    <div className="space-y-3">
+      <Toggle label="Back caret" checked={data.showBack} onChange={(showBack) => onChange({ ...data, showBack })} />
+      <ListHeader title="Crumbs" onAdd={() => onChange({ ...data, items: [...data.items, { label: 'New', href: '' }] })} />
+      {data.items.map((c, i) => (
+        <div key={i} className="space-y-2 rounded-md border border-hair p-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-ink">Crumb {i + 1}</span>
+            <RemoveBtn onClick={() => onChange({ ...data, items: data.items.filter((_, j) => j !== i) })} />
+          </div>
+          <TextField label="Label" value={c.label} onChange={(label) => set(i, { ...c, label })} />
+          <TextField label="Href (blank = current)" value={c.href} onChange={(href) => set(i, { ...c, href })} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ConnectorCardFields({ data, onChange }: { data: ConnectorCardData; onChange: (d: ConnectorCardData) => void }) {
+  return (
+    <div className="space-y-3">
+      <TextField label="Name" value={data.name} onChange={(name) => onChange({ ...data, name })} />
+      <TextField label="Descriptor" value={data.descriptor} onChange={(descriptor) => onChange({ ...data, descriptor })} />
+      <SelectField label="Icon" value={data.icon} onChange={(icon) => onChange({ ...data, icon })} options={APP_ICON_OPTS_OPTIONAL} />
+      <TextField label="Status" value={data.status} onChange={(status) => onChange({ ...data, status })} />
+      <Segmented label="Status tone" value={data.statusTone} onChange={(statusTone) => onChange({ ...data, statusTone })} options={STATUS_TONE_OPTS} />
+      <Toggle label="Pulse (live)" checked={data.pulse} onChange={(pulse) => onChange({ ...data, pulse })} />
+    </div>
+  );
+}
+
+function TabsListEditor({ tabs, onChange }: { tabs: TabItemData[]; onChange: (t: TabItemData[]) => void }) {
+  const set = (i: number, t: TabItemData) => {
+    const next = tabs.slice();
+    next[i] = t;
+    onChange(next);
+  };
+  return (
+    <div className="space-y-2">
+      <ListHeader title="Tabs" onAdd={() => onChange([...tabs, { value: rid(), label: 'New', count: -1 }])} />
+      {tabs.map((t, i) => (
+        <div key={i} className="space-y-2 rounded-md border border-hair p-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-ink">Tab {i + 1}</span>
+            <RemoveBtn onClick={() => onChange(tabs.filter((_, j) => j !== i))} />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <TextField label="Value (id)" value={t.value} onChange={(value) => set(i, { ...t, value })} />
+            <NumberField label="Count (−1 hides)" value={t.count} onChange={(count) => set(i, { ...t, count })} />
+          </div>
+          <TextField label="Label" value={t.label} onChange={(label) => set(i, { ...t, label })} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function PageHeaderFields({ data, onChange }: { data: PageHeaderData; onChange: (d: PageHeaderData) => void }) {
+  return (
+    <div className="space-y-3">
+      <TextField label="Eyebrow" value={data.eyebrow} onChange={(eyebrow) => onChange({ ...data, eyebrow })} />
+      <TextField label="Title" value={data.title} onChange={(title) => onChange({ ...data, title })} />
+      <TextField label="Description" value={data.description} onChange={(description) => onChange({ ...data, description })} />
+      <TextField label="Primary action (blank = none)" value={data.primaryAction} onChange={(primaryAction) => onChange({ ...data, primaryAction })} />
+      <TextField label="Active tab (value)" value={data.activeTab} onChange={(activeTab) => onChange({ ...data, activeTab })} />
+      <TabsListEditor tabs={data.tabs} onChange={(tabs) => onChange({ ...data, tabs })} />
+    </div>
+  );
+}
+
+function NavNodesEditor({ nodes, depth = 0, onChange }: { nodes: NavNodeData[]; depth?: number; onChange: (n: NavNodeData[]) => void }) {
+  const set = (i: number, n: NavNodeData) => {
+    const next = nodes.slice();
+    next[i] = n;
+    onChange(next);
+  };
+  return (
+    <div className="space-y-2">
+      <ListHeader
+        title={depth === 0 ? 'Nodes' : 'Children'}
+        onAdd={() => onChange([...nodes, { id: rid(), label: 'New node', icon: 'none', done: false, children: [] }])}
+      />
+      {nodes.map((n, i) => (
+        <div key={n.id} className="space-y-2 rounded-md border border-hair p-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-ink">
+              Node · <code className="text-[11px] text-muted">{n.id}</code>
+            </span>
+            <RemoveBtn onClick={() => onChange(nodes.filter((_, j) => j !== i))} />
+          </div>
+          <TextField label="Label" value={n.label} onChange={(label) => set(i, { ...n, label })} />
+          <div className="grid grid-cols-2 gap-2">
+            <SelectField label="Icon (leaf)" value={n.icon} onChange={(icon) => set(i, { ...n, icon })} options={APP_ICON_OPTS_OPTIONAL} />
+            <Toggle label="Done" checked={n.done} onChange={(done) => set(i, { ...n, done })} />
+          </div>
+          {depth < 1 && (
+            <details className="rounded-md border border-hair/70 p-2">
+              <summary className="cursor-pointer text-[11px] font-semibold text-muted">Children ({n.children.length})</summary>
+              <div className="mt-2">
+                <NavNodesEditor nodes={n.children} depth={depth + 1} onChange={(children) => set(i, { ...n, children })} />
+              </div>
+            </details>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function NavTreeFields({ data, onChange }: { data: NavTreeData; onChange: (d: NavTreeData) => void }) {
+  return (
+    <div className="space-y-3">
+      <TextField label="Title" value={data.title} onChange={(title) => onChange({ ...data, title })} />
+      <div className="grid grid-cols-2 gap-2">
+        <TextField label="Active node id" value={data.activeId} onChange={(activeId) => onChange({ ...data, activeId })} />
+        <TextField label="Expanded ids" value={strList(data.expandedIds)} onChange={(v) => onChange({ ...data, expandedIds: parseStrList(v) })} />
+      </div>
+      <NavNodesEditor nodes={data.nodes} onChange={(nodes) => onChange({ ...data, nodes })} />
+    </div>
+  );
+}
+
+function EntityListFields({ data, onChange }: { data: EntityListData; onChange: (d: EntityListData) => void }) {
+  const set = (i: number, it: EntityListData['items'][number]) => {
+    const items = data.items.slice();
+    items[i] = it;
+    onChange({ ...data, items });
+  };
+  return (
+    <div className="space-y-3">
+      <TextField label="Panel title" value={data.title} onChange={(title) => onChange({ ...data, title })} />
+      <div className="grid grid-cols-2 gap-2">
+        <TextField label="Selected id" value={data.selectedId} onChange={(selectedId) => onChange({ ...data, selectedId })} />
+        <Toggle label="Numbered" checked={data.numbered} onChange={(numbered) => onChange({ ...data, numbered })} />
+      </div>
+      <ListHeader title="Entities" onAdd={() => onChange({ ...data, items: [...data.items, { id: rid(), label: 'New entity', tone: 'info', score: 50, meta: '' }] })} />
+      {data.items.map((it, i) => (
+        <div key={it.id} className="space-y-2 rounded-md border border-hair p-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-ink">Entity {i + 1}</span>
+            <RemoveBtn onClick={() => onChange({ ...data, items: data.items.filter((_, j) => j !== i) })} />
+          </div>
+          <TextField label="Label" value={it.label} onChange={(label) => set(i, { ...it, label })} />
+          <div className="grid grid-cols-2 gap-2">
+            <SelectField label="Tone" value={it.tone} onChange={(tone) => set(i, { ...it, tone })} options={STATUS_TONE_OPTS} />
+            <NumberField label="Score" value={it.score} min={0} max={100} onChange={(score) => set(i, { ...it, score })} />
+          </div>
+          <TextField label="Meta" value={it.meta} onChange={(meta) => set(i, { ...it, meta })} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SidebarFields({ data, onChange }: { data: SidebarData; onChange: (d: SidebarData) => void }) {
+  const set = (i: number, it: SidebarData['items'][number]) => {
+    const items = data.items.slice();
+    items[i] = it;
+    onChange({ ...data, items });
+  };
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-2">
+        <TextField label="Brand name" value={data.brandName} onChange={(brandName) => onChange({ ...data, brandName })} />
+        <SelectField label="Brand mark" value={data.brandMark} onChange={(brandMark) => onChange({ ...data, brandMark })} options={APP_ICON_OPTS_OPTIONAL} />
+      </div>
+      <ListHeader title="Items" onAdd={() => onChange({ ...data, items: [...data.items, { id: rid(), label: 'New', icon: 'shield-check', active: false, section: '' }] })} />
+      {data.items.map((it, i) => (
+        <div key={it.id} className="space-y-2 rounded-md border border-hair p-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-ink">Item {i + 1}</span>
+            <RemoveBtn onClick={() => onChange({ ...data, items: data.items.filter((_, j) => j !== i) })} />
+          </div>
+          <TextField label="Label" value={it.label} onChange={(label) => set(i, { ...it, label })} />
+          <div className="grid grid-cols-2 gap-2">
+            <SelectField label="Icon" value={it.icon} onChange={(icon) => set(i, { ...it, icon })} options={APP_ICON_OPTS} />
+            <Toggle label="Active" checked={it.active} onChange={(active) => set(i, { ...it, active })} />
+          </div>
+          <TextField label="Section heading (blank = none)" value={it.section} onChange={(section) => set(i, { ...it, section })} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AppHeaderFields({ data, onChange }: { data: AppHeaderData; onChange: (d: AppHeaderData) => void }) {
+  const setAction = (i: number, v: AppHeaderData['actions'][number]) => {
+    const actions = data.actions.slice();
+    actions[i] = v;
+    onChange({ ...data, actions });
+  };
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-2">
+        <TextField label="Brand name" value={data.brandName} onChange={(brandName) => onChange({ ...data, brandName })} />
+        <SelectField label="Brand mark" value={data.brandMark} onChange={(brandMark) => onChange({ ...data, brandMark })} options={APP_ICON_OPTS_OPTIONAL} />
+      </div>
+      <TextField label="Search placeholder (blank = none)" value={data.searchPlaceholder} onChange={(searchPlaceholder) => onChange({ ...data, searchPlaceholder })} />
+      <TextField label="Avatar name (blank = none)" value={data.avatarName} onChange={(avatarName) => onChange({ ...data, avatarName })} />
+      <ListHeader title="Action glyphs" onAdd={() => onChange({ ...data, actions: [...data.actions, 'share'] })} />
+      {data.actions.map((a, i) => (
+        <div key={i} className="flex items-end gap-2">
+          <div className="flex-1">
+            <SelectField label={`Action ${i + 1}`} value={a} onChange={(v) => setAction(i, v)} options={APP_ICON_OPTS} />
+          </div>
+          <RemoveBtn onClick={() => onChange({ ...data, actions: data.actions.filter((_, j) => j !== i) })} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ToolbarFields({ data, onChange }: { data: ToolbarData; onChange: (d: ToolbarData) => void }) {
+  const setSel = (i: number, s: ToolbarData['selects'][number]) => {
+    const selects = data.selects.slice();
+    selects[i] = s;
+    onChange({ ...data, selects });
+  };
+  const setBtn = (i: number, b: ToolbarData['buttons'][number]) => {
+    const buttons = data.buttons.slice();
+    buttons[i] = b;
+    onChange({ ...data, buttons });
+  };
+  return (
+    <div className="space-y-3">
+      <TextField label="Search placeholder (blank = none)" value={data.searchPlaceholder} onChange={(searchPlaceholder) => onChange({ ...data, searchPlaceholder })} />
+      <ListHeader title="Selects" onAdd={() => onChange({ ...data, selects: [...data.selects, { value: 'Filter', icon: 'none' }] })} />
+      {data.selects.map((s, i) => (
+        <div key={i} className="space-y-2 rounded-md border border-hair p-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-ink">Select {i + 1}</span>
+            <RemoveBtn onClick={() => onChange({ ...data, selects: data.selects.filter((_, j) => j !== i) })} />
+          </div>
+          <TextField label="Value" value={s.value} onChange={(value) => setSel(i, { ...s, value })} />
+          <SelectField label="Icon" value={s.icon} onChange={(icon) => setSel(i, { ...s, icon })} options={APP_ICON_OPTS_OPTIONAL} />
+        </div>
+      ))}
+      <ListHeader title="Buttons" onAdd={() => onChange({ ...data, buttons: [...data.buttons, { label: 'Action', variant: 'secondary', icon: 'none' }] })} />
+      {data.buttons.map((b, i) => (
+        <div key={i} className="space-y-2 rounded-md border border-hair p-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-ink">Button {i + 1}</span>
+            <RemoveBtn onClick={() => onChange({ ...data, buttons: data.buttons.filter((_, j) => j !== i) })} />
+          </div>
+          <TextField label="Label" value={b.label} onChange={(label) => setBtn(i, { ...b, label })} />
+          <div className="grid grid-cols-2 gap-2">
+            <SelectField label="Variant" value={b.variant} onChange={(variant) => setBtn(i, { ...b, variant })} options={BUTTON_VARIANT_OPTS} />
+            <SelectField label="Icon" value={b.icon} onChange={(icon) => setBtn(i, { ...b, icon })} options={APP_ICON_OPTS_OPTIONAL} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function PanelFields({ data, onChange }: { data: PanelData; onChange: (d: PanelData) => void }) {
+  return (
+    <div className="space-y-3">
+      <TextField label="Title" value={data.title} onChange={(title) => onChange({ ...data, title })} />
+      <SelectField label="Header icon" value={data.icon} onChange={(icon) => onChange({ ...data, icon })} options={APP_ICON_OPTS_OPTIONAL} />
+      <TextArea label="Body" value={data.body} rows={4} onChange={(body) => onChange({ ...data, body })} />
+      <TextField label="Footer (blank = none)" value={data.footer} onChange={(footer) => onChange({ ...data, footer })} />
+    </div>
+  );
+}
+
+function WorkspaceLayoutFields({ data, onChange }: { data: WorkspaceLayoutData; onChange: (d: WorkspaceLayoutData) => void }) {
+  return (
+    <div className="space-y-3">
+      <details open className="rounded-md border border-hair p-2.5">
+        <summary className="cursor-pointer text-xs font-semibold text-ink">Header</summary>
+        <div className="mt-2">
+          <AppHeaderFields data={data.header} onChange={(header) => onChange({ ...data, header })} />
+        </div>
+      </details>
+      <details className="rounded-md border border-hair p-2.5">
+        <summary className="cursor-pointer text-xs font-semibold text-ink">Sidebar (rail)</summary>
+        <div className="mt-2">
+          <SidebarFields data={data.rail} onChange={(rail) => onChange({ ...data, rail })} />
+        </div>
+      </details>
+      <details className="rounded-md border border-hair p-2.5">
+        <summary className="cursor-pointer text-xs font-semibold text-ink">Nav tree</summary>
+        <div className="mt-2">
+          <NavTreeFields data={data.nav} onChange={(nav) => onChange({ ...data, nav })} />
+        </div>
+      </details>
+      <details className="rounded-md border border-hair p-2.5">
+        <summary className="cursor-pointer text-xs font-semibold text-ink">Main panel</summary>
+        <div className="mt-2">
+          <PanelFields data={data.panel} onChange={(panel) => onChange({ ...data, panel })} />
+        </div>
+      </details>
+    </div>
+  );
+}
+
+function AvatarFields({ data, onChange }: { data: AvatarData; onChange: (d: AvatarData) => void }) {
+  const presenceOpts: { value: AvatarData['presence']; label: string }[] = [
+    { value: 'none', label: 'None' },
+    ...STATUS_TONE_OPTS,
+  ];
+  return (
+    <div className="space-y-3">
+      <TextField label="Name (initials fallback)" value={data.name} onChange={(name) => onChange({ ...data, name })} />
+      <TextField label="Image URL (blank = initials)" value={data.src} onChange={(src) => onChange({ ...data, src })} />
+      <Segmented label="Size" value={data.size} onChange={(size) => onChange({ ...data, size })} options={AVATAR_SIZE_OPTS} />
+      <SelectField label="Presence dot" value={data.presence} onChange={(presence) => onChange({ ...data, presence })} options={presenceOpts} />
+    </div>
+  );
+}
+
+function BadgeFields({ data, onChange }: { data: BadgeData; onChange: (d: BadgeData) => void }) {
+  return (
+    <div className="space-y-3">
+      <TextField label="Text" value={data.text} onChange={(text) => onChange({ ...data, text })} />
+      <Segmented label="Variant" value={data.variant} onChange={(variant) => onChange({ ...data, variant })} options={BADGE_VARIANT_OPTS} />
+      <SelectField label="Tone" value={data.tone} onChange={(tone) => onChange({ ...data, tone })} options={BADGE_TONE_OPTS} />
+      <SelectField label="Icon" value={data.icon} onChange={(icon) => onChange({ ...data, icon })} options={APP_ICON_OPTS_OPTIONAL} />
+    </div>
+  );
+}
+
+function ButtonFields({ data, onChange }: { data: ButtonData; onChange: (d: ButtonData) => void }) {
+  return (
+    <div className="space-y-3">
+      <TextField label="Label" value={data.label} onChange={(label) => onChange({ ...data, label })} />
+      <div className="grid grid-cols-2 gap-2">
+        <SelectField label="Variant" value={data.variant} onChange={(variant) => onChange({ ...data, variant })} options={BUTTON_VARIANT_OPTS} />
+        <Segmented label="Size" value={data.size} onChange={(size) => onChange({ ...data, size })} options={BUTTON_SIZE_OPTS} />
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <SelectField label="Left icon" value={data.leftIcon} onChange={(leftIcon) => onChange({ ...data, leftIcon })} options={APP_ICON_OPTS_OPTIONAL} />
+        <SelectField label="Right icon" value={data.rightIcon} onChange={(rightIcon) => onChange({ ...data, rightIcon })} options={APP_ICON_OPTS_OPTIONAL} />
+      </div>
+      <Toggle label="Full width" checked={data.fullWidth} onChange={(fullWidth) => onChange({ ...data, fullWidth })} />
+    </div>
+  );
+}
+
+function IconButtonFields({ data, onChange }: { data: IconButtonData; onChange: (d: IconButtonData) => void }) {
+  return (
+    <div className="space-y-3">
+      <SelectField label="Icon" value={data.icon} onChange={(icon) => onChange({ ...data, icon })} options={APP_ICON_OPTS} />
+      <TextField label="Accessible label" value={data.label} onChange={(label) => onChange({ ...data, label })} />
+      <div className="grid grid-cols-2 gap-2">
+        <Segmented label="Size" value={data.size} onChange={(size) => onChange({ ...data, size })} options={DOT_SIZE_OPTS} />
+        <SelectField label="Variant" value={data.variant} onChange={(variant) => onChange({ ...data, variant })} options={ICONBTN_VARIANT_OPTS} />
+      </div>
+      <NumberField label="Badge count (−1 hides)" value={data.badge} onChange={(badge) => onChange({ ...data, badge })} />
+      <Toggle label="Active" checked={data.active} onChange={(active) => onChange({ ...data, active })} />
+    </div>
+  );
+}
+
+function PageDotsFields({ data, onChange }: { data: PageDotsData; onChange: (d: PageDotsData) => void }) {
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      <NumberField label="Count" value={data.count} min={1} onChange={(count) => onChange({ ...data, count })} />
+      <NumberField label="Active (0-based)" value={data.active} min={0} onChange={(active) => onChange({ ...data, active })} />
+    </div>
+  );
+}
+
+function ProgressBarFields({ data, onChange }: { data: ProgressBarData; onChange: (d: ProgressBarData) => void }) {
+  return (
+    <div className="space-y-3">
+      <NumberField label="Value (0–100)" value={data.value} min={0} max={100} onChange={(value) => onChange({ ...data, value })} />
+      <div className="grid grid-cols-2 gap-2">
+        <SelectField label="Tone" value={data.tone} onChange={(tone) => onChange({ ...data, tone })} options={PROGRESS_TONE_OPTS} />
+        <Segmented label="Size" value={data.size} onChange={(size) => onChange({ ...data, size })} options={SM_MD_OPTS} />
+      </div>
+      <TextField label="Accessible label" value={data.label} onChange={(label) => onChange({ ...data, label })} />
+      <Toggle label="Show value" checked={data.showValue} onChange={(showValue) => onChange({ ...data, showValue })} />
+    </div>
+  );
+}
+
+function SearchInputFields({ data, onChange }: { data: SearchInputData; onChange: (d: SearchInputData) => void }) {
+  return (
+    <div className="space-y-3">
+      <TextField label="Placeholder" value={data.placeholder} onChange={(placeholder) => onChange({ ...data, placeholder })} />
+      <TextField label="Value (filled text)" value={data.value} onChange={(value) => onChange({ ...data, value })} />
+      <div className="grid grid-cols-2 gap-2">
+        <Segmented label="Size" value={data.size} onChange={(size) => onChange({ ...data, size })} options={MD_LG_OPTS} />
+        <TextField label="Kbd hint" value={data.kbdHint} placeholder="⌘K" onChange={(kbdHint) => onChange({ ...data, kbdHint })} />
+      </div>
+    </div>
+  );
+}
+
+function SegmentedControlFields({ data, onChange }: { data: SegmentedControlData; onChange: (d: SegmentedControlData) => void }) {
+  const set = (i: number, s: SegmentedControlData['segments'][number]) => {
+    const segments = data.segments.slice();
+    segments[i] = s;
+    onChange({ ...data, segments });
+  };
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-2">
+        <TextField label="Active value" value={data.value} onChange={(value) => onChange({ ...data, value })} />
+        <Segmented label="Size" value={data.size} onChange={(size) => onChange({ ...data, size })} options={SM_MD_OPTS} />
+      </div>
+      <ListHeader title="Segments" onAdd={() => onChange({ ...data, segments: [...data.segments, { value: rid(), label: 'New' }] })} />
+      {data.segments.map((s, i) => (
+        <div key={i} className="flex items-end gap-2 rounded-md border border-hair p-2.5">
+          <div className="flex-1 space-y-2">
+            <TextField label="Value" value={s.value} onChange={(value) => set(i, { ...s, value })} />
+            <TextField label="Label" value={s.label} onChange={(label) => set(i, { ...s, label })} />
+          </div>
+          <RemoveBtn onClick={() => onChange({ ...data, segments: data.segments.filter((_, j) => j !== i) })} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SelectFields({ data, onChange }: { data: SelectData; onChange: (d: SelectData) => void }) {
+  return (
+    <div className="space-y-3">
+      <TextField label="Value (blank = placeholder)" value={data.value} onChange={(value) => onChange({ ...data, value })} />
+      <TextField label="Placeholder" value={data.placeholder} onChange={(placeholder) => onChange({ ...data, placeholder })} />
+      <SelectField label="Left icon" value={data.leftIcon} onChange={(leftIcon) => onChange({ ...data, leftIcon })} options={APP_ICON_OPTS_OPTIONAL} />
+      <div className="grid grid-cols-2 gap-2">
+        <Segmented label="Size" value={data.size} onChange={(size) => onChange({ ...data, size })} options={SM_MD_OPTS} />
+        <Toggle label="Active" checked={data.active} onChange={(active) => onChange({ ...data, active })} />
+      </div>
+    </div>
+  );
+}
+
+function StatusBadgeFields({ data, onChange }: { data: StatusBadgeData; onChange: (d: StatusBadgeData) => void }) {
+  return (
+    <div className="space-y-3">
+      <TextField label="Label" value={data.label} onChange={(label) => onChange({ ...data, label })} />
+      <Segmented label="Tone" value={data.tone} onChange={(tone) => onChange({ ...data, tone })} options={STATUS_TONE_OPTS} />
+      <div className="grid grid-cols-2 gap-2">
+        <Toggle label="Caret" checked={data.caret} onChange={(caret) => onChange({ ...data, caret })} />
+        <Toggle label="Pulse" checked={data.pulse} onChange={(pulse) => onChange({ ...data, pulse })} />
+      </div>
+    </div>
+  );
+}
+
+function StatusDotFields({ data, onChange }: { data: StatusDotData; onChange: (d: StatusDotData) => void }) {
+  return (
+    <div className="space-y-3">
+      <Segmented label="Tone" value={data.tone} onChange={(tone) => onChange({ ...data, tone })} options={STATUS_TONE_OPTS} />
+      <div className="grid grid-cols-2 gap-2">
+        <Segmented label="Size" value={data.size} onChange={(size) => onChange({ ...data, size })} options={DOT_SIZE_OPTS} />
+        <Toggle label="Pulse" checked={data.pulse} onChange={(pulse) => onChange({ ...data, pulse })} />
+      </div>
+      <TextField label="Accessible label" value={data.label} onChange={(label) => onChange({ ...data, label })} />
+    </div>
+  );
+}
+
+function TabsFields({ data, onChange }: { data: TabsData; onChange: (d: TabsData) => void }) {
+  return (
+    <div className="space-y-3">
+      <TextField label="Active value" value={data.value} onChange={(value) => onChange({ ...data, value })} />
+      <TabsListEditor tabs={data.tabs} onChange={(tabs) => onChange({ ...data, tabs })} />
+    </div>
+  );
+}
+
+function WindowChromeFields({ data, onChange }: { data: WindowChromeData; onChange: (d: WindowChromeData) => void }) {
+  return (
+    <div className="space-y-3">
+      <TextField label="Title" value={data.title} onChange={(title) => onChange({ ...data, title })} />
+      <Segmented label="Tone" value={data.tone} onChange={(tone) => onChange({ ...data, tone })} options={WINDOW_TONE_OPTS} />
+    </div>
+  );
+}
+
 /* ------------------------------ main switch ------------------------------ */
 
 export function ForegroundContentEditor({
@@ -870,5 +1803,83 @@ export function ForegroundContentEditor({
           </details>
         </div>
       );
+
+    /* ----------------------------- analytics ----------------------------- */
+    case 'ActivityFeed':
+      return <ActivityFeedFields data={content} onChange={(d) => onChange({ type: 'ActivityFeed', ...d })} />;
+    case 'AreaChart':
+      return <AreaChartFields data={content} onChange={(d) => onChange({ type: 'AreaChart', ...d })} />;
+    case 'BarChart':
+      return <BarChartFields data={content} onChange={(d) => onChange({ type: 'BarChart', ...d })} />;
+    case 'DistributionBar':
+      return <DistributionBarFields data={content} onChange={(d) => onChange({ type: 'DistributionBar', ...d })} />;
+    case 'Heatmap':
+      return <HeatmapFields data={content} onChange={(d) => onChange({ type: 'Heatmap', ...d })} />;
+    case 'KpiTile':
+      return <KpiTileFields data={content} onChange={(d) => onChange({ type: 'KpiTile', ...d })} />;
+    case 'RankList':
+      return <RankListFields data={content} onChange={(d) => onChange({ type: 'RankList', ...d })} />;
+    case 'Sparkline':
+      return <SparklineFields data={content} onChange={(d) => onChange({ type: 'Sparkline', ...d })} />;
+    case 'Delta':
+      return <DeltaFields data={content} onChange={(d) => onChange({ type: 'Delta', ...d })} />;
+    case 'MetricPanel':
+      return <MetricPanelFields data={content} onChange={(d) => onChange({ type: 'MetricPanel', ...d })} />;
+    case 'DataTable':
+      return <DataTableFields data={content} onChange={(d) => onChange({ type: 'DataTable', ...d })} />;
+
+    /* ------------------------------- board ------------------------------- */
+    case 'Board':
+      return <BoardFields data={content} onChange={(d) => onChange({ type: 'Board', ...d })} />;
+    case 'Breadcrumb':
+      return <BreadcrumbFields data={content} onChange={(d) => onChange({ type: 'Breadcrumb', ...d })} />;
+    case 'ConnectorCard':
+      return <ConnectorCardFields data={content} onChange={(d) => onChange({ type: 'ConnectorCard', ...d })} />;
+    case 'PageHeader':
+      return <PageHeaderFields data={content} onChange={(d) => onChange({ type: 'PageHeader', ...d })} />;
+
+    /* ------------------------------- shell ------------------------------- */
+    case 'NavTree':
+      return <NavTreeFields data={content} onChange={(d) => onChange({ type: 'NavTree', ...d })} />;
+    case 'EntityList':
+      return <EntityListFields data={content} onChange={(d) => onChange({ type: 'EntityList', ...d })} />;
+    case 'Sidebar':
+      return <SidebarFields data={content} onChange={(d) => onChange({ type: 'Sidebar', ...d })} />;
+    case 'AppHeader':
+      return <AppHeaderFields data={content} onChange={(d) => onChange({ type: 'AppHeader', ...d })} />;
+    case 'Toolbar':
+      return <ToolbarFields data={content} onChange={(d) => onChange({ type: 'Toolbar', ...d })} />;
+    case 'Panel':
+      return <PanelFields data={content} onChange={(d) => onChange({ type: 'Panel', ...d })} />;
+    case 'WorkspaceLayout':
+      return <WorkspaceLayoutFields data={content} onChange={(d) => onChange({ type: 'WorkspaceLayout', ...d })} />;
+
+    /* ---------------------------- primitives ----------------------------- */
+    case 'Avatar':
+      return <AvatarFields data={content} onChange={(d) => onChange({ type: 'Avatar', ...d })} />;
+    case 'Badge':
+      return <BadgeFields data={content} onChange={(d) => onChange({ type: 'Badge', ...d })} />;
+    case 'Button':
+      return <ButtonFields data={content} onChange={(d) => onChange({ type: 'Button', ...d })} />;
+    case 'IconButton':
+      return <IconButtonFields data={content} onChange={(d) => onChange({ type: 'IconButton', ...d })} />;
+    case 'PageDots':
+      return <PageDotsFields data={content} onChange={(d) => onChange({ type: 'PageDots', ...d })} />;
+    case 'ProgressBar':
+      return <ProgressBarFields data={content} onChange={(d) => onChange({ type: 'ProgressBar', ...d })} />;
+    case 'SearchInput':
+      return <SearchInputFields data={content} onChange={(d) => onChange({ type: 'SearchInput', ...d })} />;
+    case 'SegmentedControl':
+      return <SegmentedControlFields data={content} onChange={(d) => onChange({ type: 'SegmentedControl', ...d })} />;
+    case 'Select':
+      return <SelectFields data={content} onChange={(d) => onChange({ type: 'Select', ...d })} />;
+    case 'StatusBadge':
+      return <StatusBadgeFields data={content} onChange={(d) => onChange({ type: 'StatusBadge', ...d })} />;
+    case 'StatusDot':
+      return <StatusDotFields data={content} onChange={(d) => onChange({ type: 'StatusDot', ...d })} />;
+    case 'Tabs':
+      return <TabsFields data={content} onChange={(d) => onChange({ type: 'Tabs', ...d })} />;
+    case 'WindowChrome':
+      return <WindowChromeFields data={content} onChange={(d) => onChange({ type: 'WindowChrome', ...d })} />;
   }
 }

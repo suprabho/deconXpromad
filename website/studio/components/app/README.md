@@ -53,12 +53,27 @@ const columns: Column<Row>[] = [
 
 ## Studio foregrounds
 
-Eight of these are registered as composable foreground plates in the visual
-studio (pick them from the foreground type dropdown in the inspector):
-**Command Palette · Entity Graph · Stat Card · Kanban Card · Code Window ·
-Donut Chart · Risk Gauge · Secure Chat**. Icon-free plates (Donut Chart, Risk
-Gauge — wrapped in a `Panel` — and the self-contained Secure Chat) render their
-component directly in `ForegroundLayer`; no adapter needed.
+Essentially every component here is registered as a composable foreground plate
+in the visual studio (pick them from the foreground type dropdown in the
+inspector) — the original eight (**Command Palette · Entity Graph · Stat Card ·
+Kanban Card · Code Window · Donut Chart · Risk Gauge · Secure Chat**) plus the
+analytics widgets (Activity Feed, Area/Bar charts, Distribution Bar, Heatmap,
+KPI Tile, Rank List, Sparkline, Delta, Metric Panel, Data Table), the shell &
+board (Board, Breadcrumb, Connector Card, Page Header, Nav Tree, Entity List,
+Sidebar, App Header, Toolbar, Panel, **Workspace Layout** — the full screen) and
+the primitive atoms (Avatar, Badge, Button, Icon Button, Page Dots, Progress
+Bar, Search Input, Segmented Control, Select, Status Badge, Status Dot, Tabs,
+Window Chrome).
+
+The pure internals — `CodeLine`, `ChatMessage`, `EncryptedFile`, `ResultGroup`,
+`SearchResultRow` and the `geometry`/`highlight` helpers — aren't standalone
+plates; they're already composed inside the Code Window / Secure Chat / Command
+Palette plates.
+
+Icon-bearing plates resolve their `AppIconKey`s to nodes via a `*Foreground`
+adapter in `foreground/adapters.tsx` (client module); icon-free plates render
+their component directly in `ForegroundLayer` (analytics widgets wrapped in a
+`Panel`).
 
 Each one touches five spots — the pattern for adding more:
 

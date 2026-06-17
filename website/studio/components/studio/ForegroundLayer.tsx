@@ -20,10 +20,47 @@ import { DonutChart } from '@/components/app/analytics/DonutChart';
 import { GaugeArc } from '@/components/app/analytics/GaugeArc';
 import { SecureChat } from '@/components/app/messaging/SecureChat';
 import type { ChatItem } from '@/components/app/messaging/SecureChat';
+// icon-free app plates — render directly (no APP_ICONS across the render boundary)
+import { ActivityFeed } from '@/components/app/analytics/ActivityFeed';
+import { AreaChart } from '@/components/app/analytics/AreaChart';
+import { BarChart } from '@/components/app/analytics/BarChart';
+import { DistributionBar } from '@/components/app/analytics/DistributionBar';
+import { Heatmap } from '@/components/app/analytics/Heatmap';
+import { KpiTile } from '@/components/app/analytics/KpiTile';
+import { RankList } from '@/components/app/analytics/RankList';
+import { Sparkline } from '@/components/app/analytics/Sparkline';
+import { Delta } from '@/components/app/analytics/Delta';
+import { MetricPanel, MetricFigure } from '@/components/app/analytics/MetricPanel';
+import { DataTable, type Column } from '@/components/app/analytics/DataTable';
+import { Breadcrumb } from '@/components/app/board/Breadcrumb';
+import { PageHeader } from '@/components/app/board/PageHeader';
+import { EntityList } from '@/components/app/shell/EntityList';
+import { Avatar } from '@/components/app/primitives/Avatar';
+import { PageDots } from '@/components/app/primitives/Pagination';
+import { ProgressBar } from '@/components/app/primitives/ProgressBar';
+import { SearchInput, Kbd } from '@/components/app/primitives/SearchInput';
+import { SegmentedControl } from '@/components/app/primitives/SegmentedControl';
+import { StatusBadge } from '@/components/app/primitives/StatusBadge';
+import { StatusDot } from '@/components/app/primitives/StatusDot';
+import { Tabs } from '@/components/app/primitives/Tabs';
+import { WindowChrome } from '@/components/app/primitives/WindowChrome';
+import { Button } from '@/components/app/primitives/Button';
 import {
+  AppHeaderForeground,
+  BadgeForeground,
+  BoardForeground,
+  ButtonForeground,
   CommandPaletteForeground,
+  ConnectorCardForeground,
+  IconButtonForeground,
   KanbanCardForeground,
+  NavTreeForeground,
+  PanelForeground,
+  SelectForeground,
+  SidebarForeground,
   StatCardForeground,
+  ToolbarForeground,
+  WorkspaceLayoutForeground,
 } from '@/components/app/foreground/adapters';
 
 function renderContent(content: ForegroundContent) {
@@ -134,6 +171,241 @@ function renderContent(content: ForegroundContent) {
         />
       );
     }
+
+    /* ----------------------------- analytics ----------------------------- */
+    case 'ActivityFeed':
+      return (
+        <Panel title={content.title}>
+          <ActivityFeed
+            items={content.items.map((it) => ({
+              id: it.id,
+              tone: it.tone,
+              title: it.title,
+              description: it.description || undefined,
+              time: it.time || undefined,
+              pulse: it.pulse,
+            }))}
+          />
+        </Panel>
+      );
+    case 'AreaChart':
+      return (
+        <Panel title={content.title}>
+          <AreaChart
+            data={content.data}
+            compare={content.compare.length ? content.compare : undefined}
+            tone={content.tone}
+            ticks={content.ticks.length ? content.ticks : undefined}
+            smooth={content.smooth}
+          />
+        </Panel>
+      );
+    case 'BarChart':
+      return (
+        <Panel title={content.title}>
+          <BarChart
+            data={content.bars}
+            tone={content.tone}
+            highlightTone={content.highlightTone}
+            showLabels={content.showLabels}
+          />
+        </Panel>
+      );
+    case 'DistributionBar':
+      return (
+        <Panel title={content.title}>
+          <DistributionBar segments={content.segments} showPercent={content.showPercent} legend={content.legend} />
+        </Panel>
+      );
+    case 'Heatmap':
+      return (
+        <Panel title={content.title}>
+          <Heatmap
+            values={content.values}
+            columns={content.columns}
+            rows={content.rows}
+            tone={content.tone}
+            rowLabels={content.rowLabels.length ? content.rowLabels : undefined}
+            legend={content.legend}
+          />
+        </Panel>
+      );
+    case 'KpiTile':
+      return <KpiTile label={content.label} value={content.value} hint={content.hint || undefined} tone={content.tone} />;
+    case 'RankList':
+      return (
+        <Panel title={content.title}>
+          <RankList
+            items={content.items.map((it) => ({
+              label: it.label,
+              value: it.value,
+              display: it.display || undefined,
+              sub: it.sub || undefined,
+              tone: it.tone,
+            }))}
+            tone={content.tone}
+            showRank={content.showRank}
+            showBar={content.showBar}
+          />
+        </Panel>
+      );
+    case 'Sparkline':
+      return (
+        <Panel title={content.title}>
+          <Sparkline data={content.data} tone={content.tone} smooth={content.smooth} endDot={content.endDot} />
+        </Panel>
+      );
+    case 'Delta':
+      return <Delta value={content.value} suffix={content.suffix} invert={content.invert} tone={content.tone} />;
+    case 'MetricPanel':
+      return (
+        <MetricPanel title={content.title}>
+          <div className="space-y-4">
+            <MetricFigure value={content.figureValue} caption={content.figureCaption} />
+            <Sparkline data={content.spark} tone="white" />
+            <BarChart data={content.bars} tone="white" />
+          </div>
+        </MetricPanel>
+      );
+    case 'DataTable': {
+      const columns: Column<string[]>[] = content.columns.map((col, ci) => ({
+        key: col.key,
+        header: col.header,
+        align: col.align,
+        render: (row: string[]) => row[ci] ?? '',
+      }));
+      return (
+        <Panel title={content.title}>
+          <DataTable columns={columns} rows={content.rows} rowKey={(_, i) => String(i)} zebra={content.zebra} />
+        </Panel>
+      );
+    }
+
+    /* ------------------------------- board ------------------------------- */
+    case 'Board':
+      return <BoardForeground data={content} />;
+    case 'Breadcrumb':
+      return (
+        <Breadcrumb
+          items={content.items.map((c) => ({ label: c.label, href: c.href || undefined }))}
+          showBack={content.showBack}
+        />
+      );
+    case 'ConnectorCard':
+      return <ConnectorCardForeground data={content} />;
+    case 'PageHeader':
+      return (
+        <PageHeader
+          eyebrow={content.eyebrow || undefined}
+          title={content.title}
+          description={content.description || undefined}
+          tabs={
+            content.tabs.length ? (
+              <Tabs
+                tabs={content.tabs.map((t) => ({ value: t.value, label: t.label, count: t.count >= 0 ? t.count : undefined }))}
+                value={content.activeTab}
+              />
+            ) : undefined
+          }
+          actions={content.primaryAction ? <Button variant="primary">{content.primaryAction}</Button> : undefined}
+        />
+      );
+
+    /* ------------------------------- shell ------------------------------- */
+    case 'NavTree':
+      return <NavTreeForeground data={content} />;
+    case 'EntityList':
+      return (
+        <Panel title={content.title}>
+          <EntityList
+            items={content.items.map((it) => ({
+              id: it.id,
+              label: it.label,
+              tone: it.tone,
+              score: it.score,
+              meta: it.meta || undefined,
+            }))}
+            selectedId={content.selectedId || undefined}
+            numbered={content.numbered}
+          />
+        </Panel>
+      );
+    case 'Sidebar':
+      return <SidebarForeground data={content} />;
+    case 'AppHeader':
+      return <AppHeaderForeground data={content} />;
+    case 'Toolbar':
+      return <ToolbarForeground data={content} />;
+    case 'Panel':
+      return <PanelForeground data={content} />;
+    case 'WorkspaceLayout':
+      return <WorkspaceLayoutForeground data={content} />;
+
+    /* ---------------------------- primitives ----------------------------- */
+    case 'Avatar':
+      return (
+        <Avatar
+          name={content.name}
+          src={content.src || undefined}
+          size={content.size}
+          presence={content.presence === 'none' ? undefined : content.presence}
+        />
+      );
+    case 'Badge':
+      return <BadgeForeground data={content} />;
+    case 'Button':
+      return <ButtonForeground data={content} />;
+    case 'IconButton':
+      return <IconButtonForeground data={content} />;
+    case 'PageDots':
+      return <PageDots count={content.count} active={content.active} />;
+    case 'ProgressBar':
+      return (
+        <ProgressBar
+          value={content.value}
+          tone={content.tone}
+          size={content.size}
+          showValue={content.showValue}
+          label={content.label || undefined}
+        />
+      );
+    case 'SearchInput':
+      return (
+        <SearchInput
+          placeholder={content.placeholder}
+          defaultValue={content.value}
+          size={content.size}
+          readOnly
+          trailing={content.kbdHint ? <Kbd>{content.kbdHint}</Kbd> : undefined}
+        />
+      );
+    case 'SegmentedControl':
+      return <SegmentedControl segments={content.segments} value={content.value} size={content.size} />;
+    case 'Select':
+      return <SelectForeground data={content} />;
+    case 'StatusBadge':
+      return <StatusBadge label={content.label} tone={content.tone} caret={content.caret} pulse={content.pulse} />;
+    case 'StatusDot':
+      return <StatusDot tone={content.tone} size={content.size} pulse={content.pulse} label={content.label || undefined} />;
+    case 'Tabs':
+      return (
+        <Tabs
+          tabs={content.tabs.map((t) => ({ value: t.value, label: t.label, count: t.count >= 0 ? t.count : undefined }))}
+          value={content.value}
+        />
+      );
+    case 'WindowChrome':
+      return (
+        <div
+          className={
+            content.tone === 'dark'
+              ? 'overflow-hidden rounded-2xl bg-[#0c1322] shadow-glass'
+              : 'overflow-hidden rounded-2xl border border-white/60 bg-white/70 shadow-glass'
+          }
+        >
+          <WindowChrome title={content.title || undefined} tone={content.tone} />
+        </div>
+      );
   }
 }
 
