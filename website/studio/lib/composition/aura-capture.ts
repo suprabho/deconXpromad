@@ -1,4 +1,4 @@
-import { auraEmbedUrl } from './types';
+import { AURA_ORIGIN, auraEmbedUrl } from './types';
 
 /**
  * Client-side aura snapshot.
@@ -11,26 +11,20 @@ import { auraEmbedUrl } from './types';
  * snapshot itself and post the PNG back, then cache that still for the export to
  * composite.
  *
- * ── Embed-side contract (implement in the aura.promad.design repo) ──────────────
- * The embed must answer a capture request from its parent window:
+ * ── Embed-side contract ─────────────────────────────────────────────────────────
+ * The responder lives in the aura embed repo (beautiful-headers), in
+ * SceneEmbedPage.jsx — it listens for `promad-aura:capture`, composites the live
+ * layers with its own capture pipeline (already preserveDrawingBuffer-correct,
+ * honouring pixelRatio), and posts back:
  *
- *   window.addEventListener('message', (e) => {
- *     if (e.data?.type !== 'promad-aura:capture') return;
- *     const canvas = document.querySelector('canvas');   // the WebGL canvas
- *     // IMPORTANT: the WebGL context must be created with
- *     // `preserveDrawingBuffer: true`, otherwise toDataURL() returns a blank
- *     // image (the drawing buffer is cleared after each composite). Honour
- *     // e.data.pixelRatio when sizing the capture for a crisp 2x still.
- *     const dataUrl = canvas.toDataURL('image/png');
- *     e.source.postMessage(
- *       { type: 'promad-aura:capture-result', requestId: e.data.requestId, dataUrl },
- *       e.origin,
- *     );
- *   });
+ *   { type: 'promad-aura:capture-result', requestId, dataUrl }   // or { error }
+ *
+ * That fix must be DEPLOYED to aura.promad.design for production export to work;
+ * to test locally, run the embed dev server and set NEXT_PUBLIC_AURA_ORIGIN
+ * (e.g. http://localhost:5173) so this client talks to it instead of prod.
  * ───────────────────────────────────────────────────────────────────────────────
  */
 
-const AURA_ORIGIN = 'https://aura.promad.design';
 const CAPTURE_REQ = 'promad-aura:capture';
 const CAPTURE_RES = 'promad-aura:capture-result';
 
