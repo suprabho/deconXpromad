@@ -36,7 +36,7 @@ export function Panel({
         <header className="flex items-center gap-3 border-b border-hair/60 px-5 py-3.5">
           {icon && <span className="text-muted">{icon}</span>}
           {title && (
-            <h2 className="text-sm font-bold tracking-wide text-ink">{title}</h2>
+            <h2 className="font-serif text-[15px] font-semibold text-ink">{title}</h2>
           )}
           {actions && <div className="ml-auto flex items-center gap-2">{actions}</div>}
         </header>

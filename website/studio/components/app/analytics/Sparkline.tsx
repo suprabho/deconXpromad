@@ -7,10 +7,10 @@ import { toPoints, linePath } from './geometry';
  * -------------------------------------------------------------------------- */
 
 const STROKES = {
-  fi: '#2563EB',
-  match: '#E8941F',
-  ok: '#10B981',
-  alert: '#C0392B',
+  fi: '#1A56DB', // cobalt
+  match: '#2F8F5C', // verified green
+  ok: '#2F8F5C', // verified green
+  alert: '#B91C1C', // alert red
   white: '#FFFFFF',
 } as const;
 

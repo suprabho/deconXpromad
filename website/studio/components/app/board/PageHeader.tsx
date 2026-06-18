@@ -36,7 +36,7 @@ export function PageHeader({
           {leading}
           <div className="min-w-0">
             {eyebrow && <div className="mb-1">{eyebrow}</div>}
-            <h1 className="truncate text-xl font-bold tracking-tight text-ink">{title}</h1>
+            <h1 className="truncate font-serif text-xl font-semibold tracking-tight text-ink">{title}</h1>
             {description && <p className="mt-1 text-sm text-muted">{description}</p>}
           </div>
         </div>

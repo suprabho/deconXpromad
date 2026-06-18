@@ -8,10 +8,10 @@ import clsx from 'clsx';
  * -------------------------------------------------------------------------- */
 
 const HEAT_RGB = {
-  fi: '37, 99, 235',
-  match: '232, 148, 31',
-  ok: '16, 185, 129',
-  alert: '192, 57, 43',
+  fi: '26, 86, 219', // cobalt #1A56DB
+  match: '47, 143, 92', // verified green #2F8F5C
+  ok: '47, 143, 92', // verified green #2F8F5C
+  alert: '185, 28, 28', // alert red #B91C1C
 } as const;
 
 export type HeatTone = keyof typeof HEAT_RGB;

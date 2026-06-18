@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { PlusIcon } from '@phosphor-icons/react/dist/ssr';
 import { CompositionStage } from '@/components/studio/CompositionStage';
 import { Inspector } from '@/components/studio/inspector/Inspector';
 import { LibraryDialog } from '@/components/studio/LibraryDialog';
@@ -38,6 +39,8 @@ export default function StudioEditor() {
   const [dirty, setDirty] = useState(false);
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  // Set while the "new scene" guard is asking whether to save unsaved work first.
+  const [confirmNew, setConfirmNew] = useState(false);
   // JSON of the last saved / opened composition; the draft is "dirty" when it
   // diverges. A value compare (recomputed on the autosave debounce) rather than an
   // edit counter, so it stays correct across React Strict Mode's double-invoked
@@ -207,6 +210,49 @@ export default function StudioEditor() {
     }
   }, [currentId, currentName, config, handleSaved]);
 
+  // Blank the canvas back to a fresh, untracked draft. mergeComposition({}) returns
+  // a deep clone of the defaults so we never mutate the shared DEFAULT_COMPOSITION.
+  const createNewScene = useCallback(() => {
+    const fresh = mergeComposition({});
+    baselineRef.current = JSON.stringify(fresh);
+    setConfig(fresh);
+    setCurrentId(null);
+    setCurrentName('Untitled');
+    saveDocPointer(null);
+    setDirty(false);
+    setError(null);
+  }, []);
+
+  // "+" → new scene. Guard unsaved work behind a prompt; otherwise blank straight away.
+  const handleNew = useCallback(() => {
+    if (dirty) setConfirmNew(true);
+    else createNewScene();
+  }, [dirty, createNewScene]);
+
+  // The prompt's "Save" path: update the tracked row in place, then start fresh.
+  // An untracked draft has no row to update and needs a name, so hand it to the
+  // library (matching the header Save) — the work is kept, not blanked.
+  const saveThenNew = useCallback(async () => {
+    if (!currentId) {
+      setConfirmNew(false);
+      setLibraryOpen(true);
+      return;
+    }
+    const sent = config;
+    setSaving(true);
+    setError(null);
+    try {
+      const meta = await updateComposition(currentId, { name: currentName, config: sent });
+      handleSaved(meta, sent);
+      setConfirmNew(false);
+      createNewScene();
+    } catch (e) {
+      setError((e as Error).message || 'Save failed');
+    } finally {
+      setSaving(false);
+    }
+  }, [currentId, currentName, config, handleSaved, createNewScene]);
+
   return (
     <div className="flex h-screen flex-col bg-frost text-ink">
       {/* Top bar */}
@@ -218,6 +264,15 @@ export default function StudioEditor() {
             className="rounded-md border border-hair px-2.5 py-1.5 text-xs font-medium text-ink hover:bg-frost"
           >
             Library
+          </button>
+          <button
+            type="button"
+            onClick={handleNew}
+            title="New scene"
+            aria-label="New scene"
+            className="grid h-[30px] w-[30px] place-items-center rounded-md border border-hair text-muted transition hover:bg-frost hover:text-ink"
+          >
+            <PlusIcon size={15} weight="bold" />
           </button>
           <span className="text-sm">Deconflict Visual Studio</span>
         </div>
@@ -321,6 +376,51 @@ export default function StudioEditor() {
         onLoad={handleLoad}
         onDeleted={handleDeleted}
       />
+
+      {confirmNew && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-navy/40 p-4 motion-safe:animate-fade-in"
+          onMouseDown={() => setConfirmNew(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl border border-hair bg-white p-5 shadow-glass motion-safe:animate-pop-in"
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-sm font-semibold text-ink">Start a new scene?</h2>
+            <p className="mt-1 text-xs leading-relaxed text-muted">
+              <span className="font-medium text-ink">{currentName}</span> has unsaved changes. Save your work
+              before starting a blank scene, or discard it to continue.
+            </p>
+            <div className="mt-4 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmNew(false)}
+                className="rounded-md px-3 py-1.5 text-xs font-medium text-muted transition hover:text-ink"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setConfirmNew(false);
+                  createNewScene();
+                }}
+                className="rounded-md border border-hair bg-white px-3 py-1.5 text-xs font-medium text-ink transition hover:bg-frost"
+              >
+                Discard &amp; start new
+              </button>
+              <button
+                type="button"
+                onClick={saveThenNew}
+                disabled={saving}
+                className="rounded-md bg-cobalt px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-cobalt/90 disabled:opacity-60"
+              >
+                {saving ? 'Saving…' : currentId ? 'Save & start new' : 'Save…'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

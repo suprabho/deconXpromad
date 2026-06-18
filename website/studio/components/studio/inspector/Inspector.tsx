@@ -45,10 +45,11 @@ import {
   ColorField,
   GroupedSelect,
   ImageUpload,
+  Scrubber,
   Section,
   Segmented,
   SelectField,
-  Slider,
+  SubSection,
   TextArea,
   TextField,
   Toggle,
@@ -109,24 +110,24 @@ function ElementTransformFields({
 }) {
   const has3D = t.rotateX !== 0 || t.rotateY !== 0;
   return (
-    <div className="space-y-2 rounded-md bg-frost p-2">
-      <div className="grid grid-cols-2 gap-x-3">
-        <Slider label="Pos X" value={t.x} min={-25} max={125} step={0.5} format={(v) => `${Math.round(v)}%`} onChange={(x) => onChange({ x })} />
-        <Slider label="Pos Y" value={t.y} min={-25} max={125} step={0.5} format={(v) => `${Math.round(v)}%`} onChange={(y) => onChange({ y })} />
+    <SubSection title="Transform">
+      <div className="grid grid-cols-2 gap-x-2">
+        <Scrubber label="Pos X" value={t.x} min={-25} max={125} step={0.5} unit="%" onChange={(x) => onChange({ x })} />
+        <Scrubber label="Pos Y" value={t.y} min={-25} max={125} step={0.5} unit="%" onChange={(y) => onChange({ y })} />
       </div>
-      <div className="grid grid-cols-2 gap-x-3">
-        <Slider label="Width" value={t.width} min={0.1} max={1.4} step={0.01} format={(v) => `${Math.round(v * 100)}%`} onChange={(width) => onChange({ width })} />
-        <Slider label="Scale" value={t.scale} min={0.2} max={2} step={0.01} format={(v) => `${Math.round(v * 100)}%`} onChange={(scale) => onChange({ scale })} />
+      <div className="grid grid-cols-2 gap-x-2">
+        <Scrubber label="Width" value={t.width} min={0.1} max={1.4} step={0.01} unit="%" displayScale={100} onChange={(width) => onChange({ width })} />
+        <Scrubber label="Scale" value={t.scale} min={0.2} max={2} step={0.01} unit="%" displayScale={100} onChange={(scale) => onChange({ scale })} />
       </div>
-      <div className="grid grid-cols-3 gap-x-3">
-        <Slider label="Rot X" value={t.rotateX} min={-180} max={180} step={1} format={(v) => `${Math.round(v)}°`} onChange={(rotateX) => onChange({ rotateX })} />
-        <Slider label="Rot Y" value={t.rotateY} min={-180} max={180} step={1} format={(v) => `${Math.round(v)}°`} onChange={(rotateY) => onChange({ rotateY })} />
-        <Slider label="Rot Z" value={t.rotateZ} min={-180} max={180} step={1} format={(v) => `${Math.round(v)}°`} onChange={(rotateZ) => onChange({ rotateZ })} />
+      <div className="grid grid-cols-3 gap-x-2">
+        <Scrubber label="Rot X" value={t.rotateX} min={-180} max={180} step={1} unit="°" onChange={(rotateX) => onChange({ rotateX })} />
+        <Scrubber label="Rot Y" value={t.rotateY} min={-180} max={180} step={1} unit="°" onChange={(rotateY) => onChange({ rotateY })} />
+        <Scrubber label="Rot Z" value={t.rotateZ} min={-180} max={180} step={1} unit="°" onChange={(rotateZ) => onChange({ rotateZ })} />
       </div>
       {has3D && (
-        <Slider label="Perspective" value={t.perspective} min={200} max={3000} step={50} format={(v) => `${Math.round(v)}px`} onChange={(perspective) => onChange({ perspective })} />
+        <Scrubber label="Perspective" value={t.perspective} min={200} max={3000} step={50} unit="px" onChange={(perspective) => onChange({ perspective })} />
       )}
-    </div>
+    </SubSection>
   );
 }
 
@@ -139,16 +140,16 @@ function MidTransformFields({
   onChange: (p: Partial<MidTransform>) => void;
 }) {
   return (
-    <div className="space-y-2 rounded-md bg-frost p-2">
-      <div className="grid grid-cols-2 gap-x-3">
-        <Slider label="Pos X" value={t.x} min={-25} max={125} step={0.5} format={(v) => `${Math.round(v)}%`} onChange={(x) => onChange({ x })} />
-        <Slider label="Pos Y" value={t.y} min={-25} max={125} step={0.5} format={(v) => `${Math.round(v)}%`} onChange={(y) => onChange({ y })} />
+    <SubSection title="Transform">
+      <div className="grid grid-cols-2 gap-x-2">
+        <Scrubber label="Pos X" value={t.x} min={-25} max={125} step={0.5} unit="%" onChange={(x) => onChange({ x })} />
+        <Scrubber label="Pos Y" value={t.y} min={-25} max={125} step={0.5} unit="%" onChange={(y) => onChange({ y })} />
       </div>
-      <div className="grid grid-cols-2 gap-x-3">
-        <Slider label="Width" value={t.width} min={0.05} max={3} step={0.01} format={(v) => `${Math.round(v * 100)}%`} onChange={(width) => onChange({ width })} />
-        <Slider label="Rotation" value={t.rotation} min={-180} max={180} step={1} format={(v) => `${Math.round(v)}°`} onChange={(rotation) => onChange({ rotation })} />
+      <div className="grid grid-cols-2 gap-x-2">
+        <Scrubber label="Width" value={t.width} min={0.05} max={3} step={0.01} unit="%" displayScale={100} onChange={(width) => onChange({ width })} />
+        <Scrubber label="Rotation" value={t.rotation} min={-180} max={180} step={1} unit="°" onChange={(rotation) => onChange({ rotation })} />
       </div>
-    </div>
+    </SubSection>
   );
 }
 
@@ -167,9 +168,9 @@ function ElementShadowFields({
   const removeShadow = (i: number) => onChange(list.filter((_, j) => j !== i));
 
   return (
-    <div className="space-y-2 rounded-md bg-frost p-2">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-muted">Shadows{list.length ? ` · ${list.length}` : ''}</span>
+    <SubSection
+      title={`Shadows${list.length ? ` · ${list.length}` : ''}`}
+      action={
         <button
           type="button"
           onClick={addShadow}
@@ -177,7 +178,8 @@ function ElementShadowFields({
         >
           + Add shadow
         </button>
-      </div>
+      }
+    >
       {list.length === 0 && (
         <p className="text-[11px] text-muted/80">No shadow. Add one or more for layered depth.</p>
       )}
@@ -193,16 +195,16 @@ function ElementShadowFields({
               Remove
             </button>
           </div>
-          <div className="grid grid-cols-2 gap-x-3">
-            <Slider label="Offset X" value={s.x} min={-80} max={80} step={1} format={(v) => `${Math.round(v)}px`} onChange={(x) => setShadow(i, { x })} />
-            <Slider label="Offset Y" value={s.y} min={-80} max={80} step={1} format={(v) => `${Math.round(v)}px`} onChange={(y) => setShadow(i, { y })} />
+          <div className="grid grid-cols-2 gap-x-2">
+            <Scrubber label="Offset X" value={s.x} min={-80} max={80} step={1} unit="px" onChange={(x) => setShadow(i, { x })} />
+            <Scrubber label="Offset Y" value={s.y} min={-80} max={80} step={1} unit="px" onChange={(y) => setShadow(i, { y })} />
           </div>
-          <Slider label="Blur" value={s.blur} min={0} max={120} step={1} format={(v) => `${Math.round(v)}px`} onChange={(blur) => setShadow(i, { blur })} />
-          <Slider label="Opacity" value={s.opacity} min={0} max={1} step={0.05} format={(v) => `${Math.round(v * 100)}%`} onChange={(opacity) => setShadow(i, { opacity })} />
+          <Scrubber label="Blur" value={s.blur} min={0} max={120} step={1} unit="px" onChange={(blur) => setShadow(i, { blur })} />
+          <Scrubber label="Opacity" value={s.opacity} min={0} max={1} step={0.05} unit="%" displayScale={100} onChange={(opacity) => setShadow(i, { opacity })} />
           <ColorField label="Colour" value={s.color} onChange={(color) => setShadow(i, { color })} />
         </div>
       ))}
-    </div>
+    </SubSection>
   );
 }
 
@@ -402,33 +404,38 @@ export function Inspector({
                     options={POSITION_OPTS}
                   />
                 )}
-                <Slider
-                  label="Saturation"
-                  value={bg.imageSaturation ?? 1}
-                  min={0}
-                  max={2}
-                  step={0.05}
-                  format={(v) => `${Math.round(v * 100)}%`}
-                  onChange={(imageSaturation) => setBackground({ imageSaturation })}
-                />
-                <Slider
-                  label="Brightness"
-                  value={bg.imageBrightness ?? 1}
-                  min={0}
-                  max={2}
-                  step={0.05}
-                  format={(v) => `${Math.round(v * 100)}%`}
-                  onChange={(imageBrightness) => setBackground({ imageBrightness })}
-                />
-                <Slider
-                  label="Contrast"
-                  value={bg.imageContrast ?? 1}
-                  min={0}
-                  max={2}
-                  step={0.05}
-                  format={(v) => `${Math.round(v * 100)}%`}
-                  onChange={(imageContrast) => setBackground({ imageContrast })}
-                />
+                <div className="grid grid-cols-3 gap-x-2">
+                  <Scrubber
+                    label="Saturation"
+                    value={bg.imageSaturation ?? 1}
+                    min={0}
+                    max={2}
+                    step={0.05}
+                    unit="%"
+                    displayScale={100}
+                    onChange={(imageSaturation) => setBackground({ imageSaturation })}
+                  />
+                  <Scrubber
+                    label="Brightness"
+                    value={bg.imageBrightness ?? 1}
+                    min={0}
+                    max={2}
+                    step={0.05}
+                    unit="%"
+                    displayScale={100}
+                    onChange={(imageBrightness) => setBackground({ imageBrightness })}
+                  />
+                  <Scrubber
+                    label="Contrast"
+                    value={bg.imageContrast ?? 1}
+                    min={0}
+                    max={2}
+                    step={0.05}
+                    unit="%"
+                    displayScale={100}
+                    onChange={(imageContrast) => setBackground({ imageContrast })}
+                  />
+                </div>
               </>
             )}
 
@@ -436,32 +443,36 @@ export function Inspector({
               <ColorField label="Fill colour" value={bg.color ?? '#0D1B3E'} onChange={(color) => setBackground({ color })} />
             )}
 
-            <Slider
-              label="Opacity"
-              value={bg.opacity ?? 1}
-              min={0}
-              max={1}
-              step={0.05}
-              format={(v) => `${Math.round(v * 100)}%`}
-              onChange={(opacity) => setBackground({ opacity })}
-            />
-            <Slider
-              label="Blur"
-              value={bg.blur ?? 0}
-              min={0}
-              max={60}
-              step={1}
-              format={(v) => `${Math.round(v)}px`}
-              onChange={(blur) => setBackground({ blur })}
-            />
+            <div className="grid grid-cols-2 gap-x-2">
+              <Scrubber
+                label="Opacity"
+                value={bg.opacity ?? 1}
+                min={0}
+                max={1}
+                step={0.05}
+                unit="%"
+                displayScale={100}
+                onChange={(opacity) => setBackground({ opacity })}
+              />
+              <Scrubber
+                label="Blur"
+                value={bg.blur ?? 0}
+                min={0}
+                max={60}
+                step={1}
+                unit="px"
+                onChange={(blur) => setBackground({ blur })}
+              />
+            </div>
 
-            <Slider
+            <Scrubber
               label="Scrim"
               value={config.scrim.amount}
               min={0}
               max={1}
               step={0.05}
-              format={(v) => `${Math.round(v * 100)}%`}
+              unit="%"
+              displayScale={100}
               onChange={(amount) => setScrim({ amount })}
             />
             {config.scrim.amount > 0 && (
@@ -494,7 +505,7 @@ export function Inspector({
                 <ImageUpload label="Or upload your own" value={g.src} onChange={(src) => setMid(i, { src })} hint="SVG keeps its vector crispness; rasters are downscaled." />
                 <AiImageGenerator model={imageModel} sizeId={config.sizeId} onGenerated={(src) => setMid(i, { src })} />
                 <MidTransformFields transform={g.transform} onChange={(p) => setMidTransform(i, p)} />
-                <Slider label="Opacity" value={g.opacity} format={(v) => `${Math.round(v * 100)}%`} onChange={(opacity) => setMid(i, { opacity })} />
+                <Scrubber label="Opacity" value={g.opacity} unit="%" displayScale={100} onChange={(opacity) => setMid(i, { opacity })} />
               </div>
             ))}
             <button type="button" onClick={addMid} className="w-full rounded-md border border-dashed border-hair py-2 text-xs font-medium text-cobalt hover:bg-cobalt/5">
@@ -518,14 +529,21 @@ export function Inspector({
               const isCollapsed = collapsed.has(el.id);
               return (
               <div key={el.id} className="space-y-3 rounded-md border border-hair p-2.5">
-                <div className="flex items-center justify-between gap-2">
-                  <button
-                    type="button"
-                    onClick={() => toggleCollapsed(el.id)}
-                    aria-expanded={!isCollapsed}
-                    aria-label={isCollapsed ? 'Expand element' : 'Collapse element'}
-                    className="flex min-w-0 flex-1 items-center gap-1.5 text-left"
-                  >
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => toggleCollapsed(el.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      toggleCollapsed(el.id);
+                    }
+                  }}
+                  aria-expanded={!isCollapsed}
+                  aria-label={isCollapsed ? 'Expand element' : 'Collapse element'}
+                  className="flex cursor-pointer items-center justify-between gap-2 rounded -m-1 p-1 hover:bg-frost"
+                >
+                  <div className="flex min-w-0 flex-1 items-center gap-1.5 text-left">
                     <CaretDownIcon
                       size={12}
                       weight="bold"
@@ -533,8 +551,8 @@ export function Inspector({
                     />
                     <span className="shrink-0 text-xs font-semibold text-ink">Element {i + 1}</span>
                     <span className="truncate text-[11px] text-muted">{FOREGROUND_LABELS[el.content.type]}</span>
-                  </button>
-                  <div className="flex items-center gap-1">
+                  </div>
+                  <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                     <button
                       type="button"
                       onClick={() => moveElement(i, -1)}
@@ -581,10 +599,12 @@ export function Inspector({
                 {el.content.type !== 'none' && (
                   <>
                     <ElementTransformFields transform={el.transform} onChange={(p) => setElementTransform(i, p)} />
-                    <div className="grid grid-cols-2 gap-x-3 rounded-md bg-frost p-2">
-                      <Slider label="Glass tint" value={el.glass?.tint ?? 0.7} min={0} max={1} step={0.05} format={(v) => `${Math.round(v * 100)}%`} onChange={(tint) => setElementGlass(i, { tint })} />
-                      <Slider label="Glass blur" value={el.glass?.blur ?? 24} min={0} max={60} step={1} format={(v) => `${Math.round(v)}px`} onChange={(blur) => setElementGlass(i, { blur })} />
-                    </div>
+                    <SubSection title="Glass">
+                      <div className="grid grid-cols-2 gap-x-2">
+                        <Scrubber label="Tint" value={el.glass?.tint ?? 0.7} min={0} max={1} step={0.05} unit="%" displayScale={100} onChange={(tint) => setElementGlass(i, { tint })} />
+                        <Scrubber label="Blur" value={el.glass?.blur ?? 24} min={0} max={60} step={1} unit="px" onChange={(blur) => setElementGlass(i, { blur })} />
+                      </div>
+                    </SubSection>
                     <ElementShadowFields shadows={el.shadows} onChange={(shadows) => setElementShadows(i, shadows)} />
                     <div className="space-y-3 border-t border-hair pt-3">
                       <AiContentGenerator

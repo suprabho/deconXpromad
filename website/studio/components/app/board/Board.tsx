@@ -32,7 +32,7 @@ export function BoardColumn({
     <section className={clsx('flex w-72 shrink-0 flex-col gap-3 snap-start', className)}>
       <header className="flex items-center gap-2 px-1">
         <StatusDot tone={tone} size="sm" label={`${title} lane`} />
-        <h3 className="text-sm font-bold tracking-wide text-ink">{title}</h3>
+        <h3 className="font-serif text-sm font-semibold text-ink">{title}</h3>
         {count != null && (
           <span className="rounded-full bg-ink/5 px-2 py-0.5 text-[11px] font-bold text-muted">
             {count}
@@ -64,7 +64,11 @@ export function Board({
   return (
     <div
       className={clsx(
-        'flex snap-x gap-5 overflow-x-auto pb-2 [scrollbar-width:thin]',
+        // `fg-shadow-defer`: as a foreground element the board is a transparent
+        // layout wrapper, so the studio's drop-shadow filter is pushed down onto
+        // each glass card instead of this root — where it would kill the cards'
+        // backdrop-filter (see the `.fg-shadow-defer` rule in globals.css).
+        'fg-shadow-defer flex snap-x gap-5 overflow-x-auto pb-2 [scrollbar-width:thin]',
         className
       )}
     >

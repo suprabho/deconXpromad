@@ -28,7 +28,7 @@ export function MetricPanel({
     >
       {(title || action) && (
         <header className="flex items-center gap-3 border-b border-white/10 px-5 py-3.5">
-          {title && <h2 className="text-sm font-bold tracking-wide text-white">{title}</h2>}
+          {title && <h2 className="font-serif text-[15px] font-semibold text-white">{title}</h2>}
           {action && <div className="ml-auto">{action}</div>}
         </header>
       )}

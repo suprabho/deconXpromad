@@ -25,9 +25,9 @@ export const TOKEN_CLASS: Record<TokenType, string> = {
   comment: 'text-slate-500 italic',
   keyword: 'text-violet-300',
   string: 'text-emerald-300',
-  number: 'text-orange-300',
+  number: 'text-amber-300', // brand bans orange — gold reads as the numeric tone
   function: 'text-sky-300',
-  boolean: 'text-orange-300',
+  boolean: 'text-amber-300',
   operator: 'text-slate-400',
   plain: 'text-slate-200',
 };

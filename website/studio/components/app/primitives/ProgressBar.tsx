@@ -11,7 +11,7 @@ export type ProgressTone = 'fi' | 'match' | 'ok' | 'alert' | 'ink';
 const FILLS: Record<ProgressTone, string> = {
   fi: 'bg-fi',
   match: 'bg-match',
-  ok: 'bg-emerald-500',
+  ok: 'bg-success',
   alert: 'bg-risk-text',
   ink: 'bg-ink',
 };

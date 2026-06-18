@@ -26,18 +26,18 @@ export type GraphNode = {
 };
 
 const NODE_FILL: Record<GraphTone, string> = {
-  hub: '#2563EB', // fi
-  active: '#2563EB',
-  match: '#E8941F', // match orange
-  alert: '#C0392B', // risk
+  hub: '#1A56DB', // cobalt (fi)
+  active: '#1A56DB',
+  match: '#2F8F5C', // verified green — confirmed match
+  alert: '#B91C1C', // alert red — conflict
   idle: '#FFFFFF',
 };
 const NODE_STROKE: Record<GraphTone, string> = {
   hub: '#1A56DB',
   active: '#1A56DB',
-  match: '#E8941F',
-  alert: '#C0392B',
-  idle: '#CBD5E1',
+  match: '#2F8F5C',
+  alert: '#B91C1C',
+  idle: '#B0B8CC', // subtle
 };
 
 const RING_RADIUS = { 1: 26, 2: 40 } as const;
@@ -87,7 +87,7 @@ export function EntityGraph({
       <svg viewBox="0 0 100 100" className="h-full w-full" role="img" aria-label={ariaLabel}>
         {/* faint concentric guide rings */}
         {[RING_RADIUS[1], RING_RADIUS[2]].map((r) => (
-          <circle key={r} cx="50" cy="50" r={r} fill="none" stroke="#E5E7EB" strokeWidth="0.3" strokeDasharray="0.6 1.4" />
+          <circle key={r} cx="50" cy="50" r={r} fill="none" stroke="#D6DCE8" strokeWidth="0.3" strokeDasharray="0.6 1.4" />
         ))}
 
         {/* spokes hub → satellite */}
@@ -98,7 +98,7 @@ export function EntityGraph({
             y1="50"
             x2={x}
             y2={y}
-            stroke={node.tone === 'match' || node.tone === 'alert' ? NODE_STROKE[node.tone] : '#CBD5E1'}
+            stroke={node.tone === 'match' || node.tone === 'alert' ? NODE_STROKE[node.tone] : '#B0B8CC'}
             strokeWidth={node.tone === 'match' || node.tone === 'alert' ? 0.6 : 0.4}
             opacity={node.tone === 'idle' || !node.tone ? 0.7 : 1}
           />
@@ -121,7 +121,7 @@ export function EntityGraph({
         })}
 
         {/* hub: soft halo + filled core */}
-        <circle cx="50" cy="50" r="7.5" fill="#2563EB" opacity="0.12" />
+        <circle cx="50" cy="50" r="7.5" fill="#1A56DB" opacity="0.12" />
         <circle cx="50" cy="50" r="4.6" fill={NODE_FILL.hub} stroke={NODE_STROKE.hub} strokeWidth="0.8" />
       </svg>
 

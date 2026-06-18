@@ -1,37 +1,52 @@
 import type { Config } from 'tailwindcss';
 
-// Design tokens lifted verbatim from deconflict-ui-guide.md so the Deconflict
-// components read with named colours, not scattered hex.
+// Design tokens lifted from the Deconflict Brand Color Guide v1.0 so the
+// components read with named colours, not scattered hex. White is the field,
+// navy the authority, cobalt the single accent; reds/greens/amber are reserved
+// status signals. No orange, no pure grays — neutrals lean cool.
 export default {
   content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        ink: '#1A2332', // navy — sidebar, LE track, headings
-        alert: {
-          bg: '#FCE3B4', // amber banner fill
-          border: '#F2C879',
-          icon: '#B7791F',
-        },
-        field: {
-          bg: '#FDF6E3', // butter-yellow highlighted field
-          border: '#EFE0B0',
-        },
-        match: '#E8941F', // orange — connectors + overlap markers
-        le: '#1A2332', // law-enforcement track
-        fi: '#2563EB', // financial-institution track
+        // Authority & ink — a single navy carries headings, body and dark surfaces.
+        ink: '#0D1B3E', // primary text, headings, LE track
+        navy: '#0D1B3E', // authority surfaces — sidebar, dark panels, footers
+        le: '#0D1B3E', // law-enforcement track
+        // Accent — Signal Cobalt is the one interactive accent.
+        cobalt: '#1A56DB', // links, CTAs, focus rings
+        'cobalt-soft': '#F0F4FF', // selected states, info chips
+        fi: '#1A56DB', // financial-institution track = the accent blue
+        // Structure & neutrals — cool-leaning, never pure gray.
+        frost: '#F4F6FB', // page bands, table stripes
+        muted: '#6B7A99', // secondary text, captions, metadata
+        subtle: '#B0B8CC', // tertiary text, placeholders, disabled, idle marks
+        hair: '#D6DCE8', // hairlines, dividers, input outlines
+        'border-soft': '#E8ECF3', // card edges, low-emphasis separators
+        // Signal & status — reserved, used sparingly.
+        match: '#2F8F5C', // confirmed match / overlap marker (Verified Green)
+        success: '#2F8F5C', // confirmed match, audit pass, completed state
+        caution: '#A66A00', // pending review, soft warnings (use rarely)
         risk: {
           bg: '#FCEAEA',
-          text: '#C0392B',
+          text: '#B91C1C', // Alert Red — active conflict, destructive
         },
-        muted: '#6B7280',
-        hair: '#E5E7EB', // card borders / hairlines
-        // Studio chrome (the editor shell, distinct from composition tokens)
-        cobalt: '#1A56DB',
-        navy: '#0D1B3E',
-        frost: '#F4F6FB',
+        // Highlighted field → brand cobalt-soft (selected / info).
+        field: {
+          bg: '#F0F4FF',
+          border: '#D6E0FF',
+        },
+        // Caution banner → brand Caution Amber tints.
+        alert: {
+          bg: '#FBF0D9',
+          border: '#EAD9AC',
+          icon: '#A66A00',
+        },
       },
       fontFamily: {
+        // Institutional serif for display headings & the wordmark; Inter for
+        // body; IBM Plex Mono for eyebrows, labels and code.
+        serif: ['var(--font-serif)', 'Georgia', 'Cambria', 'serif'],
         sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
         mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
       },

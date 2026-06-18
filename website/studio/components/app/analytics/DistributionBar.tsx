@@ -10,8 +10,8 @@ import clsx from 'clsx';
 const SEG_FILL = {
   fi: 'bg-fi',
   match: 'bg-match',
-  ok: 'bg-emerald-500',
-  warn: 'bg-amber-500',
+  ok: 'bg-success',
+  warn: 'bg-caution',
   alert: 'bg-risk-text',
   navy: 'bg-navy',
   ink: 'bg-ink',

@@ -15,8 +15,8 @@ export type BadgeTone = 'neutral' | 'info' | 'ok' | 'warn' | 'alert' | 'match';
 const SOFT: Record<BadgeTone, string> = {
   neutral: 'border-hair/70 bg-white/70 text-muted',
   info: 'border-fi/15 bg-fi/10 text-fi',
-  ok: 'border-emerald-600/15 bg-emerald-50/80 text-emerald-700',
-  warn: 'border-amber-600/15 bg-amber-50/80 text-amber-700',
+  ok: 'border-success/20 bg-success/10 text-success',
+  warn: 'border-caution/20 bg-caution/10 text-caution',
   alert: 'border-risk-text/15 bg-risk-bg/80 text-risk-text',
   match: 'border-match/20 bg-match/10 text-match',
 };
@@ -24,8 +24,8 @@ const SOFT: Record<BadgeTone, string> = {
 const SOLID: Record<BadgeTone, string> = {
   neutral: 'bg-muted text-white',
   info: 'bg-fi text-white',
-  ok: 'bg-emerald-500 text-white',
-  warn: 'bg-amber-500 text-white',
+  ok: 'bg-success text-white',
+  warn: 'bg-caution text-white',
   alert: 'bg-risk-text text-white',
   match: 'bg-match text-white',
 };

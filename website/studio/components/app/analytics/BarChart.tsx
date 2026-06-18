@@ -9,7 +9,7 @@ import clsx from 'clsx';
 const FILLS = {
   fi: 'bg-fi',
   match: 'bg-match',
-  ok: 'bg-emerald-500',
+  ok: 'bg-success',
   white: 'bg-white/80',
   ink: 'bg-ink',
 } as const;

@@ -10,9 +10,9 @@ import clsx from 'clsx';
 export type StatusTone = 'ok' | 'info' | 'warn' | 'alert' | 'idle';
 
 const TONES: Record<StatusTone, { dot: string; ring: string }> = {
-  ok: { dot: 'bg-emerald-500', ring: 'bg-emerald-500/30' },
+  ok: { dot: 'bg-success', ring: 'bg-success/30' },
   info: { dot: 'bg-fi', ring: 'bg-fi/30' },
-  warn: { dot: 'bg-amber-500', ring: 'bg-amber-500/30' },
+  warn: { dot: 'bg-caution', ring: 'bg-caution/30' },
   alert: { dot: 'bg-risk-text', ring: 'bg-risk-text/30' },
   idle: { dot: 'bg-muted/50', ring: 'bg-muted/20' },
 };
