@@ -55,6 +55,7 @@ import {
 } from './controls';
 import { ForegroundContentEditor } from './ForegroundContentEditor';
 import { AiContentGenerator } from './AiContentGenerator';
+import { AiSceneGenerator } from './AiSceneGenerator';
 import { AiImageGenerator } from './AiImageGenerator';
 import {
   AI_CONTENT_MODELS,
@@ -291,6 +292,11 @@ export function Inspector({
     setElement(i, { glass: { ...config.foreground[i].glass, ...p } });
   const addElement = () => patch({ foreground: [...config.foreground, defaultForegroundElement('CaseCard')] });
   const removeElement = (i: number) => patch({ foreground: config.foreground.filter((_, j) => j !== i) });
+  const duplicateElement = (i: number) => {
+    const foreground = config.foreground.slice();
+    foreground.splice(i + 1, 0, { ...structuredClone(config.foreground[i]), id: crypto.randomUUID() });
+    patch({ foreground });
+  };
   const moveElement = (i: number, dir: -1 | 1) => {
     const j = i + dir;
     if (j < 0 || j >= config.foreground.length) return;
@@ -503,6 +509,10 @@ export function Inspector({
             subtitle="Stack one or more UI components — each freely placed, scaled and rotated in 3-D. Later elements sit on top."
           >
             <SelectField label="AI content model" value={contentModel} onChange={pickContentModel} options={CONTENT_MODEL_OPTS} />
+            <AiSceneGenerator
+              model={contentModel}
+              onGenerated={(elements) => patch({ foreground: [...config.foreground, ...elements] })}
+            />
             {config.foreground.length === 0 && <p className="text-xs text-muted">No elements yet.</p>}
             {config.foreground.map((el, i) => {
               const isCollapsed = collapsed.has(el.id);
@@ -542,6 +552,14 @@ export function Inspector({
                       className="rounded border border-hair px-1.5 text-xs text-muted hover:text-ink disabled:opacity-30"
                     >
                       ↓
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => duplicateElement(i)}
+                      aria-label="Duplicate element"
+                      className="rounded border border-hair px-2 text-xs text-muted hover:text-ink"
+                    >
+                      Duplicate
                     </button>
                     <button
                       type="button"

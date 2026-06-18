@@ -60,3 +60,21 @@ export const CONTENT_SYSTEM = [
   'Fill EVERY field of the provided schema with coherent, mutually-consistent values (names, dates, ids and',
   'figures should line up across fields). Respect the user\'s brief.',
 ].join(' ');
+
+/**
+ * System prompt for the multi-element scene planner. Given one brief it lays out
+ * a small stack of complementary foreground components for a marketing visual —
+ * choosing each component's type, a focused per-element brief, and a 3-D
+ * placement so the pieces read as one composition rather than a pile.
+ */
+export const SCENE_SYSTEM = [
+  'You compose a marketing "hero" visual for "Deconflict" by arranging a small stack of UI components.',
+  'Pick 2–4 COMPLEMENTARY components from the allowed palette that together tell one coherent story about the',
+  'brief — e.g. a primary card or modal as the focal point, supported by a stat, chart, chat or alert.',
+  'Avoid duplicating the same component type unless the brief truly calls for it.',
+  'Lay them out so they read as one composition, not a pile: give the focal element the largest width near the',
+  'centre, then place the supporting elements around it (offset x/y, smaller width) with gentle overlap and a few',
+  'degrees of rotation for depth. x/y are the element CENTRE as a % of the canvas (50/50 = centre); width is a',
+  'fraction of canvas width; scale ~1; keep rotateZ small (±15°). Order the array back-to-front (last sits on top).',
+  'Write each element\'s brief as a single focused sentence the content generator will expand.',
+].join(' ');

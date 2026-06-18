@@ -13,9 +13,44 @@ import { SAMPLE_REVEAL } from '@/lib/composition/defaults';
 
 const sid = () => crypto.randomUUID().slice(0, 6);
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+// Re-attach the ids the schemas omit for the shell/board/feed plates. The model
+// only supplies the visible fields; ids (and the id-referencing selection state)
+// are minted here so they stay internally consistent.
+const withIds = (arr: any[], p: string) => (arr ?? []).map((x, i) => ({ id: `${p}${i}`, ...x }));
+
+const mintNav = (nodes: any[], prefix: string): any[] =>
+  (nodes ?? []).map((n, i) => {
+    const id = `${prefix}${i}`;
+    return { id, label: n.label, icon: n.icon, done: n.done, children: mintNav(n.children, `${id}_`) };
+  });
+
+const navExpanded = (nodes: any[], acc: string[]): string[] => {
+  for (const n of nodes) if (n.children.length) { acc.push(n.id); navExpanded(n.children, acc); }
+  return acc;
+};
+
+const navFirstLeaf = (nodes: any[]): string => {
+  for (const n of nodes) {
+    if (!n.children.length) return n.id;
+    const deep = navFirstLeaf(n.children);
+    if (deep) return deep;
+  }
+  return nodes[0]?.id ?? '';
+};
+
+function assembleNavTree(gen: any) {
+  const nodes = mintNav(gen.nodes, 'n');
+  return { title: gen.title, activeId: navFirstLeaf(nodes), expandedIds: navExpanded(nodes, []), nodes };
+}
+
+function assembleSidebar(gen: any) {
+  return { brandName: gen.brandName, brandMark: gen.brandMark, items: withIds(gen.items, 's') };
+}
+
 // `gen` is the zod-validated payload for `type` (see schemaFor); its shape is
 // guaranteed by the route before this runs, so per-branch casts are safe.
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export function assembleForegroundContent(
   type: ForegroundType,
   gen: any,
@@ -109,6 +144,67 @@ export function assembleForegroundContent(
       );
       return { type, title: gen.title, subtitle: gen.subtitle, composer: gen.composer, participants, items };
     }
+
+    /* ----------------------------- analytics ----------------------------- */
+    case 'ActivityFeed':
+      return { type, title: gen.title, items: withIds(gen.items, 'a') };
+
+    case 'AreaChart':
+    case 'BarChart':
+    case 'DistributionBar':
+    case 'Heatmap':
+    case 'KpiTile':
+    case 'RankList':
+    case 'Sparkline':
+    case 'Delta':
+    case 'MetricPanel':
+    case 'DataTable':
+      return { type, ...gen };
+
+    /* ------------------------------- board ------------------------------- */
+    case 'Board':
+      return { type, columns: gen.columns.map((c: any, i: number) => ({ id: `c${i}`, title: c.title, count: c.count, tone: c.tone, cards: c.cards })) };
+
+    case 'Breadcrumb':
+    case 'ConnectorCard':
+    case 'PageHeader':
+      return { type, ...gen };
+
+    /* ------------------------------- shell ------------------------------- */
+    case 'NavTree':
+      return { type, ...assembleNavTree(gen) };
+
+    case 'EntityList': {
+      const items = withIds(gen.items, 'e');
+      return { type, title: gen.title, items, selectedId: items[0]?.id ?? '', numbered: gen.numbered };
+    }
+
+    case 'Sidebar':
+      return { type, ...assembleSidebar(gen) };
+
+    case 'AppHeader':
+    case 'Toolbar':
+    case 'Panel':
+      return { type, ...gen };
+
+    case 'WorkspaceLayout':
+      return { type, rail: assembleSidebar(gen.rail), nav: assembleNavTree(gen.nav), header: gen.header, panel: gen.panel };
+
+    /* ---------------------------- primitives ----------------------------- */
+    case 'Avatar':
+    case 'Badge':
+    case 'Button':
+    case 'IconButton':
+    case 'PageDots':
+    case 'ProgressBar':
+    case 'SearchInput':
+    case 'SegmentedControl':
+    case 'Select':
+    case 'StatusBadge':
+    case 'StatusDot':
+    case 'Tabs':
+    case 'WindowChrome':
+      return { type, ...gen };
 
     default:
       // 'none' and any unschemaed type — nothing to assemble.
