@@ -21,7 +21,7 @@ const TONES = {
     card: 'border-white/10 bg-navy text-white shadow-glass',
     label: 'text-white/60',
     value: 'text-white',
-    icon: 'border-white/15 bg-white/10 text-sky-200',
+    icon: 'border-white/15 bg-white/10 text-blue-200',
   },
 } as const;
 

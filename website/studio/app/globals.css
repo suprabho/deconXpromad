@@ -44,4 +44,18 @@ body.render-surface {
   .fg-item > * {
     filter: var(--fg-shadow, none);
   }
+
+  /* Some foreground elements (the board) are a transparent layout wrapper, not a
+     single glass card. Putting the shadow `filter` on that wrapper makes it an
+     ancestor of the glass cards inside and silently kills their backdrop-filter.
+     `.fg-shadow-defer` cancels the wrapper filter (higher specificity than the
+     rule above) and re-applies the silhouette shadow to each glass surface within
+     — the one node where a filter and a backdrop-filter coexist, so the cards keep
+     both their blur and a per-card drop-shadow. */
+  .fg-item > .fg-shadow-defer {
+    filter: none;
+  }
+  .fg-shadow-defer .glass-surface {
+    filter: var(--fg-shadow, none);
+  }
 }

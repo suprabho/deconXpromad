@@ -1034,13 +1034,19 @@ export type CompositionConfig = {
 /* -------------------------------------------------------------------------- *
  * Aura embed URL helper (ported from header-studio).
  * -------------------------------------------------------------------------- */
+// Origin of the aura embed. Override with NEXT_PUBLIC_AURA_ORIGIN to point at a
+// local embed dev server (e.g. http://localhost:5173) during development; the
+// snapshot bridge in aura-capture.ts reads the same env so its postMessage
+// targetOrigin/origin checks stay in sync.
+export const AURA_ORIGIN = (process.env.NEXT_PUBLIC_AURA_ORIGIN || 'https://aura.promad.design').replace(/\/+$/, '');
+
 export function auraEmbedUrl(slug: string): string {
   const clean = slug.trim();
   const fromUrl = clean.match(/aura\.promad\.design\/(?:embed|scene|scenes)\/([^?#/]+)/);
   const finalSlug = fromUrl ? fromUrl[1] : clean.replace(/^\/+|\/+$/g, '');
   // Strip the aura's own text + chrome; disable input so it renders as a pure,
   // deterministic background (also what the screenshot needs).
-  return `https://aura.promad.design/embed/${finalSlug}?hideText=true&hideIcons=true&input=off`;
+  return `${AURA_ORIGIN}/embed/${finalSlug}?hideText=true&hideIcons=true&input=off`;
 }
 
 /** Cache key for a snapshotted aura still — per slug AND size, so the frozen

@@ -39,7 +39,7 @@ export function CodeWindow({
   return (
     <div
       className={clsx(
-        'overflow-hidden rounded-2xl border border-white/10 bg-[#0c1322] shadow-glass',
+        'overflow-hidden rounded-2xl border border-white/10 bg-navy shadow-glass',
         className
       )}
     >

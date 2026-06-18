@@ -12,9 +12,9 @@ import { linePath, areaPath, type Point } from './geometry';
  * -------------------------------------------------------------------------- */
 
 const TONES = {
-  fi: { stroke: '#2563EB', fill: '#2563EB' },
-  match: { stroke: '#E8941F', fill: '#E8941F' },
-  ok: { stroke: '#10B981', fill: '#10B981' },
+  fi: { stroke: '#1A56DB', fill: '#1A56DB' }, // cobalt
+  match: { stroke: '#2F8F5C', fill: '#2F8F5C' }, // verified green
+  ok: { stroke: '#2F8F5C', fill: '#2F8F5C' }, // verified green
 } as const;
 
 export function AreaChart({
@@ -73,14 +73,14 @@ export function AreaChart({
         </defs>
 
         {[8, 16, 24].map((y) => (
-          <line key={y} x1="0" y1={y} x2="100" y2={y} stroke="#E5E7EB" strokeWidth="0.3" />
+          <line key={y} x1="0" y1={y} x2="100" y2={y} stroke="#D6DCE8" strokeWidth="0.3" />
         ))}
 
         {cmpPts && (
           <path
             d={linePath(cmpPts, smooth)}
             fill="none"
-            stroke="#94A3B8"
+            stroke="#6B7A99"
             strokeWidth="1.2"
             strokeDasharray="2 2"
             vectorEffect="non-scaling-stroke"

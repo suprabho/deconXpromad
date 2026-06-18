@@ -5,10 +5,10 @@ import clsx from 'clsx';
 import { fileToImageSrc } from '@/lib/composition/upload';
 
 export const inputCls =
-  'w-full rounded-md border border-hair bg-white px-2.5 py-1.5 text-sm text-ink outline-none ' +
+  'w-full rounded-md border border-hair bg-white px-2.5 py-1.5 text-[13px] text-ink outline-none ' +
   'transition focus:border-cobalt focus:ring-2 focus:ring-cobalt/20 placeholder:text-muted/60';
 
-/** A titled inspector card. */
+/** A panel section — flat and full-bleed with a compact header, like Figma. */
 export function Section({
   title,
   subtitle,
@@ -19,11 +19,40 @@ export function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-xl border border-hair bg-white p-4">
-      <h2 className="text-[13px] font-semibold uppercase tracking-wide text-ink">{title}</h2>
-      {subtitle && <p className="mt-0.5 text-xs text-muted">{subtitle}</p>}
-      <div className="mt-3 space-y-3">{children}</div>
+    <section className="px-3 py-3">
+      <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink">{title}</h2>
+      {subtitle && <p className="mt-0.5 text-[11px] leading-snug text-muted">{subtitle}</p>}
+      <div className="mt-2.5 space-y-2.5">{children}</div>
     </section>
+  );
+}
+
+/**
+ * A grouped block within a section — a hairline-ruled, lightly tinted card with a
+ * small caps title and an optional trailing action, mirroring Figma's "Auto layout
+ * / Appearance / Fill" sub-panels.
+ */
+export function SubSection({
+  title,
+  action,
+  children,
+}: {
+  title?: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-2 rounded-md border border-hair bg-frost/50 p-2.5">
+      {(title || action) && (
+        <div className="flex min-h-[18px] items-center justify-between">
+          {title && (
+            <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted">{title}</span>
+          )}
+          {action}
+        </div>
+      )}
+      {children}
+    </div>
   );
 }
 
@@ -31,7 +60,7 @@ export function Section({
 export function Field({ label, children, hint }: { label: string; children: React.ReactNode; hint?: string }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-medium text-muted">{label}</span>
+      <span className="mb-1 block text-[11px] font-medium text-muted">{label}</span>
       {children}
       {hint && <span className="mt-1 block text-[11px] text-muted/80">{hint}</span>}
     </label>
@@ -203,14 +232,59 @@ export function Segmented<T extends string>({
   );
 }
 
-export function Slider({
+/* -------------------------------- scrubber -------------------------------- */
+
+const countDecimals = (step: number) => {
+  if (!Number.isFinite(step) || Number.isInteger(step)) return 0;
+  const s = String(step);
+  const dot = s.indexOf('.');
+  return dot === -1 ? 0 : s.length - dot - 1;
+};
+const roundTo = (v: number, d: number) => {
+  const f = 10 ** d;
+  return Math.round(v * f) / f;
+};
+/** Clamp to [min,max] and snap to the nearest `step` from `min`. */
+const snap = (v: number, min: number, max: number, step: number) => {
+  const snapped = Math.round((v - min) / step) * step + min;
+  return roundTo(Math.min(max, Math.max(min, snapped)), countDecimals(step) + 2);
+};
+
+/** The small dial whose pointer rotates with the value to invite "turning". */
+function Knob({ t }: { t: number }) {
+  const angle = -135 + Math.min(1, Math.max(0, t)) * 270;
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden className="shrink-0">
+      <circle cx="7" cy="7" r="5.5" fill="none" stroke="currentColor" strokeWidth="1.25" opacity="0.4" />
+      <line
+        x1="7"
+        y1="7"
+        x2="7"
+        y2="2.75"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        transform={`rotate(${angle} 7 7)`}
+      />
+    </svg>
+  );
+}
+
+/**
+ * A numeric control that combines three affordances in one pill: a knob you drag
+ * horizontally to scrub, a text input for precise entry, and a faint fill track
+ * showing where the value sits in its range. `value` is stored raw; `displayScale`
+ * + `unit` shape what the user reads/types (e.g. raw 0.7 shows as "70 %").
+ */
+export function Scrubber({
   label,
   value,
   onChange,
   min = 0,
   max = 1,
   step = 0.05,
-  format,
+  unit = '',
+  displayScale = 1,
 }: {
   label: string;
   value: number;
@@ -218,19 +292,91 @@ export function Slider({
   min?: number;
   max?: number;
   step?: number;
-  format?: (v: number) => string;
+  unit?: string;
+  displayScale?: number;
 }) {
+  const [draft, setDraft] = useState<string | null>(null);
+  const decimals = countDecimals(step * displayScale);
+  const display = roundTo(value * displayScale, decimals);
+  const shown = draft ?? String(display);
+  const t = (max - min) === 0 ? 0 : (value - min) / (max - min);
+
+  const commit = (raw: string) => {
+    const n = parseFloat(raw);
+    if (Number.isFinite(n)) onChange(snap(n / displayScale, min, max, step));
+    setDraft(null);
+  };
+  const bump = (deltaRaw: number) => {
+    const next = snap(value + deltaRaw, min, max, step);
+    onChange(next);
+    setDraft(String(roundTo(next * displayScale, decimals)));
+  };
+
+  const startScrub = (e: React.PointerEvent) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startVal = value;
+    const perPixel = (max - min || 1) / 200; // ~200px sweeps the full range
+    const onMove = (ev: PointerEvent) => {
+      const fine = ev.shiftKey ? 0.2 : 1;
+      onChange(snap(startVal + (ev.clientX - startX) * perPixel * fine, min, max, step));
+    };
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    document.body.style.cursor = 'ew-resize';
+    document.body.style.userSelect = 'none';
+  };
+
   return (
-    <Field label={`${label} · ${format ? format(value) : value}`}>
-      <input
-        type="range"
-        className="w-full accent-cobalt"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-      />
+    <Field label={label}>
+      <div className="relative flex items-center gap-1.5 overflow-hidden rounded-md border border-hair bg-white pl-1.5 pr-2 py-1 transition focus-within:border-cobalt focus-within:ring-2 focus-within:ring-cobalt/20">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 left-0 bg-cobalt/10"
+          style={{ width: `${Math.min(1, Math.max(0, t)) * 100}%` }}
+        />
+        <button
+          type="button"
+          onPointerDown={startScrub}
+          aria-label={`Scrub ${label}`}
+          className="relative z-10 grid h-5 w-5 cursor-ew-resize touch-none place-items-center rounded text-muted transition hover:text-cobalt"
+        >
+          <Knob t={t} />
+        </button>
+        <input
+          className="relative z-10 w-full min-w-0 bg-transparent text-[13px] tabular-nums text-ink outline-none"
+          value={shown}
+          inputMode="decimal"
+          onChange={(e) => setDraft(e.target.value)}
+          onFocus={(e) => {
+            setDraft(String(display));
+            e.currentTarget.select();
+          }}
+          onBlur={() => commit(shown)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              commit(e.currentTarget.value);
+              e.currentTarget.blur();
+            } else if (e.key === 'Escape') {
+              setDraft(null);
+              e.currentTarget.blur();
+            } else if (e.key === 'ArrowUp') {
+              e.preventDefault();
+              bump(step * (e.shiftKey ? 10 : 1));
+            } else if (e.key === 'ArrowDown') {
+              e.preventDefault();
+              bump(-step * (e.shiftKey ? 10 : 1));
+            }
+          }}
+        />
+        {unit && <span className="relative z-10 shrink-0 text-[11px] text-muted">{unit}</span>}
+      </div>
     </Field>
   );
 }
@@ -301,7 +447,7 @@ export function ImageUpload({
 
   return (
     <div className="block">
-      <span className="mb-1 block text-xs font-medium text-muted">{label}</span>
+      <span className="mb-1 block text-[11px] font-medium text-muted">{label}</span>
       <div className="flex items-center gap-2">
         {uploaded && (
           // eslint-disable-next-line @next/next/no-img-element
@@ -355,7 +501,7 @@ export function Toggle({
       onClick={() => onChange(!checked)}
       className="flex w-full items-center justify-between rounded-md border border-hair bg-white px-2.5 py-1.5 text-sm text-ink"
     >
-      <span className="text-xs font-medium text-muted">{label}</span>
+      <span className="text-[11px] font-medium text-muted">{label}</span>
       <span
         className={clsx(
           'relative h-5 w-9 rounded-full transition',

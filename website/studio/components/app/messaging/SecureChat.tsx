@@ -146,10 +146,10 @@ export function SecureChat({
           ))}
         </div>
         <div className="min-w-0 flex-1">
-          {title && <h2 className="truncate text-sm font-bold tracking-wide text-ink">{title}</h2>}
+          {title && <h2 className="truncate font-serif text-[15px] font-semibold text-ink">{title}</h2>}
           {subtitle && <p className="truncate text-xs text-muted">{subtitle}</p>}
         </div>
-        <span className="hidden items-center gap-1.5 rounded-md border border-emerald-600/15 bg-emerald-50/80 px-2 py-1 text-xs font-medium text-emerald-700 shadow-pill-inset sm:inline-flex">
+        <span className="hidden items-center gap-1.5 rounded-md border border-success/20 bg-success/10 px-2 py-1 text-xs font-medium text-success shadow-pill-inset sm:inline-flex">
           <ShieldCheckIcon weight="fill" className="h-3.5 w-3.5" aria-hidden />
           Encrypted
         </span>

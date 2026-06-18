@@ -11,9 +11,9 @@ import type { StatusTone } from '../primitives/StatusDot';
  * -------------------------------------------------------------------------- */
 
 const ACCENTS: Record<StatusTone, string> = {
-  ok: 'before:bg-emerald-500',
+  ok: 'before:bg-success',
   info: 'before:bg-fi',
-  warn: 'before:bg-amber-500',
+  warn: 'before:bg-caution',
   alert: 'before:bg-risk-text',
   idle: 'before:bg-muted/40',
 };
@@ -34,7 +34,7 @@ export function KanbanCard({
   subtitle?: ReactNode;
   /** Leading icon badge. */
   leading?: ReactNode;
-  /** Show the amber alert glyph beside the title. */
+  /** Show the caution alert glyph beside the title. */
   flagged?: boolean;
   /** Footer status badge label; omit to hide the badge. */
   status?: string;
@@ -70,7 +70,7 @@ export function KanbanCard({
           <div className="flex items-center gap-1.5">
             <h4 className="truncate text-sm font-bold text-ink">{title}</h4>
             {flagged && (
-              <WarningCircleIcon weight="fill" className="h-3.5 w-3.5 shrink-0 text-amber-500" aria-label="needs attention" />
+              <WarningCircleIcon weight="fill" className="h-3.5 w-3.5 shrink-0 text-caution" aria-label="needs attention" />
             )}
           </div>
           {subtitle && <p className="mt-0.5 truncate text-xs text-muted">{subtitle}</p>}

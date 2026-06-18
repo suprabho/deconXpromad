@@ -28,10 +28,10 @@ export function Delta({
   const colour =
     tone === 'on-dark'
       ? good
-        ? 'text-emerald-300'
-        : 'text-rose-300'
+        ? 'text-success'
+        : 'text-red-300' // lightened alert red — brand red fails contrast on navy
       : good
-        ? 'text-emerald-600'
+        ? 'text-success'
         : 'text-risk-text';
 
   const Icon = up ? TrendUpIcon : TrendDownIcon;

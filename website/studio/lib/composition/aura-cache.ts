@@ -1,4 +1,7 @@
 import { REMOTE_ENABLED, supabase } from './supabase-server';
+import { promises as fs } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 /**
  * Cache of aura stills, keyed by `${slug}__${sizeId}`.
@@ -6,15 +9,25 @@ import { REMOTE_ENABLED, supabase } from './supabase-server';
  * The aura is a WebGL scene only the user's browser can rasterize (see
  * aura-capture.ts). Snapshotting it on every export would be slow and flaky, so
  * the first export of a given aura+size uploads the still here and every later
- * export — for any user — reuses it. Stored in Supabase Storage so the still is
- * served by a plain public URL the headless /render surface can <img>-load.
+ * export — for any user — reuses it. The headless /render surface <img>-loads it.
  *
- * Setup (run once): create a PUBLIC bucket named `aura-cache` in the Supabase
- * dashboard (Storage → New bucket → Public). Falls back to "no cache" when
- * Supabase isn't configured ({@link REMOTE_ENABLED} is false) — the export then
- * renders the background colour instead of the aura.
+ * Two backends, chosen by where we run:
+ *   - On Vercel, export and /render are SEPARATE serverless invocations with no
+ *     shared, writable disk, so stills go through a PUBLIC Supabase Storage
+ *     bucket named `aura-cache` (create once: Storage → New bucket → Public).
+ *   - Locally, everything runs in ONE process against a real disk, so we cache
+ *     to a temp dir and serve it from `/api/aura-cache/img` — NO bucket needed.
+ *
+ * Either backend falling through to "no cache" is fine: the export then renders
+ * the background colour instead of the aura (never hangs).
  */
 const BUCKET = 'aura-cache';
+
+// Supabase is only the right backend on Vercel (ephemeral, multi-invocation FS).
+// Anywhere else — local `next dev`, a long-running host — use the local disk so
+// no storage bucket is required to export auras.
+const USE_SUPABASE = !!process.env.VERCEL_ENV && REMOTE_ENABLED;
+const LOCAL_DIR = join(tmpdir(), 'deconflict-aura-cache');
 
 /** A safe object name for an arbitrary slug/URL key. */
 function objectPath(key: string): string {
@@ -25,26 +38,51 @@ function objectPath(key: string): string {
   return `${safe}.png`;
 }
 
-/** Public URL of a cached aura still, or null if it isn't cached yet. */
-export async function getCachedAuraUrl(key: string): Promise<string | null> {
-  if (!REMOTE_ENABLED) return null;
-  const path = objectPath(key);
-  const supa = supabase();
-  const { data, error } = await supa.storage.from(BUCKET).list('', { search: path, limit: 1 });
-  if (error || !data?.some((o) => o.name === path)) return null;
-  return supa.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+/** Relative URL the /render surface (same origin) loads a local still from. */
+function localUrl(key: string): string {
+  return `/api/aura-cache/img?key=${encodeURIComponent(key)}`;
 }
 
-/** Store an aura still and return its public URL. */
-export async function putCachedAura(key: string, png: Uint8Array): Promise<string> {
-  if (!REMOTE_ENABLED) throw new Error('Aura cache unavailable (Supabase not configured).');
+/** Public/served URL of a cached aura still, or null if it isn't cached yet. */
+export async function getCachedAuraUrl(key: string): Promise<string | null> {
   const path = objectPath(key);
-  const supa = supabase();
-  const { error } = await supa.storage.from(BUCKET).upload(path, png, {
-    contentType: 'image/png',
-    upsert: true,
-    cacheControl: '31536000',
-  });
-  if (error) throw new Error(`Aura cache write failed: ${error.message}`);
-  return supa.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+  if (USE_SUPABASE) {
+    const supa = supabase();
+    const { data, error } = await supa.storage.from(BUCKET).list('', { search: path, limit: 1 });
+    if (error || !data?.some((o) => o.name === path)) return null;
+    return supa.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+  }
+  try {
+    await fs.access(join(LOCAL_DIR, path));
+    return localUrl(key);
+  } catch {
+    return null;
+  }
+}
+
+/** Store an aura still and return its served URL. */
+export async function putCachedAura(key: string, png: Uint8Array): Promise<string> {
+  const path = objectPath(key);
+  if (USE_SUPABASE) {
+    const supa = supabase();
+    const { error } = await supa.storage.from(BUCKET).upload(path, png, {
+      contentType: 'image/png',
+      upsert: true,
+      cacheControl: '31536000',
+    });
+    if (error) throw new Error(`Aura cache write failed: ${error.message}`);
+    return supa.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+  }
+  await fs.mkdir(LOCAL_DIR, { recursive: true });
+  await fs.writeFile(join(LOCAL_DIR, path), png);
+  return localUrl(key);
+}
+
+/** Read a locally-cached still as raw PNG bytes (serves /api/aura-cache/img). */
+export async function readLocalAura(key: string): Promise<Uint8Array | null> {
+  try {
+    return await fs.readFile(join(LOCAL_DIR, objectPath(key)));
+  } catch {
+    return null;
+  }
 }

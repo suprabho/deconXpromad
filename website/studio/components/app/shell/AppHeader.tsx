@@ -40,11 +40,11 @@ export function Brand({ name, mark }: { name: string; mark?: ReactNode }) {
   return (
     <span className="flex items-center gap-2">
       {mark && (
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-fi to-cobalt text-white shadow-glass-chip">
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-cobalt text-white shadow-glass-chip">
           {mark}
         </span>
       )}
-      <span className="bg-gradient-to-r from-ink to-fi bg-clip-text text-lg font-bold tracking-tight text-transparent">
+      <span className="font-serif text-lg font-semibold tracking-tight text-navy">
         {name}
       </span>
     </span>

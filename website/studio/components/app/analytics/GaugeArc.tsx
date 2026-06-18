@@ -9,11 +9,11 @@ import clsx from 'clsx';
  * -------------------------------------------------------------------------- */
 
 const GAUGE_STROKE = {
-  fi: '#2563EB',
-  match: '#E8941F',
-  ok: '#10B981',
-  warn: '#E8941F',
-  alert: '#C0392B',
+  fi: '#1A56DB', // cobalt
+  match: '#2F8F5C', // verified green
+  ok: '#2F8F5C', // verified green
+  warn: '#A66A00', // caution amber
+  alert: '#B91C1C', // alert red
 } as const;
 
 export type GaugeTone = keyof typeof GAUGE_STROKE;
@@ -86,7 +86,7 @@ export function GaugeArc({
     <div className={clsx('flex flex-col items-center', className)}>
       <div className="relative w-full" style={{ maxWidth: size }}>
         <svg viewBox={`0 0 100 ${cy + pad}`} className="w-full" role="img" aria-label={ariaLabel}>
-          <path d={track} fill="none" stroke="#E5E7EB" strokeWidth={thickness} strokeLinecap="round" />
+          <path d={track} fill="none" stroke="#D6DCE8" strokeWidth={thickness} strokeLinecap="round" />
           <path d={fill} fill="none" stroke={GAUGE_STROKE[derived]} strokeWidth={thickness} strokeLinecap="round" />
           <circle cx={tip.x} cy={tip.y} r={thickness / 2.6} fill="#fff" stroke={GAUGE_STROKE[derived]} strokeWidth="1.6" />
         </svg>

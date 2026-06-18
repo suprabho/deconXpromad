@@ -29,7 +29,7 @@ export type FileSurface = 'light' | 'frost' | 'onAccent';
 const KIND: Record<FileKind, { Icon: FileIconType; tint: string; tile: string }> = {
   pdf: { Icon: FilePdfIcon, tint: 'text-risk-text', tile: 'bg-risk-bg/70' },
   doc: { Icon: FileDocIcon, tint: 'text-fi', tile: 'bg-fi/10' },
-  sheet: { Icon: FileXlsIcon, tint: 'text-emerald-600', tile: 'bg-emerald-50' },
+  sheet: { Icon: FileXlsIcon, tint: 'text-success', tile: 'bg-success/10' },
   image: { Icon: FileImageIcon, tint: 'text-match', tile: 'bg-match/10' },
   archive: { Icon: FileZipIcon, tint: 'text-muted', tile: 'bg-ink/5' },
   data: { Icon: FileTextIcon, tint: 'text-navy', tile: 'bg-ink/5' },
@@ -70,7 +70,7 @@ function StateLine({ state, surface }: { state: CipherState; surface: FileSurfac
   }
   if (state === 'decrypted') {
     return (
-      <span className={clsx('inline-flex items-center gap-1', dim ? 'text-white/80' : 'text-emerald-600')}>
+      <span className={clsx('inline-flex items-center gap-1', dim ? 'text-white/80' : 'text-success')}>
         <ShieldCheckIcon weight="fill" className="h-3 w-3" aria-hidden />
         Verified
       </span>

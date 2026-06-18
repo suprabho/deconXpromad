@@ -10,13 +10,13 @@ import clsx from 'clsx';
  * -------------------------------------------------------------------------- */
 
 export const DONUT_FILL = {
-  fi: '#2563EB',
-  match: '#E8941F',
-  ok: '#10B981',
-  alert: '#C0392B',
+  fi: '#1A56DB', // cobalt
+  match: '#2F8F5C', // verified green
+  ok: '#2F8F5C', // verified green
+  alert: '#B91C1C', // alert red
   navy: '#0D1B3E',
-  ink: '#1A2332',
-  muted: '#94A3B8',
+  ink: '#0D1B3E',
+  muted: '#6B7A99',
 } as const;
 
 export type DonutTone = keyof typeof DONUT_FILL;
@@ -60,7 +60,7 @@ export function DonutChart({
   const ring = (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
       <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size} role="img" aria-label={ariaLabel}>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#E5E7EB" strokeWidth={thickness} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#D6DCE8" strokeWidth={thickness} />
         {arcs.map(({ seg, len, offset }, i) => {
           const visible = Math.max(0, len - gapLen);
           return (
