@@ -84,6 +84,7 @@ export function LibraryDialog({
     setName(currentName);
     setRenamingId(null);
     setConfirmDeleteId(null);
+    setBusy(null);
     void refresh();
   }, [open, currentName, refresh]);
 
@@ -140,6 +141,7 @@ export function LibraryDialog({
       onClose();
     } catch (e) {
       setError((e as Error).message || 'Could not open that composition.');
+    } finally {
       setBusy(null);
     }
   };
