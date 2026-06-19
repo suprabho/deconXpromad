@@ -431,6 +431,7 @@ export function ForegroundLayer({
   return (
     <div className="absolute inset-0 z-[3]" style={{ pointerEvents: 'none' }}>
       {elements.map((el, i) => {
+        if (el.hidden) return null;
         const inner = renderContent(el.content);
         if (!inner) return null;
         const t = el.transform;

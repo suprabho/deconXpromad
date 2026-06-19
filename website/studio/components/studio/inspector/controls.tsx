@@ -42,7 +42,7 @@ export function SubSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-2 rounded-md border border-hair bg-frost/50 p-2.5">
+    <div className="space-y-2 rounded-md bg-frost p-2.5">
       {(title || action) && (
         <div className="flex min-h-[18px] items-center justify-between">
           {title && (

@@ -1200,6 +1200,8 @@ export type ForegroundElement = {
   glass?: GlassConfig;
   /** 0..n stacked drop-shadows behind the element (default none). */
   shadows?: ElementShadow[];
+  /** When true the element is kept in the composition but not rendered. */
+  hidden?: boolean;
 };
 
 /** Per-element glassmorphism overrides for the frosted surface. */

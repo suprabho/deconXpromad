@@ -14,82 +14,110 @@ import {
 import type { ForegroundType, PatternMotif } from './types';
 
 /**
+ * The category a foreground component belongs to, used to cluster the inspector's
+ * quick-add buttons. Rendered in this order; `none` carries no group (it isn't a
+ * thing you "add", only a state you switch an element to via the Component dropdown).
+ */
+export const FOREGROUND_GROUP_ORDER = ['Scene', 'Patterns', 'Analytics', 'Board', 'Shell', 'Primitives'] as const;
+export type ForegroundGroup = (typeof FOREGROUND_GROUP_ORDER)[number];
+
+/**
  * The foreground "Component" pick-list. Most entries map 1:1 to a
  * {@link ForegroundType}; the Pattern entries additionally carry a `motif` so the
  * picker can offer the security-print generators (Guilloché / Intaglio) as
  * first-class options — both add a `type:'Pattern'` element pre-set to that
  * motif (the inner Motif dropdown can still switch to any other motif after).
+ * `group` clusters them into the inspector's quick-add toolbar.
  */
-export const FOREGROUND_OPTIONS: { type: ForegroundType; label: string; motif?: PatternMotif }[] = [
+export const FOREGROUND_OPTIONS: { type: ForegroundType; label: string; motif?: PatternMotif; group?: ForegroundGroup }[] = [
   { type: 'none', label: 'None' },
-  { type: 'CaseCard', label: 'Case Card' },
-  { type: 'OverlapAlert', label: 'Overlap Alert' },
-  { type: 'RiskPill', label: 'Risk Pill' },
-  { type: 'ConnectorNode', label: 'Connector Node' },
-  { type: 'ActivityTimeline', label: 'Activity Timeline' },
-  { type: 'DeconflictBanner', label: 'Deconflict Banner (full)' },
-  { type: 'Pattern', label: 'Guilloché', motif: 'rosette' },
-  { type: 'Pattern', label: 'Intaglio', motif: 'intaglio' },
-  { type: 'FeatureModal', label: 'Feature Modal' },
-  { type: 'CommandPalette', label: 'Command Palette' },
-  { type: 'EntityGraph', label: 'Entity Graph' },
-  { type: 'StatCard', label: 'Stat Card' },
-  { type: 'KanbanCard', label: 'Kanban Card' },
-  { type: 'CodeWindow', label: 'Code Window' },
-  { type: 'DonutChart', label: 'Donut Chart' },
-  { type: 'GaugeArc', label: 'Risk Gauge' },
-  { type: 'SecureChat', label: 'Secure Chat' },
+  { type: 'CaseCard', label: 'Case Card', group: 'Scene' },
+  { type: 'OverlapAlert', label: 'Overlap Alert', group: 'Scene' },
+  { type: 'RiskPill', label: 'Risk Pill', group: 'Scene' },
+  { type: 'ConnectorNode', label: 'Connector Node', group: 'Scene' },
+  { type: 'ActivityTimeline', label: 'Activity Timeline', group: 'Scene' },
+  { type: 'DeconflictBanner', label: 'Deconflict Banner (full)', group: 'Scene' },
+  { type: 'Pattern', label: 'Guilloché', motif: 'rosette', group: 'Patterns' },
+  { type: 'Pattern', label: 'Intaglio', motif: 'intaglio', group: 'Patterns' },
+  { type: 'Pattern', label: 'Case overlap', motif: 'case-overlap', group: 'Patterns' },
+  { type: 'Pattern', label: 'Secure exchange', motif: 'secure-exchange', group: 'Patterns' },
+  { type: 'Pattern', label: 'Global coverage', motif: 'global-coverage', group: 'Patterns' },
+  { type: 'Pattern', label: 'Audit trail', motif: 'audit-trail', group: 'Patterns' },
+  { type: 'FeatureModal', label: 'Feature Modal', group: 'Scene' },
+  { type: 'CommandPalette', label: 'Command Palette', group: 'Scene' },
+  { type: 'EntityGraph', label: 'Entity Graph', group: 'Scene' },
+  { type: 'StatCard', label: 'Stat Card', group: 'Scene' },
+  { type: 'KanbanCard', label: 'Kanban Card', group: 'Scene' },
+  { type: 'CodeWindow', label: 'Code Window', group: 'Scene' },
+  { type: 'DonutChart', label: 'Donut Chart', group: 'Scene' },
+  { type: 'GaugeArc', label: 'Risk Gauge', group: 'Scene' },
+  { type: 'SecureChat', label: 'Secure Chat', group: 'Scene' },
   // analytics
-  { type: 'ActivityFeed', label: 'Activity Feed' },
-  { type: 'AreaChart', label: 'Area Chart' },
-  { type: 'BarChart', label: 'Bar Chart' },
-  { type: 'DistributionBar', label: 'Distribution Bar' },
-  { type: 'Heatmap', label: 'Heatmap' },
-  { type: 'KpiTile', label: 'KPI Tile' },
-  { type: 'RankList', label: 'Rank List' },
-  { type: 'Sparkline', label: 'Sparkline' },
-  { type: 'Delta', label: 'Delta' },
-  { type: 'MetricPanel', label: 'Metric Panel' },
-  { type: 'DataTable', label: 'Data Table' },
+  { type: 'ActivityFeed', label: 'Activity Feed', group: 'Analytics' },
+  { type: 'AreaChart', label: 'Area Chart', group: 'Analytics' },
+  { type: 'BarChart', label: 'Bar Chart', group: 'Analytics' },
+  { type: 'DistributionBar', label: 'Distribution Bar', group: 'Analytics' },
+  { type: 'Heatmap', label: 'Heatmap', group: 'Analytics' },
+  { type: 'KpiTile', label: 'KPI Tile', group: 'Analytics' },
+  { type: 'RankList', label: 'Rank List', group: 'Analytics' },
+  { type: 'Sparkline', label: 'Sparkline', group: 'Analytics' },
+  { type: 'Delta', label: 'Delta', group: 'Analytics' },
+  { type: 'MetricPanel', label: 'Metric Panel', group: 'Analytics' },
+  { type: 'DataTable', label: 'Data Table', group: 'Analytics' },
   // board
-  { type: 'Board', label: 'Board (Kanban)' },
-  { type: 'Breadcrumb', label: 'Breadcrumb' },
-  { type: 'ConnectorCard', label: 'Connector Card' },
-  { type: 'PageHeader', label: 'Page Header' },
+  { type: 'Board', label: 'Board (Kanban)', group: 'Board' },
+  { type: 'Breadcrumb', label: 'Breadcrumb', group: 'Board' },
+  { type: 'ConnectorCard', label: 'Connector Card', group: 'Board' },
+  { type: 'PageHeader', label: 'Page Header', group: 'Board' },
   // shell
-  { type: 'NavTree', label: 'Nav Tree' },
-  { type: 'EntityList', label: 'Entity List' },
-  { type: 'Sidebar', label: 'Sidebar' },
-  { type: 'AppHeader', label: 'App Header' },
-  { type: 'Toolbar', label: 'Toolbar' },
-  { type: 'Panel', label: 'Panel' },
-  { type: 'WorkspaceLayout', label: 'Workspace Layout (full)' },
+  { type: 'NavTree', label: 'Nav Tree', group: 'Shell' },
+  { type: 'EntityList', label: 'Entity List', group: 'Shell' },
+  { type: 'Sidebar', label: 'Sidebar', group: 'Shell' },
+  { type: 'AppHeader', label: 'App Header', group: 'Shell' },
+  { type: 'Toolbar', label: 'Toolbar', group: 'Shell' },
+  { type: 'Panel', label: 'Panel', group: 'Shell' },
+  { type: 'WorkspaceLayout', label: 'Workspace Layout (full)', group: 'Shell' },
   // primitives
-  { type: 'Avatar', label: 'Avatar' },
-  { type: 'Badge', label: 'Badge' },
-  { type: 'Button', label: 'Button' },
-  { type: 'IconButton', label: 'Icon Button' },
-  { type: 'PageDots', label: 'Page Dots' },
-  { type: 'ProgressBar', label: 'Progress Bar' },
-  { type: 'SearchInput', label: 'Search Input' },
-  { type: 'SegmentedControl', label: 'Segmented Control' },
-  { type: 'Select', label: 'Select' },
-  { type: 'StatusBadge', label: 'Status Badge' },
-  { type: 'StatusDot', label: 'Status Dot' },
-  { type: 'Tabs', label: 'Tabs' },
-  { type: 'WindowChrome', label: 'Window Chrome' },
+  { type: 'Avatar', label: 'Avatar', group: 'Primitives' },
+  { type: 'Badge', label: 'Badge', group: 'Primitives' },
+  { type: 'Button', label: 'Button', group: 'Primitives' },
+  { type: 'IconButton', label: 'Icon Button', group: 'Primitives' },
+  { type: 'PageDots', label: 'Page Dots', group: 'Primitives' },
+  { type: 'ProgressBar', label: 'Progress Bar', group: 'Primitives' },
+  { type: 'SearchInput', label: 'Search Input', group: 'Primitives' },
+  { type: 'SegmentedControl', label: 'Segmented Control', group: 'Primitives' },
+  { type: 'Select', label: 'Select', group: 'Primitives' },
+  { type: 'StatusBadge', label: 'Status Badge', group: 'Primitives' },
+  { type: 'StatusDot', label: 'Status Dot', group: 'Primitives' },
+  { type: 'Tabs', label: 'Tabs', group: 'Primitives' },
+  { type: 'WindowChrome', label: 'Window Chrome', group: 'Primitives' },
 ];
 
 /**
  * The picker `value` for a foreground option/element. The Pattern motif presets
- * share `type:'Pattern'`, so they're keyed `Pattern:<motif>` to stay
+ * all share `type:'Pattern'`, so they're keyed `Pattern:<motif>` to stay
  * distinguishable in the <select>; everything else is keyed by its bare type.
- * Pattern motifs without a preset (the abstract scenes) fall back to the
- * Guilloché key so the select always resolves to a real option.
  */
 export function foregroundOptionKey(type: ForegroundType, motif?: PatternMotif): string {
   if (type !== 'Pattern') return type;
-  return `Pattern:${motif === 'intaglio' ? 'intaglio' : 'rosette'}`;
+  return `Pattern:${motif ?? 'rosette'}`;
+}
+
+/**
+ * The foreground options clustered into the inspector's quick-add toolbar: each
+ * group is a labelled row of "add this component" buttons. Keyed by the same
+ * composite value the Component dropdown uses (see {@link foregroundOptionKey}),
+ * so a click can reuse the existing content-for-key builder. `none` is skipped —
+ * it has no group and isn't something you add.
+ */
+export function foregroundAddGroups(): { group: ForegroundGroup; options: { key: string; label: string }[] }[] {
+  return FOREGROUND_GROUP_ORDER.map((group) => ({
+    group,
+    options: FOREGROUND_OPTIONS.filter((o) => o.group === group).map((o) => ({
+      key: foregroundOptionKey(o.type, o.motif),
+      label: o.label,
+    })),
+  })).filter((g) => g.options.length > 0);
 }
 
 export type AssetOption = { src: string; label: string; group: string };

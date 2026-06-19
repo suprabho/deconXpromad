@@ -5,6 +5,8 @@ import clsx from 'clsx';
 import {
   CardsIcon,
   CaretDownIcon,
+  EyeIcon,
+  EyeSlashIcon,
   FrameCornersIcon,
   ImageIcon,
   ShapesIcon,
@@ -32,16 +34,18 @@ import {
   DEFAULT_MID_TRANSFORM,
   DEFAULT_PATTERN,
   DEFAULT_SHADOW,
+  DEFAULT_TRANSFORM,
   POSITION_PRESETS,
   SIZE_PRESETS,
   SIZE_SCALES,
 } from '@/lib/composition/types';
-import { defaultForegroundContent, defaultForegroundElement } from '@/lib/composition/defaults';
+import { defaultForegroundContent } from '@/lib/composition/defaults';
 import {
   AURA_OPTIONS,
   BACKGROUND_IMAGE_OPTIONS,
   FOREGROUND_OPTIONS,
   MID_GRAPHIC_OPTIONS,
+  foregroundAddGroups,
   foregroundOptionKey,
   groupOptions,
 } from '@/lib/composition/registry';
@@ -94,13 +98,14 @@ function contentOptionKey(content: ForegroundContent): string {
 }
 
 /** Build fresh content for a picked option value (motif presets seed the motif).
- *  Foreground patterns default to a transparent background so the line-art floats
- *  over the canvas rather than sitting on an opaque card. */
+ *  The line-art motifs (guilloché / intaglio) default to a transparent background
+ *  so they float over the canvas; the filled scene motifs keep their base fill. */
 function contentForOptionKey(value: string): ForegroundContent {
   if (value.startsWith('Pattern:')) {
     const motif = value.slice('Pattern:'.length) as PatternMotif;
     const base = defaultForegroundContent('Pattern');
-    return base.type === 'Pattern' ? { ...base, motif, transparent: true } : base;
+    const lineArt = motif === 'rosette' || motif === 'intaglio';
+    return base.type === 'Pattern' ? { ...base, motif, transparent: lineArt } : base;
   }
   return defaultForegroundContent(value as ForegroundType);
 }
@@ -321,7 +326,15 @@ export function Inspector({
     setElement(i, { shadows: shadows.length ? shadows : undefined });
   const setElementGlass = (i: number, p: Partial<GlassConfig>) =>
     setElement(i, { glass: { ...config.foreground[i].glass, ...p } });
-  const addElement = () => patch({ foreground: [...config.foreground, defaultForegroundElement('CaseCard')] });
+  // Drop a fresh element of a specific kind straight in — keyed by the same
+  // composite value the per-element Component dropdown uses (Pattern carries its motif).
+  const addElementOfKind = (key: string) =>
+    patch({
+      foreground: [
+        ...config.foreground,
+        { id: crypto.randomUUID(), content: contentForOptionKey(key), transform: { ...DEFAULT_TRANSFORM } },
+      ],
+    });
   const removeElement = (i: number) => patch({ foreground: config.foreground.filter((_, j) => j !== i) });
   const duplicateElement = (i: number) => {
     const foreground = config.foreground.slice();
@@ -537,7 +550,7 @@ export function Inspector({
             <SelectField label="AI image model" value={imageModel} onChange={pickImageModel} options={IMAGE_MODEL_OPTS} />
             {config.midGraphics.length === 0 && <p className="text-xs text-muted">No graphics yet.</p>}
             {config.midGraphics.map((g, i) => (
-              <div key={g.id} className="space-y-2 rounded-md border border-hair p-2.5">
+              <div key={g.id} className="space-y-2 rounded-md border border-hair bg-white p-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-ink">Graphic {i + 1}</span>
                   <button type="button" onClick={() => removeMid(i)} className="rounded border border-hair px-2 text-xs text-muted hover:text-risk-text">
@@ -562,6 +575,30 @@ export function Inspector({
             title="Foreground elements"
             subtitle="Stack one or more UI components — each freely placed, scaled and rotated in 3-D. Later elements sit on top."
           >
+            {/* Quick-add toolbar — sticks to the top of the panel; each grouped
+                button drops that component straight in (no dropdown round-trip). */}
+            <div className="sticky top-0 z-10 -mx-3 -mt-2.5 max-h-[48vh] overflow-y-auto border-b border-hair bg-white px-3 pb-2.5 pt-2.5">
+              <div className="space-y-2">
+                {foregroundAddGroups().map(({ group, options }) => (
+                  <div key={group}>
+                    <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-muted">{group}</div>
+                    <div className="flex flex-wrap gap-1">
+                      {options.map((o) => (
+                        <button
+                          key={o.key}
+                          type="button"
+                          onClick={() => addElementOfKind(o.key)}
+                          className="rounded-md border border-hair bg-white px-2 py-1 text-[11px] font-medium text-ink transition hover:border-cobalt hover:bg-cobalt/5 hover:text-cobalt"
+                        >
+                          + {o.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <SelectField label="AI content model" value={contentModel} onChange={pickContentModel} options={CONTENT_MODEL_OPTS} />
             <AiSceneGenerator
               model={contentModel}
@@ -571,7 +608,7 @@ export function Inspector({
             {config.foreground.map((el, i) => {
               const isCollapsed = collapsed.has(el.id);
               return (
-              <div key={el.id} className="space-y-3 rounded-md border border-hair p-2.5">
+              <div key={el.id} className="space-y-3 rounded-md border border-hair bg-white p-2.5">
                 <div
                   role="button"
                   tabIndex={0}
@@ -586,7 +623,7 @@ export function Inspector({
                   aria-label={isCollapsed ? 'Expand element' : 'Collapse element'}
                   className="flex cursor-pointer items-center justify-between gap-2 rounded -m-1 p-1 hover:bg-frost"
                 >
-                  <div className="flex min-w-0 flex-1 items-center gap-1.5 text-left">
+                  <div className={clsx('flex min-w-0 flex-1 items-center gap-1.5 text-left', el.hidden && 'opacity-40')}>
                     <CaretDownIcon
                       size={12}
                       weight="bold"
@@ -596,6 +633,19 @@ export function Inspector({
                     <span className="truncate text-[11px] text-muted">{FOREGROUND_LABELS[contentOptionKey(el.content)]}</span>
                   </div>
                   <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      type="button"
+                      onClick={() => setElement(i, { hidden: !el.hidden })}
+                      aria-label={el.hidden ? 'Show element' : 'Hide element'}
+                      aria-pressed={el.hidden}
+                      title={el.hidden ? 'Show element' : 'Hide element'}
+                      className={clsx(
+                        'grid h-[22px] w-[22px] place-items-center rounded border border-hair hover:text-ink',
+                        el.hidden ? 'text-cobalt' : 'text-muted',
+                      )}
+                    >
+                      {el.hidden ? <EyeSlashIcon size={13} weight="bold" /> : <EyeIcon size={13} weight="bold" />}
+                    </button>
                     <button
                       type="button"
                       onClick={() => moveElement(i, -1)}
@@ -667,13 +717,6 @@ export function Inspector({
               </div>
               );
             })}
-            <button
-              type="button"
-              onClick={addElement}
-              className="w-full rounded-md border border-dashed border-hair py-2 text-xs font-medium text-cobalt hover:bg-cobalt/5"
-            >
-              + Add element
-            </button>
           </Section>
         )}
 
