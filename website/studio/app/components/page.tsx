@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   ArrowUpIcon,
   BankIcon,
@@ -107,6 +107,124 @@ function Section({
       </div>
       {children}
     </section>
+  );
+}
+
+/* --------------------- Command Palette (Screen 2) ------------------------ *
+ * Interactive demo: a "Law Enforcement" filter in the meta row scopes the
+ * results to law-enforcement sources only (agencies), hiding institutions.
+ * -------------------------------------------------------------------------- */
+
+type ResultSource = 'law-enforcement' | 'institution';
+
+type PaletteResult = {
+  icon: string;
+  title: string;
+  subtitle: string;
+  meta: string;
+  source: ResultSource;
+};
+
+const PALETTE_GROUPS: { label: string; results: PaletteResult[] }[] = [
+  {
+    label: 'Agencies',
+    results: [
+      {
+        icon: '/assets/logos/fbi.png',
+        title: 'Federal Bureau of Investigation',
+        subtitle: 'Originating agency · case #LE-2024-08821',
+        meta: '18 entries',
+        source: 'law-enforcement',
+      },
+      {
+        icon: '/assets/logos/interpol.png',
+        title: 'INTERPOL',
+        subtitle: 'Red Notice linked · cross-border alert',
+        meta: '12 entries',
+        source: 'law-enforcement',
+      },
+    ],
+  },
+  {
+    label: 'Institutions',
+    results: [
+      {
+        icon: '/assets/logos/hsbc.png',
+        title: 'HSBC',
+        subtitle: 'Financial institution · AML alert linked',
+        meta: '15 entries',
+        source: 'institution',
+      },
+      {
+        icon: '/assets/logos/chainalysis.png',
+        title: 'Chainalysis',
+        subtitle: 'On-chain analytics · wallet cluster flagged',
+        meta: '23 entries',
+        source: 'institution',
+      },
+    ],
+  },
+];
+
+function CommandPaletteDemo() {
+  const [lawEnforcementOnly, setLawEnforcementOnly] = useState(false);
+
+  const groups = PALETTE_GROUPS.map((group) => ({
+    ...group,
+    results: lawEnforcementOnly
+      ? group.results.filter((r) => r.source === 'law-enforcement')
+      : group.results,
+  })).filter((group) => group.results.length > 0);
+
+  const matchCount = groups.reduce((n, g) => n + g.results.length, 0);
+
+  return (
+    <CommandPalettePanel
+      className="max-w-xl"
+      query="John Doe · wire fraud"
+      onQueryChange={() => {}}
+      meta={
+        <>
+          <SegmentedControl
+            size="sm"
+            value={lawEnforcementOnly ? 'law-enforcement' : 'all'}
+            onSelect={(value) => setLawEnforcementOnly(value === 'law-enforcement')}
+            segments={[
+              { value: 'all', label: 'All sources' },
+              {
+                value: 'law-enforcement',
+                label: 'Law Enforcement',
+                icon: <ShieldCheckIcon weight="fill" className="h-3.5 w-3.5" />,
+              },
+            ]}
+          />
+          <span className="ml-auto">
+            {lawEnforcementOnly
+              ? `Only law enforcement · ${matchCount} results`
+              : `${matchCount} matches`}
+          </span>
+        </>
+      }
+    >
+      {groups.map((group, gi) => (
+        <ResultGroup
+          key={group.label}
+          label={group.label}
+          action={gi === 0 ? <Button variant="link">See all</Button> : undefined}
+        >
+          {group.results.map((row, ri) => (
+            <SearchResultRow
+              key={row.title}
+              icon={<img src={row.icon} alt="" className="h-full w-full object-contain" />}
+              title={row.title}
+              subtitle={row.subtitle}
+              meta={row.meta}
+              active={gi === 0 && ri === 0}
+            />
+          ))}
+        </ResultGroup>
+      ))}
+    </CommandPalettePanel>
   );
 }
 
@@ -364,54 +482,7 @@ export default function ComponentGalleryPage() {
         {/* ---------------------------- Screen 2 ---------------------------- */}
         <Section n={2} title="Command Palette" caption="SearchInput · SegmentedControl · ResultGroup · SearchResultRow">
           <div className="flex justify-center rounded-3xl bg-gradient-to-br from-[#1f2147] via-[#26284f] to-[#0d1b3e] p-10">
-            <CommandPalettePanel
-              className="max-w-xl"
-              query="John Doe · wire fraud"
-              onQueryChange={() => {}}
-              meta={
-                <>
-                  <SegmentedControl
-                    size="sm"
-                    value="results"
-                    segments={[
-                      { value: 'recent', label: 'Recent' },
-                      { value: 'results', label: 'Results' },
-                    ]}
-                  />
-                  <span className="ml-auto">4 matches</span>
-                </>
-              }
-            >
-              <ResultGroup label="Agencies" action={<Button variant="link">See all</Button>}>
-                <SearchResultRow
-                  icon={<img src="/assets/logos/fbi.png" alt="" className="h-full w-full object-contain" />}
-                  title="Federal Bureau of Investigation"
-                  subtitle="Originating agency · case #LE-2024-08821"
-                  meta="18 entries"
-                  active
-                />
-                <SearchResultRow
-                  icon={<img src="/assets/logos/interpol.png" alt="" className="h-full w-full object-contain" />}
-                  title="INTERPOL"
-                  subtitle="Red Notice linked · cross-border alert"
-                  meta="12 entries"
-                />
-              </ResultGroup>
-              <ResultGroup label="Institutions">
-                <SearchResultRow
-                  icon={<img src="/assets/logos/hsbc.png" alt="" className="h-full w-full object-contain" />}
-                  title="HSBC"
-                  subtitle="Financial institution · AML alert linked"
-                  meta="15 entries"
-                />
-                <SearchResultRow
-                  icon={<img src="/assets/logos/chainalysis.png" alt="" className="h-full w-full object-contain" />}
-                  title="Chainalysis"
-                  subtitle="On-chain analytics · wallet cluster flagged"
-                  meta="23 entries"
-                />
-              </ResultGroup>
-            </CommandPalettePanel>
+            <CommandPaletteDemo />
           </div>
         </Section>
 
