@@ -30,6 +30,9 @@ export default function StudioEditor() {
   const [format, setFormat] = useState<ImageFormat>('png');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Non-fatal export notice — e.g. the aura still couldn't be refreshed so the
+  // download fell back to a plain background. Distinct from `error`, which aborts.
+  const [warning, setWarning] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
 
   // Saved-library state: which DB row the working draft tracks, and whether it
@@ -87,10 +90,17 @@ export default function StudioEditor() {
   const download = useCallback(async () => {
     setBusy(true);
     setError(null);
+    setWarning(null);
     try {
       // The aura is a WebGL scene the headless export browser can't rasterize.
       // Have the aura embed snapshot its own canvas (its GPU), cache the still by
       // slug+size, and the export composites that. Skip when it's already cached.
+      //
+      // This refresh is BEST-EFFORT: it depends on the cross-origin aura embed
+      // answering promad-aura:capture. If the embed is offline, hasn't shipped the
+      // capture responder, or just times out, DON'T abort the download — fall
+      // through and let /api/export composite whatever still it already has (or its
+      // plain-background fallback). A degraded image beats a dead Download button.
       if (config.background.kind === 'aura' && config.background.auraSlug) {
         const slug = config.background.auraSlug;
         const key = auraCacheKey(slug, config.sizeId);
@@ -98,13 +108,20 @@ export default function StudioEditor() {
           .then((r) => r.json())
           .catch(() => ({ url: null }));
         if (!cached?.url) {
-          const dataUrl = await captureAura(slug, { width: size.width, height: size.height });
-          const put = await fetch('/api/aura-cache', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ key, dataUrl }),
-          });
-          if (!put.ok) throw new Error(`Aura snapshot caching failed: ${await put.text()}`);
+          try {
+            const dataUrl = await captureAura(slug, { width: size.width, height: size.height });
+            const put = await fetch('/api/aura-cache', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ key, dataUrl }),
+            });
+            if (!put.ok) throw new Error(`caching failed: ${await put.text()}`);
+          } catch (auraErr) {
+            console.warn('Aura snapshot skipped — exporting without a fresh still:', auraErr);
+            setWarning(
+              'Aura background couldn’t be refreshed (the aura embed didn’t respond) — exported with a plain background.',
+            );
+          }
         }
       }
 
@@ -340,6 +357,9 @@ export default function StudioEditor() {
 
       {error && (
         <div className="shrink-0 border-b border-risk-bg bg-risk-bg px-4 py-1.5 text-xs text-risk-text">{error}</div>
+      )}
+      {warning && (
+        <div className="shrink-0 border-b border-alert-border bg-alert-bg px-4 py-1.5 text-xs text-caution">{warning}</div>
       )}
 
       {/* Body: inspector + preview */}
