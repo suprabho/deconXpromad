@@ -6,6 +6,7 @@ import {
   type BackgroundConfig,
 } from '@/lib/composition/types';
 import { assetUrl } from '@/lib/assets/catalog';
+import { PatternScene } from '@/components/patterns/PatternScene';
 
 /**
  * z-0 background. An aura is a cross-origin WebGL iframe in the editor (it can't
@@ -69,6 +70,19 @@ export function BackgroundLayer({
         sandbox="allow-scripts allow-same-origin"
         loading="eager"
       />
+    );
+  }
+
+  if (background.kind === 'pattern' && background.pattern) {
+    // A deterministic SVG motif, sized to the frame. opacity / blur / overscan
+    // apply on the wrapper exactly like the other kinds.
+    return (
+      <div
+        className="absolute inset-0 z-0"
+        style={{ opacity, filter: blurCss || undefined, ...overscan }}
+      >
+        <PatternScene config={background.pattern} />
+      </div>
     );
   }
 

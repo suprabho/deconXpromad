@@ -6,6 +6,7 @@ import {
   type ForegroundContent,
   type ForegroundElement,
 } from '@/lib/composition/types';
+import { PatternScene } from '@/components/patterns/PatternScene';
 import { CaseCard } from '@/components/deconflict/CaseCard';
 import { OverlapAlert } from '@/components/deconflict/OverlapAlert';
 import { RiskPill } from '@/components/deconflict/RiskPill';
@@ -95,6 +96,15 @@ function renderContent(content: ForegroundContent) {
         />
       );
     }
+    case 'Pattern':
+      // A motif tile — the element's transform sizes the width; a fixed 16:10
+      // box (matching PatternScene's 1200×750 frame) gives it height, rounded
+      // and clipped so it reads as a contained card of the same scene.
+      return (
+        <div className="overflow-hidden rounded-2xl" style={{ width: '100%', aspectRatio: '16 / 10' }}>
+          <PatternScene config={content} />
+        </div>
+      );
     case 'FeatureModal':
       return <FeatureModalForeground data={content} />;
     case 'CodeWindow':

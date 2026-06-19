@@ -98,6 +98,7 @@ import {
   Toggle,
   inputCls,
 } from './controls';
+import { PatternControls } from './PatternControls';
 
 /* ---------------------- option lists for the new plates --------------------- */
 
@@ -1717,6 +1718,9 @@ export function ForegroundContentEditor({
           onChange={(matches) => onChange({ type: 'ConnectorNode', matches })}
         />
       );
+
+    case 'Pattern':
+      return <PatternControls value={content} onChange={(p) => onChange({ type: 'Pattern', ...p })} />;
 
     case 'CaseCard':
       return (

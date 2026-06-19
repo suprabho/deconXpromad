@@ -131,9 +131,64 @@ export function objectPositionFor(pos: PositionPreset): string {
 }
 
 /* -------------------------------------------------------------------------- *
+ * Pattern motifs — parametric, deterministic SVG scenes usable as EITHER a
+ * full-bleed background OR a freely-placed foreground tile. ONE config drives
+ * both surfaces; the renderer (components/patterns/PatternScene) is a pure,
+ * server-renderable SVG with NO time/randomness (seeded scatter only) so the
+ * editor preview, the /render route and the screenshot export stay
+ * pixel-identical — the same determinism rule the rest of the stage obeys.
+ * "Control these patterns" = the shared PatternControls inspector widget edits
+ * this config in the Background panel AND on a foreground element alike.
+ * -------------------------------------------------------------------------- */
+export type PatternMotif = 'case-overlap' | 'secure-exchange' | 'global-coverage' | 'audit-trail';
+
+export const PATTERN_MOTIFS: { value: PatternMotif; label: string }[] = [
+  { value: 'case-overlap', label: 'Case overlap' },
+  { value: 'secure-exchange', label: 'Secure exchange' },
+  { value: 'global-coverage', label: 'Global coverage' },
+  { value: 'audit-trail', label: 'Audit trail' },
+];
+
+export type PatternConfig = {
+  /** Which motif to draw. */
+  motif: PatternMotif;
+  /** Deterministic scatter seed (same seed → same scene; change it to reshuffle). */
+  seed: number;
+  /** 0–1 → element count (orbit dots, lattice cells, globe nodes, timeline beats). */
+  density: number;
+  /** 0.1–1 → feature size (orbit/hex radius, cell size, globe radius, lane weight). */
+  scale: number;
+  /** Stroke-weight multiplier (1 = the motif's base weight). */
+  lineWidth: number;
+  /** 0–1 → ambient glow intensity. */
+  glow: number;
+  /** Deep field colour — the wash base. */
+  baseColor: string;
+  /** Primary accent — rings, lattice, meridians, lane lines, active marks. */
+  accent: string;
+  /** Light node / highlight colour — verified nodes, glints, lit points. */
+  nodeColor: string;
+  /** 0–1 edge vignette darkness (0 = off). */
+  vignette: number;
+};
+
+export const DEFAULT_PATTERN: PatternConfig = {
+  motif: 'case-overlap',
+  seed: 7,
+  density: 0.6,
+  scale: 0.55,
+  lineWidth: 1,
+  glow: 0.6,
+  baseColor: '#0D1B3E',
+  accent: '#1A56DB',
+  nodeColor: '#CBD8FF',
+  vignette: 0.7,
+};
+
+/* -------------------------------------------------------------------------- *
  * Background layer
  * -------------------------------------------------------------------------- */
-export type BackgroundKind = 'aura' | 'image' | 'solid';
+export type BackgroundKind = 'aura' | 'image' | 'solid' | 'pattern';
 
 /** How a raster background fills the frame — the CSS `object-fit` set. */
 export type ImageFit = 'cover' | 'contain' | 'fill' | 'none';
@@ -160,6 +215,8 @@ export type BackgroundConfig = {
   imageContrast?: number;
   /** Solid fill, and the <body> fallback colour behind a loading aura. */
   color?: string;
+  /** Pattern-kind config — the parametric motif scene (see PatternConfig). */
+  pattern?: PatternConfig;
 };
 
 /**
@@ -733,6 +790,7 @@ export type ForegroundType =
   | 'ConnectorNode'
   | 'ActivityTimeline'
   | 'DeconflictBanner'
+  | 'Pattern'
   | 'FeatureModal'
   | 'CodeWindow'
   | 'EntityGraph'
@@ -800,6 +858,7 @@ export type ForegroundContent =
       alert: AlertData;
       timeline: TimelineData;
     }
+  | ({ type: 'Pattern' } & PatternConfig)
   | ({ type: 'FeatureModal' } & FeatureModalData)
   | ({ type: 'CodeWindow' } & CodeWindowData)
   | ({ type: 'EntityGraph' } & EntityGraphData)

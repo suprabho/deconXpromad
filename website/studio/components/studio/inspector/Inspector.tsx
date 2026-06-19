@@ -28,6 +28,7 @@ import type {
 } from '@/lib/composition/types';
 import {
   DEFAULT_MID_TRANSFORM,
+  DEFAULT_PATTERN,
   DEFAULT_SHADOW,
   POSITION_PRESETS,
   SIZE_PRESETS,
@@ -55,6 +56,7 @@ import {
   Toggle,
 } from './controls';
 import { ForegroundContentEditor } from './ForegroundContentEditor';
+import { PatternControls } from './PatternControls';
 import { AiContentGenerator } from './AiContentGenerator';
 import { AiSceneGenerator } from './AiSceneGenerator';
 import { AiImageGenerator } from './AiImageGenerator';
@@ -79,6 +81,7 @@ const FOREGROUND_LABELS: Record<string, string> = Object.fromEntries(
 const KIND_OPTS: { value: BackgroundKind; label: string }[] = [
   { value: 'aura', label: 'Aura' },
   { value: 'image', label: 'Image' },
+  { value: 'pattern', label: 'Pattern' },
   { value: 'solid', label: 'Solid' },
 ];
 const SCRIM_DIR_OPTS: { value: ScrimDirection; label: string }[] = [
@@ -346,8 +349,15 @@ export function Inspector({
         )}
 
         {panel === 'background' && (
-          <Section title="Background" subtitle="Aura animation, raster image, or a solid fill.">
-            <Segmented label="Type" value={bg.kind} onChange={(kind) => setBackground({ kind })} options={KIND_OPTS} />
+          <Section title="Background" subtitle="Aura animation, raster image, a parametric pattern, or a solid fill.">
+            <Segmented
+              label="Type"
+              value={bg.kind}
+              onChange={(kind) =>
+                setBackground(kind === 'pattern' && !bg.pattern ? { kind, pattern: DEFAULT_PATTERN } : { kind })
+              }
+              options={KIND_OPTS}
+            />
 
             {bg.kind === 'aura' && (
               <>
@@ -437,6 +447,13 @@ export function Inspector({
                   />
                 </div>
               </>
+            )}
+
+            {bg.kind === 'pattern' && (
+              <PatternControls
+                value={bg.pattern ?? DEFAULT_PATTERN}
+                onChange={(pattern) => setBackground({ pattern })}
+              />
             )}
 
             {bg.kind === 'solid' && (
@@ -607,12 +624,14 @@ export function Inspector({
                     </SubSection>
                     <ElementShadowFields shadows={el.shadows} onChange={(shadows) => setElementShadows(i, shadows)} />
                     <div className="space-y-3 border-t border-hair pt-3">
-                      <AiContentGenerator
-                        type={el.content.type}
-                        current={el.content}
-                        model={contentModel}
-                        onGenerated={(content) => setElement(i, { content })}
-                      />
+                      {el.content.type !== 'Pattern' && (
+                        <AiContentGenerator
+                          type={el.content.type}
+                          current={el.content}
+                          model={contentModel}
+                          onGenerated={(content) => setElement(i, { content })}
+                        />
+                      )}
                       <ForegroundContentEditor content={el.content} onChange={(content) => setElement(i, { content })} />
                     </div>
                   </>

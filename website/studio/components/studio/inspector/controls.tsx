@@ -381,6 +381,28 @@ export function Scrubber({
   );
 }
 
+/**
+ * Deconflict Brand Color Guide v1.0 — the curated swatches every ColorField
+ * surfaces beneath its inputs so picks stay on-palette. Mirrors the named
+ * tokens in tailwind.config.ts (white is the field, navy the authority, cobalt
+ * the single accent; green/amber/red are reserved status signals). Ordered
+ * authority → accent → signal → neutral.
+ */
+export const BRAND_SWATCHES: readonly { name: string; hex: string }[] = [
+  { name: 'Navy / Ink', hex: '#0D1B3E' },
+  { name: 'Cobalt', hex: '#1A56DB' },
+  { name: 'Cobalt Soft', hex: '#F0F4FF' },
+  { name: 'Verified Green', hex: '#2F8F5C' },
+  { name: 'Caution Amber', hex: '#A66A00' },
+  { name: 'Alert Red', hex: '#B91C1C' },
+  { name: 'Frost', hex: '#F4F6FB' },
+  { name: 'Hair', hex: '#D6DCE8' },
+  { name: 'Subtle', hex: '#B0B8CC' },
+  { name: 'Muted', hex: '#6B7A99' },
+  { name: 'White', hex: '#FFFFFF' },
+  { name: 'Black', hex: '#000000' },
+];
+
 export function ColorField({
   label,
   value,
@@ -390,22 +412,45 @@ export function ColorField({
   value: string;
   onChange: (v: string) => void;
 }) {
+  const current = value?.toUpperCase();
   return (
-    <Field label={label}>
-      <div className="flex items-center gap-2">
-        <input
-          type="color"
-          className="h-8 w-10 shrink-0 cursor-pointer rounded border border-hair bg-white"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
-        <input
-          className={clsx(inputCls, 'font-mono text-[12px] uppercase')}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
+    // Not a bare <Field>: the swatch buttons sit OUTSIDE its <label> so a swatch
+    // click doesn't get forwarded to the native colour input (popping it open).
+    <div className="block">
+      <Field label={label}>
+        <div className="flex items-center gap-2">
+          <input
+            type="color"
+            className="h-8 w-10 shrink-0 cursor-pointer rounded border border-hair bg-white"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          />
+          <input
+            className={clsx(inputCls, 'font-mono text-[12px] uppercase')}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          />
+        </div>
+      </Field>
+      <div className="mt-1.5 flex flex-wrap gap-1" role="group" aria-label={`${label} brand swatches`}>
+        {BRAND_SWATCHES.map((s) => (
+          <button
+            key={s.hex}
+            type="button"
+            title={`${s.name} · ${s.hex}`}
+            aria-label={`${s.name} (${s.hex})`}
+            onClick={() => onChange(s.hex)}
+            className={clsx(
+              'h-4 w-4 rounded-sm border transition',
+              current === s.hex
+                ? 'border-cobalt ring-2 ring-cobalt/30'
+                : 'border-hair hover:scale-110',
+            )}
+            style={{ background: s.hex }}
+          />
+        ))}
       </div>
-    </Field>
+    </div>
   );
 }
 

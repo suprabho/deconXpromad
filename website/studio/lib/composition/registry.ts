@@ -21,6 +21,7 @@ export const FOREGROUND_OPTIONS: { type: ForegroundType; label: string }[] = [
   { type: 'ConnectorNode', label: 'Connector Node' },
   { type: 'ActivityTimeline', label: 'Activity Timeline' },
   { type: 'DeconflictBanner', label: 'Deconflict Banner (full)' },
+  { type: 'Pattern', label: 'Pattern Motif' },
   { type: 'FeatureModal', label: 'Feature Modal' },
   { type: 'CommandPalette', label: 'Command Palette' },
   { type: 'EntityGraph', label: 'Entity Graph' },
