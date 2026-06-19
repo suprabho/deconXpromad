@@ -363,6 +363,12 @@ export default function StudioEditor() {
             </p>
           </div>
         </main>
+
+        {/* Docked right-hand column. The Inspector portals the selected foreground
+            element's controls in here, so the details read as a separate panel
+            without the Inspector having to break out of its left aside. Stays
+            collapsed (zero width) while empty. */}
+        <aside id="studio-detail-panel" className="flex shrink-0" />
       </div>
 
       <LibraryDialog

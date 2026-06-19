@@ -1,16 +1,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import clsx from 'clsx';
 import {
   CardsIcon,
-  CaretDownIcon,
+  CopyIcon,
   EyeIcon,
   EyeSlashIcon,
   FrameCornersIcon,
   ImageIcon,
   ShapesIcon,
   TextTIcon,
+  TrashIcon,
+  XIcon,
 } from '@phosphor-icons/react/dist/ssr';
 import type { Icon } from '@phosphor-icons/react';
 
@@ -255,13 +258,20 @@ export function Inspector({
 }) {
   const [panel, setPanel] = useState<PanelId>('size');
   const [addGroup, setAddGroup] = useState<ForegroundGroup>(FOREGROUND_ADD_GROUPS[0].group);
-  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
-  const toggleCollapsed = (id: string) =>
-    setCollapsed((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
+  // The foreground element whose controls show in the docked right-hand panel.
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // The right-hand panel renders through a portal into a slot page.tsx mounts at
+  // the body's right edge, so the details dock as a real third column without the
+  // Inspector having to escape its left aside.
+  const [detailSlot, setDetailSlot] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    setDetailSlot(document.getElementById('studio-detail-panel'));
+  }, []);
+  // Drop a selection that points at an element no longer present (e.g. after
+  // loading or importing a different composition).
+  useEffect(() => {
+    if (selectedId && !config.foreground.some((e) => e.id === selectedId)) setSelectedId(null);
+  }, [config.foreground, selectedId]);
 
   /* ---------------------------- AI model picks ---------------------------- */
   // UI preference (not part of the composition) — persisted in localStorage so a
@@ -278,13 +288,13 @@ export function Inspector({
     setContentModel(id);
     try {
       localStorage.setItem('studio.ai.contentModel', id);
-    } catch {}
+    } catch { }
   };
   const pickImageModel = (id: string) => {
     setImageModel(id);
     try {
       localStorage.setItem('studio.ai.imageModel', id);
-    } catch {}
+    } catch { }
   };
 
   const patch = (p: Partial<CompositionConfig>) => onChange({ ...config, ...p });
@@ -332,19 +342,28 @@ export function Inspector({
   const setElementGlass = (i: number, p: Partial<GlassConfig>) =>
     setElement(i, { glass: { ...config.foreground[i].glass, ...p } });
   // Drop a fresh element of a specific kind straight in — keyed by the same
-  // composite value the per-element Component dropdown uses (Pattern carries its motif).
-  const addElementOfKind = (key: string) =>
+  // composite value the per-element Component dropdown uses (Pattern carries its
+  // motif). Select it so its controls open in the docked panel right away.
+  const addElementOfKind = (key: string) => {
+    const id = crypto.randomUUID();
     patch({
       foreground: [
         ...config.foreground,
-        { id: crypto.randomUUID(), content: contentForOptionKey(key), transform: { ...DEFAULT_TRANSFORM } },
+        { id, content: contentForOptionKey(key), transform: { ...DEFAULT_TRANSFORM } },
       ],
     });
-  const removeElement = (i: number) => patch({ foreground: config.foreground.filter((_, j) => j !== i) });
+    setSelectedId(id);
+  };
+  const removeElement = (i: number) => {
+    if (config.foreground[i].id === selectedId) setSelectedId(null);
+    patch({ foreground: config.foreground.filter((_, j) => j !== i) });
+  };
   const duplicateElement = (i: number) => {
+    const id = crypto.randomUUID();
     const foreground = config.foreground.slice();
-    foreground.splice(i + 1, 0, { ...structuredClone(config.foreground[i]), id: crypto.randomUUID() });
+    foreground.splice(i + 1, 0, { ...structuredClone(config.foreground[i]), id });
     patch({ foreground });
+    setSelectedId(id);
   };
   const moveElement = (i: number, dir: -1 | 1) => {
     const j = i + dir;
@@ -354,8 +373,13 @@ export function Inspector({
     patch({ foreground });
   };
 
+  // The element shown in the docked detail panel (the stale-selection effect
+  // above guarantees a live id, so a non-negative index resolves to an element).
+  const selectedIndex = selectedId ? config.foreground.findIndex((e) => e.id === selectedId) : -1;
+  const selectedEl = selectedIndex >= 0 ? config.foreground[selectedIndex] : undefined;
+
   return (
-    <div className="flex h-full min-h-0">
+    <div className="flex h-full min-h-0 w-full">
       {/* Compact panel rail */}
       <nav className="flex w-14 shrink-0 flex-col items-center gap-1 border-r border-hair bg-white py-3">
         {PANELS.map(({ id, label, Icon }) => {
@@ -624,30 +648,32 @@ export function Inspector({
               onGenerated={(elements) => patch({ foreground: [...config.foreground, ...elements] })}
             />
             {config.foreground.length === 0 && <p className="text-xs text-muted">No elements yet.</p>}
+            {/* Each element is a selectable row — clicking one opens its controls in
+                the docked detail panel on the right (see the portal below). */}
             {config.foreground.map((el, i) => {
-              const isCollapsed = collapsed.has(el.id);
+              const isSelected = el.id === selectedId;
               return (
-              <div key={el.id} className="space-y-3 rounded-md border border-hair bg-white p-2.5">
                 <div
+                  key={el.id}
                   role="button"
                   tabIndex={0}
-                  onClick={() => toggleCollapsed(el.id)}
+                  onClick={() => setSelectedId(el.id)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
-                      toggleCollapsed(el.id);
+                      setSelectedId(el.id);
                     }
                   }}
-                  aria-expanded={!isCollapsed}
-                  aria-label={isCollapsed ? 'Expand element' : 'Collapse element'}
-                  className="flex cursor-pointer items-center justify-between gap-2 rounded -m-1 p-1 hover:bg-frost"
+                  aria-current={isSelected ? 'true' : undefined}
+                  aria-label={`Edit element ${i + 1}`}
+                  className={clsx(
+                    'flex cursor-pointer items-center justify-between gap-2 rounded-md border bg-white p-2.5 transition',
+                    isSelected
+                      ? 'border-cobalt bg-cobalt/5 ring-1 ring-cobalt/30'
+                      : 'border-hair hover:border-cobalt/40 hover:bg-frost',
+                  )}
                 >
                   <div className={clsx('flex min-w-0 flex-1 items-center gap-1.5 text-left', el.hidden && 'opacity-40')}>
-                    <CaretDownIcon
-                      size={12}
-                      weight="bold"
-                      className={clsx('shrink-0 text-muted transition-transform', isCollapsed && '-rotate-90')}
-                    />
                     <span className="shrink-0 text-xs font-semibold text-ink">Element {i + 1}</span>
                     <span className="truncate text-[11px] text-muted">{FOREGROUND_LABELS[contentOptionKey(el.content)]}</span>
                   </div>
@@ -687,53 +713,22 @@ export function Inspector({
                       type="button"
                       onClick={() => duplicateElement(i)}
                       aria-label="Duplicate element"
-                      className="rounded border border-hair px-2 text-xs text-muted hover:text-ink"
+                      title="Duplicate element"
+                      className="grid h-[22px] w-[22px] place-items-center rounded border border-hair text-muted hover:text-ink"
                     >
-                      Duplicate
+                      <CopyIcon size={13} weight="bold" />
                     </button>
                     <button
                       type="button"
                       onClick={() => removeElement(i)}
-                      className="rounded border border-hair px-2 text-xs text-muted hover:text-risk-text"
+                      aria-label="Remove element"
+                      title="Remove element"
+                      className="grid h-[22px] w-[22px] place-items-center rounded border border-hair text-muted hover:text-risk-text"
                     >
-                      Remove
+                      <TrashIcon size={13} weight="bold" />
                     </button>
                   </div>
                 </div>
-                {!isCollapsed && (
-                  <>
-                <SelectField
-                  label="Component"
-                  value={contentOptionKey(el.content)}
-                  onChange={(value: string) => setElement(i, { content: contentForOptionKey(value) })}
-                  options={FOREGROUND_TYPE_OPTIONS}
-                />
-                {el.content.type !== 'none' && (
-                  <>
-                    <ElementTransformFields transform={el.transform} onChange={(p) => setElementTransform(i, p)} />
-                    <SubSection title="Glass">
-                      <div className="grid grid-cols-2 gap-x-2">
-                        <Scrubber label="Tint" value={el.glass?.tint ?? 0.7} min={0} max={1} step={0.05} unit="%" displayScale={100} onChange={(tint) => setElementGlass(i, { tint })} />
-                        <Scrubber label="Blur" value={el.glass?.blur ?? 24} min={0} max={60} step={1} unit="px" onChange={(blur) => setElementGlass(i, { blur })} />
-                      </div>
-                    </SubSection>
-                    <ElementShadowFields shadows={el.shadows} onChange={(shadows) => setElementShadows(i, shadows)} />
-                    <div className="space-y-3 border-t border-hair pt-3">
-                      {el.content.type !== 'Pattern' && (
-                        <AiContentGenerator
-                          type={el.content.type}
-                          current={el.content}
-                          model={contentModel}
-                          onGenerated={(content) => setElement(i, { content })}
-                        />
-                      )}
-                      <ForegroundContentEditor content={el.content} onChange={(content) => setElement(i, { content })} />
-                    </div>
-                  </>
-                )}
-                  </>
-                )}
-              </div>
               );
             })}
           </Section>
@@ -762,6 +757,68 @@ export function Inspector({
           </Section>
         )}
       </div>
+
+      {/* Docked detail panel for the selected foreground element. Portalled into
+          the right-edge slot page.tsx mounts, so it reads as a separate column
+          while keeping all the element state/handlers here in the Inspector. */}
+      {detailSlot &&
+        panel === 'foreground' &&
+        selectedEl &&
+        createPortal(
+          <div className="flex h-full w-[340px] flex-col border-l border-hair bg-white">
+            <div className="flex shrink-0 items-center justify-between gap-2 border-b border-hair px-3 py-2.5">
+              <div className="min-w-0">
+                <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink">
+                  Element {selectedIndex + 1}
+                </h2>
+                <p className="truncate text-[11px] text-muted">
+                  {FOREGROUND_LABELS[contentOptionKey(selectedEl.content)]}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedId(null)}
+                aria-label="Close element details"
+                title="Close"
+                className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-muted transition hover:bg-frost hover:text-ink"
+              >
+                <XIcon size={15} weight="bold" />
+              </button>
+            </div>
+            <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
+              <SelectField
+                label="Component"
+                value={contentOptionKey(selectedEl.content)}
+                onChange={(value: string) => setElement(selectedIndex, { content: contentForOptionKey(value) })}
+                options={FOREGROUND_TYPE_OPTIONS}
+              />
+              {selectedEl.content.type !== 'none' && (
+                <>
+                  <ElementTransformFields transform={selectedEl.transform} onChange={(p) => setElementTransform(selectedIndex, p)} />
+                  <SubSection title="Glass">
+                    <div className="grid grid-cols-2 gap-x-2">
+                      <Scrubber label="Tint" value={selectedEl.glass?.tint ?? 0.7} min={0} max={1} step={0.05} unit="%" displayScale={100} onChange={(tint) => setElementGlass(selectedIndex, { tint })} />
+                      <Scrubber label="Blur" value={selectedEl.glass?.blur ?? 24} min={0} max={60} step={1} unit="px" onChange={(blur) => setElementGlass(selectedIndex, { blur })} />
+                    </div>
+                  </SubSection>
+                  <ElementShadowFields shadows={selectedEl.shadows} onChange={(shadows) => setElementShadows(selectedIndex, shadows)} />
+                  <div className="space-y-3 border-t border-hair pt-3">
+                    {selectedEl.content.type !== 'Pattern' && (
+                      <AiContentGenerator
+                        type={selectedEl.content.type}
+                        current={selectedEl.content}
+                        model={contentModel}
+                        onGenerated={(content) => setElement(selectedIndex, { content })}
+                      />
+                    )}
+                    <ForegroundContentEditor content={selectedEl.content} onChange={(content) => setElement(selectedIndex, { content })} />
+                  </div>
+                </>
+              )}
+            </div>
+          </div>,
+          detailSlot,
+        )}
     </div>
   );
 }
