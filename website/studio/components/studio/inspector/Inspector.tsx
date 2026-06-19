@@ -48,6 +48,7 @@ import {
   foregroundAddGroups,
   foregroundOptionKey,
   groupOptions,
+  type ForegroundGroup,
 } from '@/lib/composition/registry';
 import {
   ColorField,
@@ -91,6 +92,9 @@ const FOREGROUND_TYPE_OPTIONS = FOREGROUND_OPTIONS.map((o) => ({
   value: foregroundOptionKey(o.type, o.motif),
   label: o.label,
 }));
+// Quick-add toolbar groups (static) — tabbed in the inspector so only one
+// category's buttons show at a time.
+const FOREGROUND_ADD_GROUPS = foregroundAddGroups();
 
 /** The picker value for an element's current content (Pattern → its motif key). */
 function contentOptionKey(content: ForegroundContent): string {
@@ -250,6 +254,7 @@ export function Inspector({
   onChange: (c: CompositionConfig) => void;
 }) {
   const [panel, setPanel] = useState<PanelId>('size');
+  const [addGroup, setAddGroup] = useState<ForegroundGroup>(FOREGROUND_ADD_GROUPS[0].group);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const toggleCollapsed = (id: string) =>
     setCollapsed((prev) => {
@@ -575,26 +580,40 @@ export function Inspector({
             title="Foreground elements"
             subtitle="Stack one or more UI components — each freely placed, scaled and rotated in 3-D. Later elements sit on top."
           >
-            {/* Quick-add toolbar — sticks to the top of the panel; each grouped
-                button drops that component straight in (no dropdown round-trip). */}
-            <div className="sticky top-0 z-10 -mx-3 -mt-2.5 max-h-[48vh] overflow-y-auto border-b border-hair bg-white px-3 pb-2.5 pt-2.5">
-              <div className="space-y-2">
-                {foregroundAddGroups().map(({ group, options }) => (
-                  <div key={group}>
-                    <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-muted">{group}</div>
-                    <div className="flex flex-wrap gap-1">
-                      {options.map((o) => (
-                        <button
-                          key={o.key}
-                          type="button"
-                          onClick={() => addElementOfKind(o.key)}
-                          className="rounded-md border border-hair bg-white px-2 py-1 text-[11px] font-medium text-ink transition hover:border-cobalt hover:bg-cobalt/5 hover:text-cobalt"
-                        >
-                          + {o.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+            {/* Quick-add toolbar — sticks to the top of the panel. Category tabs
+                filter the list so only one group's buttons show; each drops that
+                component straight in (no dropdown round-trip). */}
+            <div className="sticky top-0 z-10 -mx-3 -mt-2.5 border-b border-hair bg-white px-3 pt-2.5">
+              <div className="flex gap-1 overflow-x-auto pb-2" role="tablist" aria-label="Component categories">
+                {FOREGROUND_ADD_GROUPS.map(({ group }) => {
+                  const active = group === addGroup;
+                  return (
+                    <button
+                      key={group}
+                      type="button"
+                      role="tab"
+                      aria-selected={active}
+                      onClick={() => setAddGroup(group)}
+                      className={clsx(
+                        'shrink-0 rounded-md px-2.5 py-1 text-[11px] font-medium transition',
+                        active ? 'bg-ink text-white shadow-sm' : 'text-muted hover:bg-frost hover:text-ink',
+                      )}
+                    >
+                      {group}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="flex flex-wrap gap-1 pb-2.5">
+                {(FOREGROUND_ADD_GROUPS.find((g) => g.group === addGroup) ?? FOREGROUND_ADD_GROUPS[0]).options.map((o) => (
+                  <button
+                    key={o.key}
+                    type="button"
+                    onClick={() => addElementOfKind(o.key)}
+                    className="rounded-md border border-hair bg-white px-2 py-1 text-[11px] font-medium text-ink transition hover:border-cobalt hover:bg-cobalt/5 hover:text-cobalt"
+                  >
+                    + {o.label}
+                  </button>
                 ))}
               </div>
             </div>
