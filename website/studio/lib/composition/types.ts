@@ -160,6 +160,138 @@ export const PATTERN_MOTIFS: { value: PatternMotif; label: string }[] = [
   { value: 'audit-trail', label: 'Audit trail' },
 ];
 
+/* -------------------------------------------------------------------------- *
+ * Intaglio sub-config — the engraving motif is built from two independently
+ * controllable systems (see components/patterns/PatternScene · Intaglio):
+ *   1. Waves  — the full-bleed sine-band guilloché substrate. Its `colors`
+ *               cycle across the wave rows.
+ *   2. Ripple — concentric rings that MORPH from a start shape to an end shape
+ *               (each with its own scale / position / rotation) over N steps.
+ *               Its `colors` cycle across the rings.
+ * Only present on the 'intaglio' motif; other motifs ignore it. Optional so old
+ * saved compositions (no intaglio block) fall back to DEFAULT_INTAGLIO.
+ * -------------------------------------------------------------------------- */
+export type RippleShapeKind =
+  | 'ellipse'
+  | 'circle'
+  | 'rectangle'
+  | 'triangle'
+  | 'diamond'
+  | 'pentagon'
+  | 'hexagon'
+  | 'octagon'
+  | 'star';
+
+export const RIPPLE_SHAPES: { value: RippleShapeKind; label: string }[] = [
+  { value: 'ellipse', label: 'Ellipse' },
+  { value: 'circle', label: 'Circle' },
+  { value: 'rectangle', label: 'Rectangle' },
+  { value: 'triangle', label: 'Triangle' },
+  { value: 'diamond', label: 'Diamond' },
+  { value: 'pentagon', label: 'Pentagon' },
+  { value: 'hexagon', label: 'Hexagon' },
+  { value: 'octagon', label: 'Octagon' },
+  { value: 'star', label: 'Star' },
+];
+
+/** One end of the ripple morph: a shape and its transform. */
+export type RippleShape = {
+  kind: RippleShapeKind;
+  /** Size as a fraction of the reference radius (≈ scale × 340px × global Scale). */
+  scale: number;
+  /** Centre offset from canvas centre, % of canvas width / height. */
+  x: number;
+  y: number;
+  /** Rotation in degrees. */
+  rotation: number;
+};
+
+export type IntaglioConfig = {
+  waves: {
+    /** Wave height in px. */
+    amplitude: number;
+    /** Spatial-frequency multiplier (1 = base). */
+    frequency: number;
+    /** Phase offset in degrees. */
+    phase: number;
+    /** Palette cycled across the wave rows (≥ 1 colour). */
+    colors: string[];
+  };
+  ripple: {
+    start: RippleShape;
+    end: RippleShape;
+    /** Number of interpolated rings between start and end (inclusive). */
+    steps: number;
+    /** Palette cycled across the rings (≥ 1 colour). */
+    colors: string[];
+  };
+};
+
+export const DEFAULT_INTAGLIO: IntaglioConfig = {
+  waves: { amplitude: 22, frequency: 1, phase: 0, colors: ['#2E54E8', '#5B7BF0'] },
+  ripple: {
+    start: { kind: 'ellipse', scale: 0.34, x: 0, y: 0, rotation: 0 },
+    end: { kind: 'ellipse', scale: 1.3, x: 0, y: 0, rotation: 0 },
+    steps: 16,
+    colors: ['#2E54E8', '#6D5BE8', '#13294B'],
+  },
+};
+
+/* -------------------------------------------------------------------------- *
+ * Guilloché (rosette) sub-config — the timestretch.com spirograph generator's
+ * controls exposed DIRECTLY (instead of being derived from `seed`). The curve is
+ * a four-stage harmonic summation:
+ *   x = sA·sin(aA·t) + sB·sin(aB·t + off) + sC·sin(aC·t) + (sD + p·rOff)·sin(aD·t)
+ *   y = sA·cos(aA·t) + sB·cos(aB·t + off) + sC·cos(aC·t) + (sD + p·rOff)·cos(aD·t)
+ * drawn for each repeat pass p ∈ [0, repeatCount) — the per-pass amplitude drift
+ * `repeatOffset` on the D term is what weaves the lacework echoes. Everything is
+ * scaled by `scale` (%). Only present on the 'rosette' motif; optional so old
+ * saves fall back to DEFAULT_GUILLOCHE.
+ * -------------------------------------------------------------------------- */
+export type GuillocheConfig = {
+  /** Term frequencies (−72..72; the "Angle A–D" sliders). */
+  angleA: number;
+  angleB: number;
+  angleC: number;
+  angleD: number;
+  /** Term amplitudes (−360..360; the "Scale A–D" sliders). */
+  scaleA: number;
+  scaleB: number;
+  scaleC: number;
+  scaleD: number;
+  /** Phase offset on the B term, in degrees. */
+  offset: number;
+  /** Amplitude added to the D term per repeat pass. */
+  repeatOffset: number;
+  /** Number of repeat passes (1..50). */
+  repeatCount: number;
+  /** Stroke width in px. */
+  lineThickness: number;
+  /** Overall scale, %. */
+  scale: number;
+  /** Centre offset from canvas centre, % of canvas width / height. */
+  x: number;
+  y: number;
+};
+
+export const DEFAULT_GUILLOCHE: GuillocheConfig = {
+  angleA: 1,
+  angleB: 6,
+  angleC: -4,
+  angleD: 9,
+  scaleA: 110,
+  scaleB: 70,
+  scaleC: 45,
+  scaleD: 28,
+  offset: 0,
+  repeatOffset: 4,
+  repeatCount: 18,
+  lineThickness: 0.7,
+  scale: 100,
+  x: 0,
+  y: 0,
+};
+
 export type PatternConfig = {
   /** Which motif to draw. */
   motif: PatternMotif;
@@ -184,6 +316,13 @@ export type PatternConfig = {
   nodeColor: string;
   /** 0–1 edge vignette darkness (0 = off). */
   vignette: number;
+  /** Intaglio-only · the engraving config (waves / ripple, each with its own
+   *  colour palette). Absent for other motifs and old saves; the renderer falls
+   *  back to {@link DEFAULT_INTAGLIO}. */
+  intaglio?: IntaglioConfig;
+  /** Rosette-only · the spirograph guilloché generator fields. Absent for other
+   *  motifs and old saves; the renderer falls back to {@link DEFAULT_GUILLOCHE}. */
+  guilloche?: GuillocheConfig;
 };
 
 // Defaults to a frost-field guilloché rosette — the spec's "palette lock"
@@ -200,6 +339,8 @@ export const DEFAULT_PATTERN: PatternConfig = {
   accent: '#2E54E8',
   nodeColor: '#13294B',
   vignette: 0.28,
+  intaglio: DEFAULT_INTAGLIO,
+  guilloche: DEFAULT_GUILLOCHE,
 };
 
 /* -------------------------------------------------------------------------- *

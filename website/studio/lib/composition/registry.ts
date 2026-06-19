@@ -11,9 +11,16 @@ import {
   inlineSvgAssets,
   sectionBackgrounds,
 } from '@/lib/assets/catalog';
-import type { ForegroundType } from './types';
+import type { ForegroundType, PatternMotif } from './types';
 
-export const FOREGROUND_OPTIONS: { type: ForegroundType; label: string }[] = [
+/**
+ * The foreground "Component" pick-list. Most entries map 1:1 to a
+ * {@link ForegroundType}; the Pattern entries additionally carry a `motif` so the
+ * picker can offer the security-print generators (Guilloché / Intaglio) as
+ * first-class options — both add a `type:'Pattern'` element pre-set to that
+ * motif (the inner Motif dropdown can still switch to any other motif after).
+ */
+export const FOREGROUND_OPTIONS: { type: ForegroundType; label: string; motif?: PatternMotif }[] = [
   { type: 'none', label: 'None' },
   { type: 'CaseCard', label: 'Case Card' },
   { type: 'OverlapAlert', label: 'Overlap Alert' },
@@ -21,7 +28,8 @@ export const FOREGROUND_OPTIONS: { type: ForegroundType; label: string }[] = [
   { type: 'ConnectorNode', label: 'Connector Node' },
   { type: 'ActivityTimeline', label: 'Activity Timeline' },
   { type: 'DeconflictBanner', label: 'Deconflict Banner (full)' },
-  { type: 'Pattern', label: 'Pattern Motif' },
+  { type: 'Pattern', label: 'Guilloché', motif: 'rosette' },
+  { type: 'Pattern', label: 'Intaglio', motif: 'intaglio' },
   { type: 'FeatureModal', label: 'Feature Modal' },
   { type: 'CommandPalette', label: 'Command Palette' },
   { type: 'EntityGraph', label: 'Entity Graph' },
@@ -71,6 +79,18 @@ export const FOREGROUND_OPTIONS: { type: ForegroundType; label: string }[] = [
   { type: 'Tabs', label: 'Tabs' },
   { type: 'WindowChrome', label: 'Window Chrome' },
 ];
+
+/**
+ * The picker `value` for a foreground option/element. The Pattern motif presets
+ * share `type:'Pattern'`, so they're keyed `Pattern:<motif>` to stay
+ * distinguishable in the <select>; everything else is keyed by its bare type.
+ * Pattern motifs without a preset (the abstract scenes) fall back to the
+ * Guilloché key so the select always resolves to a real option.
+ */
+export function foregroundOptionKey(type: ForegroundType, motif?: PatternMotif): string {
+  if (type !== 'Pattern') return type;
+  return `Pattern:${motif === 'intaglio' ? 'intaglio' : 'rosette'}`;
+}
 
 export type AssetOption = { src: string; label: string; group: string };
 export type AuraOption = { slug: string; label: string };

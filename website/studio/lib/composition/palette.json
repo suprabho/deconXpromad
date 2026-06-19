@@ -1,0 +1,12 @@
+[
+  { "name": "Frost", "hex": "#F4F6FA" },
+  { "name": "Foil silver", "hex": "#C9D2E8" },
+  { "name": "Cobalt 2", "hex": "#5B7BF0" },
+  { "name": "Cobalt", "hex": "#2E54E8" },
+  { "name": "Foil violet", "hex": "#6D5BE8" },
+  { "name": "Navy", "hex": "#13294B" },
+  { "name": "Ink", "hex": "#0B1B33" },
+  { "name": "Verified green", "hex": "#15976A" },
+  { "name": "Gold", "hex": "#B8923E" },
+  { "name": "Flagged red", "hex": "#DC2B2B" }
+]

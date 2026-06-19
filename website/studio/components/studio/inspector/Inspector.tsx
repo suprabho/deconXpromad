@@ -16,11 +16,13 @@ import type {
   BackgroundKind,
   CompositionConfig,
   ElementShadow,
+  ForegroundContent,
   ForegroundElement,
   ForegroundType,
   GlassConfig,
   MidGraphic,
   MidTransform,
+  PatternMotif,
   PositionPreset,
   ScrimDirection,
   SizeScale,
@@ -40,6 +42,7 @@ import {
   BACKGROUND_IMAGE_OPTIONS,
   FOREGROUND_OPTIONS,
   MID_GRAPHIC_OPTIONS,
+  foregroundOptionKey,
   groupOptions,
 } from '@/lib/composition/registry';
 import {
@@ -75,9 +78,30 @@ const POSITION_OPTS = POSITION_PRESETS.map((p) => ({
   label: p.replace('-', ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
 }));
 const SCALE_OPTS = SIZE_SCALES.map((s) => ({ value: s, label: s }));
+// Keyed by the picker's composite value (see foregroundOptionKey) so the two
+// Pattern motif presets keep distinct labels.
 const FOREGROUND_LABELS: Record<string, string> = Object.fromEntries(
-  FOREGROUND_OPTIONS.map((o) => [o.type, o.label]),
+  FOREGROUND_OPTIONS.map((o) => [foregroundOptionKey(o.type, o.motif), o.label]),
 );
+const FOREGROUND_TYPE_OPTIONS = FOREGROUND_OPTIONS.map((o) => ({
+  value: foregroundOptionKey(o.type, o.motif),
+  label: o.label,
+}));
+
+/** The picker value for an element's current content (Pattern → its motif key). */
+function contentOptionKey(content: ForegroundContent): string {
+  return content.type === 'Pattern' ? foregroundOptionKey('Pattern', content.motif) : content.type;
+}
+
+/** Build fresh content for a picked option value (motif presets seed the motif). */
+function contentForOptionKey(value: string): ForegroundContent {
+  if (value.startsWith('Pattern:')) {
+    const motif = value.slice('Pattern:'.length) as PatternMotif;
+    const base = defaultForegroundContent('Pattern');
+    return base.type === 'Pattern' ? { ...base, motif } : base;
+  }
+  return defaultForegroundContent(value as ForegroundType);
+}
 const KIND_OPTS: { value: BackgroundKind; label: string }[] = [
   { value: 'aura', label: 'Aura' },
   { value: 'image', label: 'Image' },
@@ -567,7 +591,7 @@ export function Inspector({
                       className={clsx('shrink-0 text-muted transition-transform', isCollapsed && '-rotate-90')}
                     />
                     <span className="shrink-0 text-xs font-semibold text-ink">Element {i + 1}</span>
-                    <span className="truncate text-[11px] text-muted">{FOREGROUND_LABELS[el.content.type]}</span>
+                    <span className="truncate text-[11px] text-muted">{FOREGROUND_LABELS[contentOptionKey(el.content)]}</span>
                   </div>
                   <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                     <button
@@ -609,9 +633,9 @@ export function Inspector({
                   <>
                 <SelectField
                   label="Component"
-                  value={el.content.type}
-                  onChange={(type: ForegroundType) => setElement(i, { content: defaultForegroundContent(type) })}
-                  options={FOREGROUND_OPTIONS.map((o) => ({ value: o.type, label: o.label }))}
+                  value={contentOptionKey(el.content)}
+                  onChange={(value: string) => setElement(i, { content: contentForOptionKey(value) })}
+                  options={FOREGROUND_TYPE_OPTIONS}
                 />
                 {el.content.type !== 'none' && (
                   <>
