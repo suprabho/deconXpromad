@@ -140,9 +140,20 @@ export function objectPositionFor(pos: PositionPreset): string {
  * "Control these patterns" = the shared PatternControls inspector widget edits
  * this config in the Background panel AND on a foreground element alike.
  * -------------------------------------------------------------------------- */
-export type PatternMotif = 'case-overlap' | 'secure-exchange' | 'global-coverage' | 'audit-trail';
+export type PatternMotif =
+  // Security-print generators (deconflict-security-pattern-spec.md, Parts 1 & 2):
+  // engraved-banknote line-art and rose-engine guilloché lacework.
+  | 'intaglio'
+  | 'rosette'
+  // Abstract Deconflict security motifs.
+  | 'case-overlap'
+  | 'secure-exchange'
+  | 'global-coverage'
+  | 'audit-trail';
 
 export const PATTERN_MOTIFS: { value: PatternMotif; label: string }[] = [
+  { value: 'rosette', label: 'Rosette · guilloché' },
+  { value: 'intaglio', label: 'Intaglio · engraving' },
   { value: 'case-overlap', label: 'Case overlap' },
   { value: 'secure-exchange', label: 'Secure exchange' },
   { value: 'global-coverage', label: 'Global coverage' },
@@ -152,11 +163,14 @@ export const PATTERN_MOTIFS: { value: PatternMotif; label: string }[] = [
 export type PatternConfig = {
   /** Which motif to draw. */
   motif: PatternMotif;
-  /** Deterministic scatter seed (same seed → same scene; change it to reshuffle). */
+  /** Deterministic scatter seed (same seed → same scene; change it to reshuffle).
+   *  On intaglio/rosette it seeds the harmonic phases / petal counts. */
   seed: number;
-  /** 0–1 → element count (orbit dots, lattice cells, globe nodes, timeline beats). */
+  /** 0–1 → element count (orbit dots, lattice cells, globe nodes, timeline beats;
+   *  intaglio vignette rings + hatch density; rosette rose-layer count). */
   density: number;
-  /** 0.1–1 → feature size (orbit/hex radius, cell size, globe radius, lane weight). */
+  /** 0.1–1 → feature size (orbit/hex radius, cell size, globe radius, lane weight;
+   *  intaglio oval radius + ring gap; rosette medallion radius). */
   scale: number;
   /** Stroke-weight multiplier (1 = the motif's base weight). */
   lineWidth: number;
@@ -172,17 +186,20 @@ export type PatternConfig = {
   vignette: number;
 };
 
+// Defaults to a frost-field guilloché rosette — the spec's "palette lock"
+// (frost #F4F6FA · cobalt #2E54E8 · navy #13294B), the authentic security-print
+// look. lineWidth is lifted so the hairlines hold up at foreground-tile scale.
 export const DEFAULT_PATTERN: PatternConfig = {
-  motif: 'case-overlap',
+  motif: 'rosette',
   seed: 7,
   density: 0.6,
-  scale: 0.55,
-  lineWidth: 1,
-  glow: 0.6,
-  baseColor: '#0D1B3E',
-  accent: '#1A56DB',
-  nodeColor: '#CBD8FF',
-  vignette: 0.7,
+  scale: 0.6,
+  lineWidth: 1.4,
+  glow: 0.25,
+  baseColor: '#F4F6FA',
+  accent: '#2E54E8',
+  nodeColor: '#13294B',
+  vignette: 0.28,
 };
 
 /* -------------------------------------------------------------------------- *

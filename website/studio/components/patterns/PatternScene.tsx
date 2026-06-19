@@ -12,9 +12,12 @@ import type { PatternConfig } from '@/lib/composition/types';
  * the editor preview, the chrome-less /render route and the Playwright screenshot
  * stay pixel-identical. No `'use client'`, no hooks, no animation.
  *
- * Four motifs, each reading the same {@link PatternConfig}: density → element
+ * Six motifs, each reading the same {@link PatternConfig}: density → element
  * count, scale → feature size, glow → ambient lift, lineWidth → stroke weight,
- * vignette → edge falloff, and the base/accent/node colours.
+ * vignette → edge falloff, and the base/accent/node colours. Two of them —
+ * `rosette` (rose-engine guilloché) and `intaglio` (engraved-banknote line-art)
+ * — are the security-print generators from deconflict-security-pattern-spec.md
+ * (Parts 2 & 1); the other four are abstract Deconflict security scenes.
  */
 
 const W = 1200;
@@ -382,7 +385,160 @@ function AuditTrail({ cfg, uid, rnd }: MotifProps) {
   );
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+ * Rosette — rose-engine guilloché (spec PART 2). Nested rhodonea curves
+ *   r(θ) = base + amp·cos(m·θ + φ)
+ * drawn as concentric layers with rising petal counts; each layer is overlaid
+ * with a near-miss frequency twin (m and m+1) whose interference IS the
+ * security "lacework" (a single curve looks thin; the near-miss reads as
+ * lathe-printing). A faint dense outer band is the lathe-tint frame.
+ * ───────────────────────────────────────────────────────────────────────── */
+function Rosette({ cfg, uid, rnd }: MotifProps) {
+  const sw = cfg.lineWidth;
+  const R = 150 + cfg.scale * 240; // medallion radius
+  const layerCount = 3 + Math.round(cfg.density * 2); // 3–5 rose layers
+  const m0 = 5 + Math.floor(rnd() * 3); // base petal count 5–7
+
+  // One rhodonea curve as an SVG path string.
+  const rose = (rad: number, m: number, amp: number, base: number, phase: number, steps = 600) => {
+    let d = '';
+    for (let i = 0; i <= steps; i++) {
+      const t = (i / steps) * Math.PI * 2;
+      const r = rad * (base + amp * Math.cos(m * t + phase));
+      d += `${i ? 'L' : 'M'}${(CX + r * Math.cos(t)).toFixed(1)} ${(CY + r * Math.sin(t)).toFixed(1)} `;
+    }
+    return d;
+  };
+
+  // Concentric scaled repeats of the whole rose stack → a deeper medallion.
+  const stack: React.ReactNode[] = [];
+  [1, 0.58].forEach((rf, ri) => {
+    for (let k = 0; k < layerCount; k++) {
+      const m = m0 + k * 3;
+      const base = 0.82 - k * 0.16;
+      const amp = 0.17 - k * 0.012;
+      const phase = rnd() * Math.PI * 2;
+      const col = k % 2 === 0 ? cfg.accent : cfg.nodeColor;
+      const alpha = Math.max(0.12, (0.5 - k * 0.06) * (ri === 0 ? 1 : 0.6));
+      stack.push(
+        <path key={`r${ri}-${k}`} d={rose(R * rf, m, amp, base, phase)} fill="none" stroke={col} strokeWidth={(0.85 - k * 0.08) * sw} opacity={alpha} />,
+        <path key={`r${ri}-${k}-t`} d={rose(R * rf, m + 1, amp, base, phase + 0.4)} fill="none" stroke={col} strokeWidth={(0.7 - k * 0.07) * sw} opacity={Math.max(0.08, alpha * 0.7)} />,
+      );
+    }
+  });
+
+  // Lathe-tint outer band: a few dense, low-amplitude, high-m near-circles.
+  const band: React.ReactNode[] = [];
+  for (let j = 0; j < 3; j++) {
+    band.push(
+      <path key={`band${j}`} d={rose(R * 1.06 + j * 5, 36, 0.012, 0.99, j * 0.3)} fill="none" stroke={cfg.accent} strokeWidth={0.5 * sw} opacity={0.18} />,
+    );
+  }
+
+  return (
+    <>
+      {defs(uid, cfg)}
+      <rect width={W} height={H} fill={cfg.baseColor} />
+      <Halo uid={uid} cx={CX} cy={CY} rx={R * 1.3} ry={R * 1.3} />
+      {band}
+      {stack}
+      {/* tiny lit centre mark */}
+      <circle cx={CX} cy={CY} r={4 + cfg.scale * 4} fill={`url(#${uid}-core)`} stroke={cfg.nodeColor} strokeWidth={1.4 * sw} opacity={0.95} />
+      <Vignette uid={uid} />
+    </>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Intaglio — engraved-banknote vignette (spec PART 1). Concentric harmonic-
+ * perturbed ovals form the frame
+ *   p(θ) = 1 + Σ ampᵢ·sin(freqᵢ·θ + phaseᵢ)
+ * and the innermost oval is filled with a two-track cross-hatch (the engraving
+ * "tone" is line density, never a fill), lit by an iris core. A dashed hairline
+ * ring stands in for the currency microtext rule (kept font-free so the editor,
+ * /render and screenshot stay pixel-identical).
+ * ───────────────────────────────────────────────────────────────────────── */
+function Intaglio({ cfg, uid, rnd }: MotifProps) {
+  const sw = cfg.lineWidth;
+  const rings = 8 + Math.round(cfg.density * 8); // 8–16 concentric ovals
+  const aspect = 0.74; // ry/rx
+  const gap = 7 + cfg.scale * 11; // px between rings
+  const innerRx = 70 + cfg.scale * 70;
+  const innerRy = innerRx * aspect;
+  // Two seeded harmonics — the perturbation that makes the ovals hand-cut.
+  const harmonics = [
+    { amp: 0.045 + rnd() * 0.02, freq: 6, phase: rnd() * Math.PI * 2 },
+    { amp: 0.018 + rnd() * 0.012, freq: 11, phase: rnd() * Math.PI * 2 },
+  ];
+
+  const oval = (rx: number, ry: number, steps = 240) => {
+    let d = '';
+    for (let i = 0; i <= steps; i++) {
+      const t = (i / steps) * Math.PI * 2;
+      const p = 1 + harmonics.reduce((s, h) => s + h.amp * Math.sin(h.freq * t + h.phase), 0);
+      d += `${i ? 'L' : 'M'}${(CX + Math.cos(t) * rx * p).toFixed(1)} ${(CY + Math.sin(t) * ry * p).toFixed(1)} `;
+    }
+    return `${d}Z`;
+  };
+
+  // A — concentric vignette frame.
+  const ovals: React.ReactNode[] = [];
+  for (let k = 0; k < rings; k++) {
+    const rx = innerRx + k * gap;
+    ovals.push(
+      <path key={`ov${k}`} d={oval(rx, rx * aspect)} fill="none" stroke={cfg.accent} strokeWidth={(0.6 + (k === 0 ? 0.4 : 0)) * sw} opacity={Math.max(0.12, 0.5 - (k * 0.34) / rings)} />,
+    );
+  }
+
+  // B — one track of parallel hatch lines (clipped to the inner oval).
+  const maxOff = Math.hypot(innerRx, innerRy);
+  const hatch = (angDeg: number, spacing: number, color: string, op: number, key: string) => {
+    const a = (angDeg * Math.PI) / 180;
+    const dx = Math.cos(a);
+    const dy = Math.sin(a); // line direction
+    const nx = -dy;
+    const ny = dx; // offset normal
+    const lines: React.ReactNode[] = [];
+    let idx = 0;
+    for (let off = -maxOff; off <= maxOff; off += spacing) {
+      const ox = CX + nx * off;
+      const oy = CY + ny * off;
+      lines.push(
+        <line key={`${key}-${idx++}`} x1={(ox - dx * maxOff).toFixed(1)} y1={(oy - dy * maxOff).toFixed(1)} x2={(ox + dx * maxOff).toFixed(1)} y2={(oy + dy * maxOff).toFixed(1)} stroke={color} strokeWidth={0.5 * sw} opacity={op} />,
+      );
+    }
+    return lines;
+  };
+  const spacing = 3.2 + (1 - cfg.density) * 5; // denser at high density
+
+  return (
+    <>
+      {defs(uid, cfg)}
+      <defs>
+        <clipPath id={`${uid}-iris`}>
+          <path d={oval(innerRx, innerRy)} />
+        </clipPath>
+      </defs>
+      <rect width={W} height={H} fill={cfg.baseColor} />
+      <Halo uid={uid} cx={CX} cy={CY} rx={innerRx * 2.2} ry={innerRx * 1.8} />
+      <g clipPath={`url(#${uid}-iris)`}>
+        {hatch(62, spacing, cfg.accent, 0.5, 'hA')}
+        {hatch(-28, spacing, cfg.nodeColor, 0.38, 'hB')}
+        <ellipse cx={CX} cy={CY} rx={innerRx} ry={innerRy} fill={`url(#${uid}-halo)`} opacity={0.6} />
+      </g>
+      {/* pupil — the lit focal core */}
+      <circle cx={CX} cy={CY} r={5 + cfg.scale * 5} fill={`url(#${uid}-core)`} stroke={cfg.nodeColor} strokeWidth={1.2 * sw} opacity={0.9} />
+      {ovals}
+      {/* E — microtext-style dashed rule, just outside the frame */}
+      <path d={oval(innerRx + rings * gap + gap * 0.6, (innerRx + rings * gap + gap * 0.6) * aspect)} fill="none" stroke={cfg.nodeColor} strokeWidth={0.6 * sw} strokeDasharray="1 3" opacity={0.4} />
+      <Vignette uid={uid} />
+    </>
+  );
+}
+
 const MOTIFS: Record<PatternConfig['motif'], (p: MotifProps) => React.ReactNode> = {
+  rosette: Rosette,
+  intaglio: Intaglio,
   'case-overlap': CaseOverlap,
   'secure-exchange': SecureExchange,
   'global-coverage': GlobalCoverage,
