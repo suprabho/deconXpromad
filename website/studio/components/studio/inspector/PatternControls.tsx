@@ -12,7 +12,7 @@ import {
   type RippleShape,
   type RippleShapeKind,
 } from '@/lib/composition/types';
-import { ColorField, Scrubber, SelectField, SubSection } from './controls';
+import { ColorField, Scrubber, SelectField, SubSection, Toggle } from './controls';
 import PATTERN_PALETTE from '@/lib/composition/palette.json';
 
 /**
@@ -54,6 +54,11 @@ export function PatternControls({
         {!isRosette && <Scrubber label="Seed" value={value.seed} min={1} max={999} step={1} onChange={(seed) => set({ seed })} />}
         <Scrubber label="Vignette" value={value.vignette} min={0} max={1} step={0.05} unit="%" displayScale={100} onChange={(vignette) => set({ vignette })} />
       </div>
+      <Toggle
+        label="Transparent background"
+        checked={!!value.transparent}
+        onChange={(transparent) => set({ transparent })}
+      />
       <SubSection title="Colours">
         <ColorField label="Base" value={value.baseColor} onChange={(baseColor) => set({ baseColor })} />
         <ColorField label="Accent" value={value.accent} onChange={(accent) => set({ accent })} />

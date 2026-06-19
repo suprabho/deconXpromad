@@ -165,7 +165,7 @@ function CaseOverlap({ cfg, uid, rnd }: MotifProps) {
   return (
     <>
       {defs(uid, cfg)}
-      <rect width={W} height={H} fill={cfg.baseColor} />
+      {!cfg.transparent && <rect width={W} height={H} fill={cfg.baseColor} />}
       <Halo uid={uid} cx={hub.x} cy={hub.y} rx={R * 1.2} ry={R} />
       {rings(left)}
       {rings(right)}
@@ -183,7 +183,7 @@ function CaseOverlap({ cfg, uid, rnd }: MotifProps) {
         strokeLinejoin="round"
         opacity={0.95}
       />
-      <Vignette uid={uid} />
+      {!cfg.transparent && <Vignette uid={uid} />}
     </>
   );
 }
@@ -249,7 +249,7 @@ function SecureExchange({ cfg, uid, rnd }: MotifProps) {
   return (
     <>
       {defs(uid, cfg)}
-      <rect width={W} height={H} fill={cfg.baseColor} />
+      {!cfg.transparent && <rect width={W} height={H} fill={cfg.baseColor} />}
       <Halo uid={uid} cx={CX} cy={CY} rx={W * 0.5} ry={H * 0.5} />
       {grid}
       {locks}
@@ -259,7 +259,7 @@ function SecureExchange({ cfg, uid, rnd }: MotifProps) {
       {/* endpoints */}
       <circle cx={0} cy={(midRow + 0.5) * cell} r={10 + cfg.scale * 6} fill={`url(#${uid}-core)`} stroke={cfg.nodeColor} strokeWidth={2 * sw} />
       <circle cx={W} cy={chPts[chPts.length - 1][1]} r={10 + cfg.scale * 6} fill={`url(#${uid}-core)`} stroke={cfg.nodeColor} strokeWidth={2 * sw} />
-      <Vignette uid={uid} />
+      {!cfg.transparent && <Vignette uid={uid} />}
     </>
   );
 }
@@ -324,13 +324,13 @@ function GlobalCoverage({ cfg, uid, rnd }: MotifProps) {
   return (
     <>
       {defs(uid, cfg)}
-      <rect width={W} height={H} fill={cfg.baseColor} />
+      {!cfg.transparent && <rect width={W} height={H} fill={cfg.baseColor} />}
       <Halo uid={uid} cx={CX} cy={CY} rx={R * 1.25} ry={R * 1.25} />
       <circle cx={CX} cy={CY} r={R} fill={`url(#${uid}-halo)`} opacity={0.5} />
       {graticule}
       {arcs}
       {nodeEls}
-      <Vignette uid={uid} />
+      {!cfg.transparent && <Vignette uid={uid} />}
     </>
   );
 }
@@ -377,12 +377,12 @@ function AuditTrail({ cfg, uid, rnd }: MotifProps) {
   return (
     <>
       {defs(uid, cfg)}
-      <rect width={W} height={H} fill={cfg.baseColor} />
+      {!cfg.transparent && <rect width={W} height={H} fill={cfg.baseColor} />}
       <Halo uid={uid} cx={CX} cy={CY} rx={W * 0.55} ry={H * 0.5} />
       {markers}
       {laneEls}
       {nodeEls}
-      <Vignette uid={uid} />
+      {!cfg.transparent && <Vignette uid={uid} />}
     </>
   );
 }
@@ -437,12 +437,12 @@ function Rosette({ cfg, uid }: MotifProps) {
   return (
     <>
       {defs(uid, cfg)}
-      <rect width={W} height={H} fill={cfg.baseColor} />
+      {!cfg.transparent && <rect width={W} height={H} fill={cfg.baseColor} />}
       <Halo uid={uid} cx={cx0} cy={cy0} rx={Math.max(40, R)} ry={Math.max(40, R)} />
       {lace}
       {/* tiny lit centre mark */}
       <circle cx={cx0} cy={cy0} r={3.5 + k * 3} fill={`url(#${uid}-core)`} stroke={cfg.nodeColor} strokeWidth={1.4} opacity={0.95} />
-      <Vignette uid={uid} />
+      {!cfg.transparent && <Vignette uid={uid} />}
     </>
   );
 }
@@ -586,13 +586,13 @@ function Intaglio({ cfg, uid }: MotifProps) {
   return (
     <>
       {defs(uid, cfg)}
-      <rect width={W} height={H} fill={cfg.baseColor} />
+      {!cfg.transparent && <rect width={W} height={H} fill={cfg.baseColor} />}
       {waves}
       <Halo uid={uid} cx={cx0} cy={cy0} rx={startR * 2.2} ry={startR * 1.9} />
       {/* lit focal core at the start-shape centre */}
       <circle cx={cx0} cy={cy0} r={5 + cfg.scale * 5} fill={`url(#${uid}-core)`} stroke={cfg.nodeColor} strokeWidth={1.2 * sw} opacity={0.9} />
       {rings}
-      <Vignette uid={uid} />
+      {!cfg.transparent && <Vignette uid={uid} />}
     </>
   );
 }

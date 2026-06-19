@@ -93,12 +93,14 @@ function contentOptionKey(content: ForegroundContent): string {
   return content.type === 'Pattern' ? foregroundOptionKey('Pattern', content.motif) : content.type;
 }
 
-/** Build fresh content for a picked option value (motif presets seed the motif). */
+/** Build fresh content for a picked option value (motif presets seed the motif).
+ *  Foreground patterns default to a transparent background so the line-art floats
+ *  over the canvas rather than sitting on an opaque card. */
 function contentForOptionKey(value: string): ForegroundContent {
   if (value.startsWith('Pattern:')) {
     const motif = value.slice('Pattern:'.length) as PatternMotif;
     const base = defaultForegroundContent('Pattern');
-    return base.type === 'Pattern' ? { ...base, motif } : base;
+    return base.type === 'Pattern' ? { ...base, motif, transparent: true } : base;
   }
   return defaultForegroundContent(value as ForegroundType);
 }

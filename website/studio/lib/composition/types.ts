@@ -316,6 +316,11 @@ export type PatternConfig = {
   nodeColor: string;
   /** 0–1 edge vignette darkness (0 = off). */
   vignette: number;
+  /** When true the scene is drawn WITHOUT its base-colour fill and edge vignette,
+   *  so the line-art composites over whatever is behind it (the canvas, an aura,
+   *  etc.). Default (undefined / false) keeps the opaque fill — wanted for a
+   *  full-bleed background, not for a floating foreground tile. */
+  transparent?: boolean;
   /** Intaglio-only · the engraving config (waves / ripple, each with its own
    *  colour palette). Absent for other motifs and old saves; the renderer falls
    *  back to {@link DEFAULT_INTAGLIO}. */
