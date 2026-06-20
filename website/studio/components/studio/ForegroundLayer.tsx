@@ -7,6 +7,7 @@ import {
   type ForegroundElement,
 } from '@/lib/composition/types';
 import { PatternScene } from '@/components/patterns/PatternScene';
+import { Fingerprint } from '@/components/fingerprint/Fingerprint';
 import { CaseCard } from '@/components/deconflict/CaseCard';
 import { OverlapAlert } from '@/components/deconflict/OverlapAlert';
 import { RiskPill } from '@/components/deconflict/RiskPill';
@@ -103,6 +104,26 @@ function renderContent(content: ForegroundContent) {
       return (
         <div className="overflow-hidden rounded-2xl" style={{ width: '100%', aspectRatio: '16 / 10' }}>
           <PatternScene config={content} />
+        </div>
+      );
+    case 'Fingerprint':
+      // A deterministic print tile — the element's transform sizes the width; a
+      // square box gives it height. The seed-derived SVG scales to fill, so it
+      // reads identically in the editor, the /render route and the export.
+      return (
+        <div className="overflow-hidden rounded-2xl" style={{ width: '100%', aspectRatio: '1 / 1' }}>
+          <Fingerprint
+            seed={content.seed}
+            size={512}
+            color={content.color}
+            background={content.background}
+            pattern={content.pattern}
+            density={content.density}
+            padding={content.padding}
+            roundCaps={content.roundCaps}
+            className="h-full w-full"
+            title={`Fingerprint for ${content.seed}`}
+          />
         </div>
       );
     case 'FeatureModal':

@@ -23,7 +23,7 @@ import type {
   SidebarData,
   TimelineData,
 } from './types';
-import { DEFAULT_PATTERN, DEFAULT_SIZE_ID, DEFAULT_TRANSFORM } from './types';
+import { DEFAULT_FINGERPRINT, DEFAULT_PATTERN, DEFAULT_SIZE_ID, DEFAULT_TRANSFORM } from './types';
 
 export const SAMPLE_LEFT_CASE: CaseData = {
   title: 'LAW ENFORCEMENT CASE',
@@ -310,6 +310,8 @@ export function defaultForegroundContent(type: ForegroundType): ForegroundConten
       return { type: 'ActivityTimeline', ...structuredClone(SAMPLE_TIMELINE) };
     case 'Pattern':
       return { type: 'Pattern', ...DEFAULT_PATTERN };
+    case 'Fingerprint':
+      return { type: 'Fingerprint', ...DEFAULT_FINGERPRINT };
     case 'DeconflictBanner':
       return {
         type: 'DeconflictBanner',

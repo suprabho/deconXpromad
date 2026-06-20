@@ -22,6 +22,7 @@ import type {
   FeatureIconKey,
   FeatureModalData,
   FeatureTone,
+  FingerprintConfig,
   ForegroundContent,
   GaugeArcData,
   KanbanCardData,
@@ -86,11 +87,12 @@ import type {
   WindowChromeData,
   WorkspaceLayoutData,
 } from '@/lib/composition/types';
-import { APP_ICON_KEYS, FEATURE_ICON_KEYS } from '@/lib/composition/types';
+import { APP_ICON_KEYS, FEATURE_ICON_KEYS, FINGERPRINT_PATTERN_OPTIONS } from '@/lib/composition/types';
 import {
   ColorField,
   Field,
   NumberField,
+  Scrubber,
   Segmented,
   SelectField,
   TextArea,
@@ -1683,6 +1685,79 @@ function WindowChromeFields({ data, onChange }: { data: WindowChromeData; onChan
   );
 }
 
+function FingerprintFields({
+  value,
+  onChange,
+}: {
+  value: FingerprintConfig;
+  onChange: (c: FingerprintConfig) => void;
+}) {
+  const set = <K extends keyof FingerprintConfig>(key: K, v: FingerprintConfig[K]) =>
+    onChange({ ...value, [key]: v });
+  return (
+    <div className="space-y-3">
+      <TextField
+        label="Seed"
+        value={value.seed}
+        mono
+        onChange={(seed) => set('seed', seed)}
+        hint="Any string — the same seed always paints the same print."
+      />
+      <button
+        type="button"
+        onClick={() => set('seed', Math.random().toString(36).slice(2, 10))}
+        className="w-full rounded-md border border-dashed border-hair px-2.5 py-1.5 text-xs font-medium text-cobalt transition hover:bg-cobalt/5"
+      >
+        Randomise seed
+      </button>
+      <Segmented
+        label="Pattern"
+        value={value.pattern}
+        onChange={(pattern) => set('pattern', pattern)}
+        options={FINGERPRINT_PATTERN_OPTIONS}
+      />
+      <Scrubber
+        label="Density"
+        value={value.density}
+        min={0.2}
+        max={1}
+        step={0.01}
+        unit="%"
+        displayScale={100}
+        onChange={(density) => set('density', density)}
+      />
+      <Scrubber
+        label="Edge padding"
+        value={value.padding}
+        min={0}
+        max={0.3}
+        step={0.01}
+        unit="%"
+        displayScale={100}
+        onChange={(padding) => set('padding', padding)}
+      />
+      <ColorField label="Ridge colour" value={value.color} onChange={(color) => set('color', color)} />
+      <Toggle
+        label="Round ridge caps"
+        checked={value.roundCaps}
+        onChange={(roundCaps) => set('roundCaps', roundCaps)}
+      />
+      <Toggle
+        label="Solid background"
+        checked={value.background != null}
+        onChange={(on) => set('background', on ? '#0D1B3E' : null)}
+      />
+      {value.background != null && (
+        <ColorField
+          label="Background"
+          value={value.background}
+          onChange={(bg) => set('background', bg)}
+        />
+      )}
+    </div>
+  );
+}
+
 /* ------------------------------ main switch ------------------------------ */
 
 export function ForegroundContentEditor({
@@ -1721,6 +1796,9 @@ export function ForegroundContentEditor({
 
     case 'Pattern':
       return <PatternControls value={content} onChange={(p) => onChange({ type: 'Pattern', ...p })} />;
+
+    case 'Fingerprint':
+      return <FingerprintFields value={content} onChange={(c) => onChange({ type: 'Fingerprint', ...c })} />;
 
     case 'CaseCard':
       return (

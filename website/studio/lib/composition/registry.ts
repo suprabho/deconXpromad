@@ -43,6 +43,7 @@ export const FOREGROUND_OPTIONS: { type: ForegroundType; label: string; motif?: 
   { type: 'Pattern', label: 'Secure exchange', motif: 'secure-exchange', group: 'Patterns' },
   { type: 'Pattern', label: 'Global coverage', motif: 'global-coverage', group: 'Patterns' },
   { type: 'Pattern', label: 'Audit trail', motif: 'audit-trail', group: 'Patterns' },
+  { type: 'Fingerprint', label: 'Fingerprint', group: 'Patterns' },
   { type: 'FeatureModal', label: 'Feature Modal', group: 'Scene' },
   { type: 'CommandPalette', label: 'Command Palette', group: 'Scene' },
   { type: 'EntityGraph', label: 'Entity Graph', group: 'Scene' },

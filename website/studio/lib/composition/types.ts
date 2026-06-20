@@ -17,6 +17,7 @@
  * definition of each.
  */
 import type { CSSProperties } from 'react';
+import type { FingerprintPattern } from '@/lib/fingerprint/generate';
 
 /* -------------------------------------------------------------------------- *
  * Output size presets — export pixels, before the 2× device-scale render.
@@ -347,6 +348,48 @@ export const DEFAULT_PATTERN: PatternConfig = {
   intaglio: DEFAULT_INTAGLIO,
   guilloche: DEFAULT_GUILLOCHE,
 };
+
+/* -------------------------------------------------------------------------- *
+ * Fingerprint motif — a deterministic, seed-derived biometric print, the same
+ * family of parametric generator as Pattern. Any seed string maps 1:1 to a
+ * unique fingerprint (loop / whorl / arch), drawn as pure SVG ridge strokes by
+ * `@/lib/fingerprint/generate` with NO time/randomness — so the editor preview,
+ * the /render route and the screenshot export stay pixel-identical, the same
+ * determinism rule the rest of the stage obeys.
+ * -------------------------------------------------------------------------- */
+export type FingerprintConfig = {
+  /** Any string — an email, case id, uuid… maps 1:1 to a unique print. */
+  seed: string;
+  /** Ridge colour (any CSS colour). */
+  color: string;
+  /** Background fill, or null for a transparent tile. */
+  background: string | null;
+  /** Pattern family, or 'auto' to derive it from the seed. */
+  pattern: FingerprintPattern | 'auto';
+  /** Ridge density, 0–1 (higher = more, finer ridges). */
+  density: number;
+  /** Fraction of the tile kept clear at the edges, 0–0.3. */
+  padding: number;
+  /** Round ridge caps (vs. squared). */
+  roundCaps: boolean;
+};
+
+export const DEFAULT_FINGERPRINT: FingerprintConfig = {
+  seed: 'deconflict',
+  color: '#1A56DB',
+  background: null,
+  pattern: 'auto',
+  density: 0.6,
+  padding: 0.1,
+  roundCaps: true,
+};
+
+export const FINGERPRINT_PATTERN_OPTIONS: { value: FingerprintConfig['pattern']; label: string }[] = [
+  { value: 'auto', label: 'Auto' },
+  { value: 'whorl', label: 'Whorl' },
+  { value: 'loop', label: 'Loop' },
+  { value: 'arch', label: 'Arch' },
+];
 
 /* -------------------------------------------------------------------------- *
  * Background layer
@@ -954,6 +997,7 @@ export type ForegroundType =
   | 'ActivityTimeline'
   | 'DeconflictBanner'
   | 'Pattern'
+  | 'Fingerprint'
   | 'FeatureModal'
   | 'CodeWindow'
   | 'EntityGraph'
@@ -1022,6 +1066,7 @@ export type ForegroundContent =
       timeline: TimelineData;
     }
   | ({ type: 'Pattern' } & PatternConfig)
+  | ({ type: 'Fingerprint' } & FingerprintConfig)
   | ({ type: 'FeatureModal' } & FeatureModalData)
   | ({ type: 'CodeWindow' } & CodeWindowData)
   | ({ type: 'EntityGraph' } & EntityGraphData)
