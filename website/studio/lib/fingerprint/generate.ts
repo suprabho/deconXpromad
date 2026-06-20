@@ -31,8 +31,20 @@ export interface FingerprintOptions {
   pattern?: FingerprintPattern | 'auto';
   /** Ridge density 0..1, or undefined to derive from the seed. */
   density?: number;
-  /** Base ridge stroke width in px. Default derived from size. */
+  /**
+   * Ridge weight 0..1 — how bold the bends read. 0 = fine biometric hairlines
+   * (many breaks); 1 = bold logo-style ridges (thick, ~filling the ridge gap,
+   * clean rounded-capsule ends, few breaks). Default 0.5.
+   */
+  weight?: number;
+  /** Base ridge stroke width in px. Overrides `weight`'s thickness when set. */
   strokeWidth?: number;
+  /**
+   * Number of bridge minutiae — smooth S-connectors that flow out of one ridge,
+   * thread through a gap in the ridge between, and merge into the ridge two over
+   * (a real fingerprint feature). Default: 0–2 derived from the seed.
+   */
+  bridges?: number;
   /** Fraction of the canvas kept clear at the edges. Default 0.1. */
   padding?: number;
   /** Round ridge caps (vs. butt). Default true. */
@@ -120,6 +132,144 @@ function breakRidge(points: Pt[], rng: Rng, breakChance: number): Pt[][] {
   return segs.length ? segs : [points];
 }
 
+/* ----------------------------- bridge minutiae ---------------------------- */
+
+/** One broken stroke segment, tagged with the ridge it came from. */
+interface RidgeSeg {
+  pts: Pt[];
+  ring: number;
+}
+
+/** A stroke terminal: its point, the ridge it belongs to, and the inward tangent. */
+interface Endpoint {
+  p: Pt;
+  ring: number;
+  /** Unit vector from the terminal toward the stroke's interior. */
+  inward: Pt;
+}
+
+/** Unit vector from `b` toward `a`. */
+function unit(a: Pt, b: Pt): Pt {
+  const dx = a[0] - b[0];
+  const dy = a[1] - b[1];
+  const len = Math.hypot(dx, dy) || 1;
+  return [dx / len, dy / len];
+}
+
+/** Both terminals of every stroke segment, with their inward tangents. */
+function collectEndpoints(segments: RidgeSeg[]): Endpoint[] {
+  const eps: Endpoint[] = [];
+  for (const s of segments) {
+    const n = s.pts.length;
+    if (n < 3) continue;
+    eps.push({ p: s.pts[0], ring: s.ring, inward: unit(s.pts[1], s.pts[0]) });
+    eps.push({ p: s.pts[n - 1], ring: s.ring, inward: unit(s.pts[n - 2], s.pts[n - 1]) });
+  }
+  return eps;
+}
+
+/** A disc on a specific ridge whose points are removed (the in-between recess). */
+interface ClearZone {
+  c: Pt;
+  r: number;
+  ring: number;
+}
+
+interface BridgeResult {
+  connectors: string[];
+  clears: ClearZone[];
+}
+
+/**
+ * U-recurve connectors that join two stroke ENDS — never mid-ridge. A connector
+ * links a terminal A to the nearest free terminal B exactly TWO ridges away (so
+ * there is one ridge genuinely between them) whose end sits near A's, so the
+ * hairpin is symmetric. Each stroke is extended straight past its end (handles
+ * along −inward) and hooked into a U. The ridge in between is recessed with a
+ * clear disc at the span's midpoint, so the bend never overlaps it.
+ */
+function buildBridges(segments: RidgeSeg[], count: number, rng: Rng, spacing: number): BridgeResult {
+  const connectors: string[] = [];
+  const clears: ClearZone[] = [];
+  if (count <= 0) return { connectors, clears };
+  const eps = collectEndpoints(segments);
+  if (eps.length < 2) return { connectors, clears };
+
+  // Ends two ridges apart sit ≈ 2·spacing apart radially; this window keeps the
+  // pair near-aligned so the U stays uniform (not a long lopsided sweep).
+  const minD = spacing * 1.4;
+  const maxD = spacing * 3.0;
+  const used = new Array<boolean>(eps.length).fill(false);
+
+  // Deterministic shuffle so the recurves spread across the print, not cluster.
+  const order = eps.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = rng.int(0, i);
+    const tmp = order[i];
+    order[i] = order[j];
+    order[j] = tmp;
+  }
+
+  let made = 0;
+  for (const ai of order) {
+    if (made >= count) break;
+    if (used[ai]) continue;
+    const A = eps[ai];
+    // Nearest free terminal exactly two ridges away (one ridge in between).
+    let bi = -1;
+    let bd = Infinity;
+    for (let k = 0; k < eps.length; k++) {
+      if (used[k] || k === ai || Math.abs(eps[k].ring - A.ring) !== 2) continue;
+      const d = Math.hypot(eps[k].p[0] - A.p[0], eps[k].p[1] - A.p[1]);
+      if (d >= minD && d <= maxD && d < bd) {
+        bd = d;
+        bi = k;
+      }
+    }
+    if (bi < 0) continue;
+    const B = eps[bi];
+
+    const k = bd * rng.range(0.6, 0.85);
+    const c1: Pt = [A.p[0] - A.inward[0] * k, A.p[1] - A.inward[1] * k];
+    const c2: Pt = [B.p[0] - B.inward[0] * k, B.p[1] - B.inward[1] * k];
+    connectors.push(
+      `M${round(A.p[0])} ${round(A.p[1])}` +
+        `C${round(c1[0])} ${round(c1[1])} ${round(c2[0])} ${round(c2[1])} ${round(B.p[0])} ${round(B.p[1])}`,
+    );
+
+    // Recess the ridge in between so the U has clearance — remove its points
+    // around the span's midpoint.
+    clears.push({
+      c: [(A.p[0] + B.p[0]) / 2, (A.p[1] + B.p[1]) / 2],
+      r: spacing * 0.95,
+      ring: (A.ring + B.ring) / 2,
+    });
+    used[ai] = true;
+    used[bi] = true;
+    made++;
+  }
+  return { connectors, clears };
+}
+
+/** Split a segment around any clear disc on its ridge, dropping points inside. */
+function applyClears(pts: Pt[], ring: number, clears: ClearZone[]): Pt[][] {
+  const zones = clears.filter((z) => z.ring === ring);
+  if (!zones.length) return [pts];
+  const out: Pt[][] = [];
+  let cur: Pt[] = [];
+  for (const p of pts) {
+    const inside = zones.some((z) => (p[0] - z.c[0]) ** 2 + (p[1] - z.c[1]) ** 2 < z.r * z.r);
+    if (inside) {
+      if (cur.length >= 3) out.push(cur);
+      cur = [];
+    } else {
+      cur.push(p);
+    }
+  }
+  if (cur.length >= 3) out.push(cur);
+  return out;
+}
+
 /* ------------------------------ ridge samplers ---------------------------- */
 
 interface RingSpec {
@@ -172,15 +322,21 @@ function buildWhorl(ctx: BuildCtx): Pt[][] {
   const { rng, size } = ctx;
   const cx = size / 2 + rng.range(-size * 0.03, size * 0.03);
   const cy = size / 2 + rng.range(-size * 0.03, size * 0.03);
-  const gap = rng.range(0.25, 0.7); // angular opening (radians)
+  const baseGap = rng.range(0.22, 0.5); // base angular opening (radians)
   const gapStart = rng.range(0, TAU);
-  const spiral = rng.range(-0.18, 0.18); // gap drift per ridge → whorl swirl
+  // A strong, signed per-ridge drift winds the opening all the way around the
+  // print, so the ridge ENDPOINTS never stack on one radius (which reads as an
+  // unnatural straight seam). Per-ridge jitter + gap-width variation scatter the
+  // ends further, like the minutiae of a real fingerprint.
+  const spiral = rng.range(0.45, 0.95) * (rng.chance(0.5) ? 1 : -1);
   const twist = rng.range(-0.05, 0.05);
 
   const ridges: Pt[][] = [];
   for (let i = 0; i < ctx.ridgeCount; i++) {
     const t = i / (ctx.ridgeCount - 1);
-    const a0 = gapStart + gap / 2 + i * spiral;
+    const gap = baseGap * rng.range(0.7, 1.3);
+    const center = gapStart + i * spiral + rng.range(-0.4, 0.4);
+    const a0 = center + gap / 2;
     const a1 = a0 + (TAU - gap);
     const ring = sampleRing({
       cx,
@@ -195,7 +351,7 @@ function buildWhorl(ctx: BuildCtx): Pt[][] {
       ridgePhase: i * rng.range(0.02, 0.09),
       samples: 70,
     });
-    for (const seg of breakRidge(ring, rng, ctx.breakChance)) ridges.push(seg);
+    ridges.push(ring);
   }
   return ridges;
 }
@@ -204,15 +360,24 @@ function buildLoop(ctx: BuildCtx): Pt[][] {
   const { rng, size } = ctx;
   const cx = size / 2 + rng.range(-size * 0.02, size * 0.02);
   const cy = size * rng.range(0.4, 0.46); // core sits high; legs hang down
-  const gap = rng.range(0.7, 1.15); // wide opening at the bottom
+  const baseGap = rng.range(0.6, 1.0); // opening at the bottom
   const lean = rng.range(-0.25, 0.25); // loop tilts left/right
   const legStretch = rng.range(1.15, 1.4);
+  // The opening stays roughly downward (so it still reads as a loop), but its
+  // centre WANDERS smoothly per ridge — so the leg endpoints scatter along the
+  // base instead of lining up into a single straight vertical seam.
+  const wanderAmp = rng.range(0.3, 0.7);
+  const wanderFreq = rng.range(0.55, 1.05);
+  const wanderPhase = rng.range(0, TAU);
 
   const ridges: Pt[][] = [];
   for (let i = 0; i < ctx.ridgeCount; i++) {
     const t = i / (ctx.ridgeCount - 1);
-    const a0 = HALF_PI + gap / 2 + lean;
-    const a1 = HALF_PI + TAU - gap / 2 + lean;
+    const gap = baseGap * rng.range(0.8, 1.25);
+    const center =
+      HALF_PI + lean + wanderAmp * Math.sin(i * wanderFreq + wanderPhase) + rng.range(-0.18, 0.18);
+    const a0 = center + gap / 2;
+    const a1 = a0 + (TAU - gap);
     const ring = sampleRing({
       cx,
       cy,
@@ -226,7 +391,7 @@ function buildLoop(ctx: BuildCtx): Pt[][] {
       ridgePhase: i * rng.range(0.02, 0.07),
       samples: 72,
     });
-    for (const seg of breakRidge(ring, rng, ctx.breakChance)) ridges.push(seg);
+    ridges.push(ring);
   }
   return ridges;
 }
@@ -260,7 +425,7 @@ function buildArch(ctx: BuildCtx): Pt[][] {
       const y = baseY - hump * bump + ctx.outerR * wobble * 0.4;
       pts.push([x, y]);
     }
-    for (const seg of breakRidge(pts, rng, ctx.breakChance * 0.7)) ridges.push(seg);
+    ridges.push(pts);
   }
   return ridges;
 }
@@ -301,7 +466,10 @@ export function generateFingerprint(
       : options.pattern;
 
   const density = options.density != null ? clamp01(options.density) : rng.range(0.4, 0.78);
-  const ridgeCount = Math.round(lerp(7, 20, density));
+  const weight = options.weight != null ? clamp01(options.weight) : 0.5;
+  // Floor of 5 ridges so a low density can reach the bold, minimal logo look;
+  // 20 at the top stays a dense biometric scan.
+  const ridgeCount = Math.round(lerp(5, 20, density));
 
   const { field, maxPert } = buildField(rng);
   const aspect = rng.range(1, 1.45);
@@ -315,7 +483,10 @@ export function generateFingerprint(
   const outerR = usable / maxExtent;
   const coreR = outerR * rng.range(0.1, 0.2);
 
-  const breakChance = rng.range(0.25, 0.55);
+  // Bolder ridges read cleaner — taper off the minutiae breaks as weight rises.
+  // Arches carry slightly fewer breaks than the curved patterns.
+  const breakChance =
+    rng.range(0.25, 0.55) * lerp(1.1, 0.3, weight) * (pattern === 'arch' ? 0.7 : 1);
 
   const ctx: BuildCtx = {
     rng,
@@ -330,25 +501,45 @@ export function generateFingerprint(
     breakChance,
   };
 
-  const contours =
+  const rings =
     pattern === 'whorl' ? buildWhorl(ctx) : pattern === 'loop' ? buildLoop(ctx) : buildArch(ctx);
 
-  // Keep ridges visually separate: cap the stroke below the ridge spacing so
-  // adjacent ridges never merge into a solid blob, even at high density.
+  // Ridge thickness is set as a fraction of the ridge SPACING, driven by weight:
+  // fine hairlines (~0.34 of the gap) → bold logo ridges (~0.78, nearly filling
+  // it so the round caps read as fat capsule ends). Always capped below the
+  // spacing so neighbours never merge into a blob.
   const spacing = (outerR - coreR) / Math.max(1, ridgeCount - 1);
-  const maxStroke = Math.max(1, spacing * 0.5);
-  const baseWidth = Math.min(
-    options.strokeWidth ?? size * lerp(0.018, 0.01, density),
-    maxStroke,
-  );
+  const strokeRatio = lerp(0.34, 0.78, weight);
+  const maxStroke = Math.max(1, spacing * 0.86);
+  const baseWidth = Math.min(options.strokeWidth ?? spacing * strokeRatio, maxStroke);
+  // Bold ridges hold a steadier width; fine ones vary more for an etched feel.
+  const widthJitter = lerp(0.14, 0.05, weight);
+  const strokeOf = () =>
+    round(Math.max(0.75, Math.min(maxStroke, baseWidth * rng.range(1 - widthJitter, 1 + widthJitter))));
+
+  // Break the rings into their final stroke segments (minutiae + ridge openings).
+  const segments: RidgeSeg[] = [];
+  for (let ri = 0; ri < rings.length; ri++) {
+    for (const seg of breakRidge(rings[ri], rng, ctx.breakChance)) {
+      if (seg.length >= 3) segments.push({ pts: seg, ring: ri });
+    }
+  }
+
+  // U-recurve connectors hook stroke ENDS together (computed from the broken
+  // segments, so the bend always lands at a terminal — never mid-ridge), and
+  // recess the ridge in between so the bend doesn't overlap it.
+  const bridgeCount =
+    options.bridges != null ? Math.max(0, Math.round(options.bridges)) : rng.int(0, 2);
+  const { connectors, clears } = buildBridges(segments, bridgeCount, rng, spacing);
 
   const paths: RidgePath[] = [];
-  for (const contour of contours) {
-    const d = smooth(contour, false);
-    if (!d) continue;
-    const width = Math.min(maxStroke, baseWidth * rng.range(0.85, 1.12));
-    paths.push({ d, width: round(Math.max(0.75, width)) });
+  for (const s of segments) {
+    for (const piece of applyClears(s.pts, s.ring, clears)) {
+      const d = smooth(piece, false);
+      if (d) paths.push({ d, width: strokeOf() });
+    }
   }
+  for (const d of connectors) paths.push({ d, width: strokeOf() });
 
   const cap = roundCaps ? 'round' : 'butt';
   const bg = background ? `<rect width="${size}" height="${size}" fill="${background}"/>` : '';

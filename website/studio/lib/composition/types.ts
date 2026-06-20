@@ -368,6 +368,10 @@ export type FingerprintConfig = {
   pattern: FingerprintPattern | 'auto';
   /** Ridge density, 0–1 (higher = more, finer ridges). */
   density: number;
+  /** Ridge weight, 0–1 (fine biometric hairlines → bold logo-style ridges). */
+  weight: number;
+  /** Bridge minutiae — S-connectors joining ridges two apart (0 = none). */
+  bridges: number;
   /** Fraction of the tile kept clear at the edges, 0–0.3. */
   padding: number;
   /** Round ridge caps (vs. squared). */
@@ -380,6 +384,8 @@ export const DEFAULT_FINGERPRINT: FingerprintConfig = {
   background: null,
   pattern: 'auto',
   density: 0.6,
+  weight: 0.6,
+  bridges: 2,
   padding: 0.1,
   roundCaps: true,
 };

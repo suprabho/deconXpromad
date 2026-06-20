@@ -1719,12 +1719,30 @@ function FingerprintFields({
       <Scrubber
         label="Density"
         value={value.density}
-        min={0.2}
+        min={0}
         max={1}
         step={0.01}
         unit="%"
         displayScale={100}
         onChange={(density) => set('density', density)}
+      />
+      <Scrubber
+        label="Ridge weight"
+        value={value.weight}
+        min={0}
+        max={1}
+        step={0.01}
+        unit="%"
+        displayScale={100}
+        onChange={(weight) => set('weight', weight)}
+      />
+      <Scrubber
+        label="Bridges"
+        value={value.bridges}
+        min={0}
+        max={6}
+        step={1}
+        onChange={(bridges) => set('bridges', bridges)}
       />
       <Scrubber
         label="Edge padding"

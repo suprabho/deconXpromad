@@ -119,6 +119,8 @@ function renderContent(content: ForegroundContent) {
             background={content.background}
             pattern={content.pattern}
             density={content.density}
+            weight={content.weight}
+            bridges={content.bridges}
             padding={content.padding}
             roundCaps={content.roundCaps}
             className="h-full w-full"
