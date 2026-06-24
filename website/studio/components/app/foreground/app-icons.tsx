@@ -64,6 +64,8 @@ export const APP_ICONS: Record<AppIconKey, ReactNode> = {
   // fixed glyph box, so they read as brand badges.
   'logo-fbi': <img src="/assets/logos/fbi.png" alt="" className="h-full w-full object-contain" />,
   'logo-interpol': <img src="/assets/logos/interpol.png" alt="" className="h-full w-full object-contain" />,
+  'logo-dea': <img src="/assets/logos/dea.png" alt="" className="h-full w-full object-contain" />,
+  'logo-fincen': <img src="/assets/logos/fincen.svg" alt="" className="h-full w-full object-contain" />,
   'logo-hsbc': <img src="/assets/logos/hsbc.png" alt="" className="h-full w-full object-contain" />,
   'logo-chainalysis': <img src="/assets/logos/chainalysis.png" alt="" className="h-full w-full object-contain" />,
 };

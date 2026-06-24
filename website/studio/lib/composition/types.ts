@@ -625,6 +625,8 @@ export type AppIconKey =
   // brand badges in the command palette. Resolved to <img> nodes in APP_ICONS.
   | 'logo-fbi'
   | 'logo-interpol'
+  | 'logo-dea'
+  | 'logo-fincen'
   | 'logo-hsbc'
   | 'logo-chainalysis';
 
@@ -653,6 +655,8 @@ export const APP_ICON_KEYS: AppIconKey[] = [
   'id-badge',
   'logo-fbi',
   'logo-interpol',
+  'logo-dea',
+  'logo-fincen',
   'logo-hsbc',
   'logo-chainalysis',
 ];

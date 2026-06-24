@@ -274,6 +274,8 @@ const APP_ICON_LABELS: Record<AppIconKey, string> = {
   'id-badge': 'ID badge',
   'logo-fbi': 'FBI (logo)',
   'logo-interpol': 'INTERPOL (logo)',
+  'logo-dea': 'DEA (logo)',
+  'logo-fincen': 'FinCEN (logo)',
   'logo-hsbc': 'HSBC (logo)',
   'logo-chainalysis': 'Chainalysis (logo)',
 };
