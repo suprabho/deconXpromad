@@ -49,6 +49,9 @@ const cellAlign = z.enum(['left', 'right', 'center']);
 const caseData = z.object({
   title: z.string().describe('Short ALL-CAPS case label, e.g. "LAW ENFORCEMENT CASE"'),
   subtitle: z.string().describe('Agency / unit / case-number line, e.g. "FBI · Field Office 14 · Case #LE-2024-08821"'),
+  icon: appIcon.describe(
+    'Header badge glyph. For law-enforcement cases prefer "shield-star", "gavel", "detective", "fingerprint", "siren", "police-car" or "id-badge"; use "bank"/"buildings" for financial institutions, or an agency logo (logo-fbi, logo-interpol, …).',
+  ),
   subjectName: z.string().describe('Person or account-holder name (or "withheld")'),
   walletAddress: z.string().describe('A crypto wallet address (bc1… or 0x…)'),
   transactionId: z.string().describe('A transaction id, e.g. "TX-8842-0091-4471"'),
@@ -143,7 +146,11 @@ const SCHEMAS: Partial<Record<ForegroundType, z.ZodTypeAny>> = {
   OverlapAlert: alert,
   RiskPill: z.object({ tier: riskTier }),
   CaseCard: caseData,
-  ConnectorNode: z.object({ matches: z.number().int().min(0).describe('Number of matched entities') }),
+  ConnectorNode: z.object({
+    matches: z.number().int().min(0).describe('Number of matched entities'),
+    leftConnections: z.number().int().min(0).max(8).optional().describe('Fan lines on the left side'),
+    rightConnections: z.number().int().min(0).max(8).optional().describe('Fan lines on the right side'),
+  }),
   ActivityTimeline: timeline,
   DeconflictBanner: z.object({
     leftCase: caseData,

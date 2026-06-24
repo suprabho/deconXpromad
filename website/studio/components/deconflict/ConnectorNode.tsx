@@ -1,10 +1,28 @@
 import { LinkSimpleIcon } from '@phosphor-icons/react/dist/ssr';
 
-// yAnchors: fractions (0-1) of the SVG height where the matched rows sit.
-// Hardcoded for the fixed-layout banner (no measurement / refs).
-const yAnchors = [0.3, 0.5, 0.7];
+// anchorsFor: evenly distributed fractions (0-1) of the SVG height where the
+// fan lines attach on one side. Centered on 0.5 and capped to a [0.1, 0.9] band
+// so the lines never run off the banner. Hardcoded layout (no measurement /
+// refs). count of 3 reproduces the original [0.3, 0.5, 0.7] anchors.
+function anchorsFor(count: number): number[] {
+  if (count <= 0) return [];
+  if (count === 1) return [0.5];
+  const spacing = Math.min(0.2, 0.8 / (count - 1));
+  const start = 0.5 - (spacing * (count - 1)) / 2;
+  return Array.from({ length: count }, (_, i) => start + i * spacing);
+}
 
-export function ConnectorNode({ matches }: { matches: number }) {
+export function ConnectorNode({
+  matches,
+  leftConnections = 3,
+  rightConnections = 3,
+}: {
+  matches: number;
+  leftConnections?: number;
+  rightConnections?: number;
+}) {
+  const leftAnchors = anchorsFor(leftConnections);
+  const rightAnchors = anchorsFor(rightConnections);
   return (
     <div className="relative flex items-center justify-center">
       {/* fan lines behind the chip */}
@@ -14,14 +32,16 @@ export function ConnectorNode({ matches }: { matches: number }) {
         preserveAspectRatio="none"
         aria-hidden
       >
-        {yAnchors.map((y, i) => (
-          <g key={i} stroke="#E8941F" strokeWidth="0.8" fill="none">
-            {/* left card -> node */}
-            <path d={`M0 ${y * 100} C 30 ${y * 100}, 35 50, 50 50`} />
-            {/* node -> right card */}
-            <path d={`M50 50 C 65 50, 70 ${y * 100}, 100 ${y * 100}`} />
-          </g>
-        ))}
+        <g stroke="#E8941F" strokeWidth="0.8" fill="none">
+          {/* left cards -> node */}
+          {leftAnchors.map((y, i) => (
+            <path key={`l${i}`} d={`M0 ${y * 100} C 30 ${y * 100}, 35 50, 50 50`} />
+          ))}
+          {/* node -> right cards */}
+          {rightAnchors.map((y, i) => (
+            <path key={`r${i}`} d={`M50 50 C 65 50, 70 ${y * 100}, 100 ${y * 100}`} />
+          ))}
+        </g>
       </svg>
 
       {/* the chip */}

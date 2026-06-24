@@ -7,11 +7,15 @@ import {
   WalletIcon,
 } from '@phosphor-icons/react/dist/ssr';
 import type { CaseData, CaseReveal } from '@/lib/composition/types';
+import { APP_ICONS } from '@/components/app/foreground/app-icons';
 import { FieldRow } from './FieldRow';
 import { RedactedValue } from './RedactedValue';
 import { RiskPill } from './RiskPill';
 
 export function CaseCard({ data, reveal }: { data: CaseData; reveal: CaseReveal }) {
+  // Resolve the serialisable icon key (law-enforcement badge, agency logo, …)
+  // to a node, falling back to the folder for legacy cases without an icon.
+  const headerIcon = APP_ICONS[data.icon] ?? <FolderOpenIcon weight="duotone" className="h-5 w-5" />;
   return (
     <article className="glass-surface glass-tint overflow-hidden rounded-xl border border-white/60 shadow-glass">
       <header className="flex items-start gap-3 px-5 pt-5 pb-4">
@@ -19,7 +23,7 @@ export function CaseCard({ data, reveal }: { data: CaseData; reveal: CaseReveal 
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg
                      border border-white/60 bg-white/50 text-ink shadow-glass-chip backdrop-blur-sm"
         >
-          <FolderOpenIcon weight="duotone" className="h-5 w-5" />
+          {headerIcon}
         </span>
         <div>
           <h3 className="text-base font-bold tracking-wide text-ink">{data.title}</h3>

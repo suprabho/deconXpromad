@@ -78,7 +78,13 @@ function renderContent(content: ForegroundContent) {
     case 'RiskPill':
       return <RiskPill tier={content.tier} />;
     case 'ConnectorNode':
-      return <ConnectorNode matches={content.matches} />;
+      return (
+        <ConnectorNode
+          matches={content.matches}
+          leftConnections={content.leftConnections}
+          rightConnections={content.rightConnections}
+        />
+      );
     case 'ActivityTimeline':
       return (
         <ActivityTimeline tracks={content.tracks} overlaps={content.overlaps} ticks={content.ticks} />

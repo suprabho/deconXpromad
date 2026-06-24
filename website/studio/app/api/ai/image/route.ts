@@ -44,7 +44,13 @@ export async function POST(req: Request) {
 
   const frame = frameForCanvas(body.sizeId ?? 'og');
   const orient =
-    frame.aspectRatio === '16:9' ? 'wide landscape' : frame.aspectRatio === '3:4' ? 'tall portrait' : 'square';
+    frame.aspectRatio === '16:9'
+      ? 'wide landscape'
+      : frame.aspectRatio === '4:3'
+        ? 'landscape'
+        : frame.aspectRatio === '3:4'
+          ? 'tall portrait'
+          : 'square';
 
   try {
     let base64: string;

@@ -29,12 +29,17 @@ function AI_IMAGE_ALLOWED(id: string): boolean {
   return imageModelFor(id).id === id; // imageModelFor falls back to [0]; equal id ⇒ it was found
 }
 
-/** Aspect ratio + fixed size that best match a canvas size preset's orientation. */
-export function frameForCanvas(sizeId: string): { aspectRatio: '16:9' | '1:1' | '3:4'; size: '1536x1024' | '1024x1024' | '1024x1536' } {
+/** Aspect ratio + fixed size that best match a canvas size preset's orientation.
+ *  `size` (for size-only models like gpt-image) snaps to the nearest of the three
+ *  supported buckets; `aspectRatio` carries the finer 4:3 / 3:4 distinction. */
+export function frameForCanvas(
+  sizeId: string,
+): { aspectRatio: '16:9' | '4:3' | '1:1' | '3:4'; size: '1536x1024' | '1024x1024' | '1024x1536' } {
   const { width, height } = sizeFor(sizeId);
   const ratio = width / height;
-  if (ratio >= 1.2) return { aspectRatio: '16:9', size: '1536x1024' }; // landscape
-  if (ratio <= 0.83) return { aspectRatio: '3:4', size: '1024x1536' }; // portrait
+  if (ratio >= 1.5) return { aspectRatio: '16:9', size: '1536x1024' }; // wide landscape
+  if (ratio >= 1.15) return { aspectRatio: '4:3', size: '1536x1024' }; // landscape
+  if (ratio <= 0.85) return { aspectRatio: '3:4', size: '1024x1536' }; // portrait
   return { aspectRatio: '1:1', size: '1024x1024' }; // square-ish
 }
 

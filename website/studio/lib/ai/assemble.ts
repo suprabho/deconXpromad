@@ -64,7 +64,12 @@ export function assembleForegroundContent(
       return { type, tier: gen.tier };
 
     case 'ConnectorNode':
-      return { type, matches: gen.matches };
+      return {
+        type,
+        matches: gen.matches,
+        leftConnections: gen.leftConnections,
+        rightConnections: gen.rightConnections,
+      };
 
     case 'CaseCard':
       return {

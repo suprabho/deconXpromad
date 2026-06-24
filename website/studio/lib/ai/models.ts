@@ -22,7 +22,7 @@ export const AI_CONTENT_MODELS: ContentModel[] = [
  *  - 'image'      → experimental_generateImage, result.images[].base64
  *  - 'multimodal' → generateText, result.files[] (uint8Array) — e.g. Nano Banana
  * and how it accepts a frame shape:
- *  - 'aspectRatio' → pass aspectRatio: '16:9' | '1:1' | '3:4'
+ *  - 'aspectRatio' → pass aspectRatio: '16:9' | '4:3' | '1:1' | '3:4'
  *  - 'size'        → pass size: '1536x1024' | '1024x1024' | '1024x1536'
  */
 export type ImageModel = {

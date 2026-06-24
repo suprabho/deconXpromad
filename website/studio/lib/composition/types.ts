@@ -27,7 +27,9 @@ export type SizePreset = { id: string; label: string; width: number; height: num
 export const SIZE_PRESETS: SizePreset[] = [
   { id: 'og', label: 'OG / LinkedIn — 1200 × 630', width: 1200, height: 630 },
   { id: 'wide', label: 'Wide banner — 1600 × 900', width: 1600, height: 900 },
-  { id: 'square', label: 'Square — 1080 × 1080', width: 1080, height: 1080 },
+  { id: 'four-three', label: 'Landscape 4:3 — 1440 × 1080', width: 1440, height: 1080 },
+  { id: 'square', label: 'Square 1:1 — 1080 × 1080', width: 1080, height: 1080 },
+  { id: 'three-four', label: 'Portrait 3:4 — 1080 × 1440', width: 1080, height: 1440 },
   { id: 'story', label: 'Story / Portrait — 1080 × 1350', width: 1080, height: 1350 },
   { id: 'a-half', label: 'Half-width panel — 800 × 1000', width: 800, height: 1000 },
 ];
@@ -516,6 +518,9 @@ export type RiskTier = 'High' | 'Medium' | 'Low';
 export type CaseData = {
   title: string;
   subtitle: string;
+  /** Header badge glyph — any command-palette icon key (e.g. a law-enforcement
+   *  badge or an agency logo). Resolved to a node via APP_ICONS. */
+  icon: AppIconKey;
   subjectName: string;
   walletAddress: string;
   transactionId: string;
@@ -608,6 +613,14 @@ export type AppIconKey =
   | 'link'
   | 'binoculars'
   | 'share'
+  // Law-enforcement glyphs — badge, courts, forensics, patrol.
+  | 'shield-star'
+  | 'gavel'
+  | 'detective'
+  | 'fingerprint'
+  | 'siren'
+  | 'police-car'
+  | 'id-badge'
   // Real-organisation logo marks (bitmaps under /public/assets/logos), used for
   // brand badges in the command palette. Resolved to <img> nodes in APP_ICONS.
   | 'logo-fbi'
@@ -631,6 +644,13 @@ export const APP_ICON_KEYS: AppIconKey[] = [
   'link',
   'binoculars',
   'share',
+  'shield-star',
+  'gavel',
+  'detective',
+  'fingerprint',
+  'siren',
+  'police-car',
+  'id-badge',
   'logo-fbi',
   'logo-interpol',
   'logo-hsbc',
@@ -1059,7 +1079,7 @@ export type ForegroundContent =
   | ({ type: 'OverlapAlert' } & AlertData)
   | { type: 'RiskPill'; tier: RiskTier }
   | { type: 'CaseCard'; data: CaseData; reveal: CaseReveal }
-  | { type: 'ConnectorNode'; matches: number }
+  | { type: 'ConnectorNode'; matches: number; leftConnections?: number; rightConnections?: number }
   | ({ type: 'ActivityTimeline' } & TimelineData)
   | {
       type: 'DeconflictBanner';

@@ -265,6 +265,13 @@ const APP_ICON_LABELS: Record<AppIconKey, string> = {
   link: 'Link',
   binoculars: 'Binoculars',
   share: 'Share',
+  'shield-star': 'Police badge',
+  gavel: 'Gavel',
+  detective: 'Detective',
+  fingerprint: 'Fingerprint',
+  siren: 'Siren',
+  'police-car': 'Police car',
+  'id-badge': 'ID badge',
   'logo-fbi': 'FBI (logo)',
   'logo-interpol': 'INTERPOL (logo)',
   'logo-hsbc': 'HSBC (logo)',
@@ -373,6 +380,12 @@ function CaseDataFields({
     <div className="space-y-3">
       <TextField label="Card title" value={data.title} onChange={(v) => set('title', v)} />
       <TextField label="Subtitle" value={data.subtitle} onChange={(v) => set('subtitle', v)} />
+      <SelectField
+        label="Header icon"
+        value={data.icon}
+        onChange={(icon) => onData({ ...data, icon })}
+        options={APP_ICON_OPTS}
+      />
       <TextField label="Subject name" value={data.subjectName} onChange={(v) => set('subjectName', v)} />
       <Segmented
         label="↳ Subject reveal"
@@ -1804,12 +1817,30 @@ export function ForegroundContentEditor({
 
     case 'ConnectorNode':
       return (
-        <NumberField
-          label="Match count"
-          value={content.matches}
-          min={0}
-          onChange={(matches) => onChange({ type: 'ConnectorNode', matches })}
-        />
+        <div className="space-y-3">
+          <NumberField
+            label="Match count"
+            value={content.matches}
+            min={0}
+            onChange={(matches) => onChange({ ...content, type: 'ConnectorNode', matches })}
+          />
+          <div className="grid grid-cols-2 gap-2">
+            <NumberField
+              label="Left connections"
+              value={content.leftConnections ?? 3}
+              min={0}
+              max={8}
+              onChange={(leftConnections) => onChange({ ...content, type: 'ConnectorNode', leftConnections })}
+            />
+            <NumberField
+              label="Right connections"
+              value={content.rightConnections ?? 3}
+              min={0}
+              max={8}
+              onChange={(rightConnections) => onChange({ ...content, type: 'ConnectorNode', rightConnections })}
+            />
+          </div>
+        </div>
       );
 
     case 'Pattern':

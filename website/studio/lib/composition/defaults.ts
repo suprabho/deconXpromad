@@ -28,6 +28,7 @@ import { DEFAULT_FINGERPRINT, DEFAULT_PATTERN, DEFAULT_SIZE_ID, DEFAULT_TRANSFOR
 export const SAMPLE_LEFT_CASE: CaseData = {
   title: 'LAW ENFORCEMENT CASE',
   subtitle: 'FBI · Field Office 14 · Case #LE-2024-08821',
+  icon: 'shield-star',
   subjectName: 'Jonathan A. Reyes',
   walletAddress: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
   transactionId: 'TX-8842-0091-4471',
@@ -38,6 +39,7 @@ export const SAMPLE_LEFT_CASE: CaseData = {
 export const SAMPLE_RIGHT_CASE: CaseData = {
   title: 'FINANCIAL INSTITUTION CASE',
   subtitle: 'Meridian Bank · AML Unit · Case #FI-2024-3390',
+  icon: 'bank',
   subjectName: 'Acct. holder — withheld',
   walletAddress: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
   transactionId: 'TX-8842-0091-4471',
@@ -305,7 +307,7 @@ export function defaultForegroundContent(type: ForegroundType): ForegroundConten
     case 'CaseCard':
       return { type: 'CaseCard', data: { ...SAMPLE_LEFT_CASE }, reveal: { ...SAMPLE_REVEAL } };
     case 'ConnectorNode':
-      return { type: 'ConnectorNode', matches: 3 };
+      return { type: 'ConnectorNode', matches: 3, leftConnections: 3, rightConnections: 3 };
     case 'ActivityTimeline':
       return { type: 'ActivityTimeline', ...structuredClone(SAMPLE_TIMELINE) };
     case 'Pattern':
