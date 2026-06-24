@@ -34,25 +34,31 @@ export function Sparkline({
   const stroke = STROKES[tone];
 
   return (
-    <svg
-      viewBox="0 0 100 32"
-      preserveAspectRatio="none"
-      className={clsx('h-8 w-full', className)}
-      role="img"
-      aria-label="trend sparkline"
-    >
-      <path
-        d={linePath(pts, smooth)}
-        fill="none"
-        stroke={stroke}
-        strokeWidth={strokeWidth}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
-      />
+    <span className={clsx('relative block h-8 w-full', className)}>
+      <svg
+        viewBox="0 0 100 32"
+        preserveAspectRatio="none"
+        className="h-full w-full"
+        role="img"
+        aria-label="trend sparkline"
+      >
+        <path
+          d={linePath(pts, smooth)}
+          fill="none"
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+      {/* The dot lives outside the stretched SVG so it stays a circle at any width. */}
       {endDot && last && (
-        <circle cx={last.x} cy={last.y} r="2" fill={stroke} stroke="#fff" strokeWidth="1" />
+        <span
+          className="absolute h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full ring-1 ring-white"
+          style={{ left: `${last.x}%`, top: `${(last.y / 32) * 100}%`, backgroundColor: stroke }}
+        />
       )}
-    </svg>
+    </span>
   );
 }
