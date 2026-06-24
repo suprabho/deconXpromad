@@ -13,7 +13,12 @@ const IS_SERVERLESS = !!process.env.VERCEL_ENV || !!process.env.AWS_LAMBDA_FUNCT
  * - Serverless (Vercel/Lambda): the full `playwright` package's browser binary
  *   is never present in the function bundle, so we launch @sparticuz/chromium —
  *   a Lambda-compatible chromium build — through `playwright-core`. Graphics mode
- *   is left ON (default) so the aura iframe's WebGL/canvas background still paints.
+ *   is turned OFF: the /render export surface paints the aura as a cached <img>
+ *   still, never the live WebGL iframe (BackgroundLayer only mounts the iframe in
+ *   the editor), so GPU/WebGL is dead weight here. Disabling it gives a lighter,
+ *   more stable headless shell and removes the swiftshader GL crash surface — the
+ *   usual cause of "Target page/browser has been closed" mid-load when the
+ *   function is memory-constrained.
  * - Local dev / any long-running host: use full `playwright` with its bundled
  *   chromium (downloaded by the postinstall step).
  */
@@ -21,6 +26,7 @@ async function launchBrowser(): Promise<Browser> {
   if (IS_SERVERLESS) {
     const sparticuz = (await import('@sparticuz/chromium')).default;
     const { chromium } = await import('playwright-core');
+    sparticuz.setGraphicsMode = false;
     return chromium.launch({
       args: sparticuz.args,
       executablePath: await sparticuz.executablePath(),
@@ -52,7 +58,11 @@ export async function renderComposition(
       viewport: { width: size.width, height: size.height },
       deviceScaleFactor: scale,
     });
-    await page.goto(renderUrl, { waitUntil: 'networkidle', timeout: 30_000 });
+    // 'load' (not 'networkidle'): the export surface is static — its only async
+    // resource is the cached aura <img>, which 'load' waits for — so we don't need
+    // to wait out network quiescence, which Playwright discourages and which keeps
+    // the heavy page alive longer (a wider window for an OOM kill mid-navigation).
+    await page.goto(renderUrl, { waitUntil: 'load', timeout: 30_000 });
     // Fonts must be ready or text metrics drift from the editor preview.
     await page.evaluate(() => document.fonts.ready).catch(() => {});
     // Let the aura canvas warm up and settle into a representative frame.
